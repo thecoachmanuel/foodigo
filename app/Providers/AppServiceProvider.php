@@ -35,24 +35,57 @@ class AppServiceProvider extends ServiceProvider
     {
 
         try{
-            Cache::rememberForever('setting', function(){
-                $setting_data = GlobalSetting::get();
+            $loadSettings = function () {
+                $defaults = [
+                    'logo' => 'uploads/website-images/logo-2025-04-29-08-20-19-6442.svg',
+                    'favicon' => 'uploads/website-images/favicon-2025-04-29-08-20-19-6989.png',
+                    'app_name' => 'Foodigo',
+                    'app_version' => '1.0',
+                    'contact_message_mail' => 'admin@gmail.com',
+                    'timezone' => 'UTC',
+                    'selected_theme' => 'theme_two',
+                    'recaptcha_status' => '0',
+                    'recaptcha_site_key' => '',
+                    'recaptcha_secret_key' => '',
+                    'tawk_chat_link' => '',
+                    'breadcrumb_image' => 'uploads/website-images/breadcrumb-2024-09-12-06-30-58-9583.png',
+                    'not_found' => 'uploads/website-images/not-found-2024-09-12-06-30-58-9583.png',
+                    'default_avatar' => 'uploads/website-images/default-avatar.png',
+                    'placeholder_image' => 'uploads/website-images/placeholder.png',
+                    'delivery_charge' => '0',
+                    'admin_login' => 'uploads/website-images/admin-login.png',
+                    'login_image_one' => 'uploads/website-images/login-image-one.png',
+                    'login_title_one' => 'Welcome Back',
+                    'login_description_one' => 'Sign in to your account',
+                    'login_image_two' => 'uploads/website-images/login-image-two.png',
+                ];
 
-                $setting = array();
-
-                foreach($setting_data as $data_item){
-                    $setting[$data_item->key] = $data_item->value;
+                try {
+                    $setting_data = GlobalSetting::all();
+                    $setting = [];
+                    foreach ($setting_data as $data_item) {
+                        $setting[$data_item->key] = $data_item->value;
+                    }
+                    $merged = array_merge($defaults, $setting);
+                    return (object) $merged;
+                } catch (\Throwable $e) {
+                    return (object) $defaults;
                 }
+            };
 
-                $setting = (object) $setting;
+            $setting = Cache::get('setting');
+            if (!$setting || !is_object($setting) || empty($setting->favicon)) {
+                $setting = $loadSettings();
+                Cache::forever('setting', $setting);
+            }
 
-                return $setting;
-            });
-
-
-            View::composer('*', function($view){
+            View::composer('*', function($view) use ($loadSettings){
 
                 $general_setting = Cache::get('setting');
+                if (!$general_setting || !is_object($general_setting) || empty($general_setting->favicon)) {
+                    $general_setting = $loadSettings();
+                    Cache::forever('setting', $general_setting);
+                }
 
                 $language_list = Language::where('status', 1)->get();
                 $currency_list = Currency::where('status', 'active')->get();

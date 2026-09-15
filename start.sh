@@ -36,10 +36,12 @@ chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 # 3. Laravel Initialization
 echo "==> [Foodigo] Setting up Laravel..."
 php artisan storage:link --force 2>/dev/null || true
-php artisan optimize:clear
 php artisan foodigo:init-db --force-if-empty || true
 php artisan migrate --force || true
 php artisan module:migrate --force || true
+php artisan optimize:clear || true
+php artisan cache:clear || true
+php artisan view:clear || true
 
 # Re-apply 777 permissions after artisan clear
 chmod -R 777 storage bootstrap/cache /app/storage /app/bootstrap/cache 2>/dev/null || true
