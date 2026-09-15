@@ -38,6 +38,7 @@ echo "==> [Foodigo] Setting up Laravel..."
 php artisan storage:link --force 2>/dev/null || true
 php artisan optimize:clear
 php artisan migrate --force || true
+php artisan module:migrate --force || true
 
 # Re-apply 777 permissions after artisan clear
 chmod -R 777 storage bootstrap/cache /app/storage /app/bootstrap/cache 2>/dev/null || true
