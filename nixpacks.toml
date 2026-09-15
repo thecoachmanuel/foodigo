@@ -2,6 +2,7 @@
 [phases.setup]
 nixPkgs = [
   "...",
+  "php82",
   "php82Extensions.gd",
   "php82Extensions.pdo_mysql",
   "php82Extensions.zip",
@@ -13,7 +14,7 @@ nixPkgs = [
 
 [phases.build]
 cmds = [
-  "composer install --no-dev --optimize-autoloader --no-interaction",
+  "composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=php+",
   "npm install",
   "npm run build"
 ]
@@ -21,6 +22,7 @@ cmds = [
 [variables]
 NIXPACKS_PHP_ROOT_DIR = "/app/public"
 NIXPACKS_PHP_FALLBACK_PATH = "/index.php"
+COMPOSER_ALLOW_SUPERUSER = "1"
 
 [start]
 cmd = "bash ./start.sh"
