@@ -40,12 +40,11 @@ if [ -f "/assets/scripts/prestart.mjs" ] && [ -f "/assets/nginx.template.conf" ]
     node /assets/scripts/prestart.mjs /assets/nginx.template.conf /etc/nginx.conf 2>/dev/null || true
 fi
 
-# Ensure high upload limit (50M) in /etc/nginx.conf
-if [ -f "/etc/nginx.conf" ]; then
-    sed -i 's/client_max_body_size [^;]*;/client_max_body_size 50M;/g' /etc/nginx.conf 2>/dev/null || true
-    if ! grep -q "client_max_body_size" /etc/nginx.conf; then
-        sed -i '/http {/a \    client_max_body_size 50M;' /etc/nginx.conf 2>/dev/null || true
-    fi
+# Clean and sanitize Nginx configuration (deduplicate location /, set 50M body size, remove duplicate daemon)
+if [ -f "/app/clean-nginx.js" ]; then
+    node /app/clean-nginx.js || true
+elif [ -f "./clean-nginx.js" ]; then
+    node ./clean-nginx.js || true
 fi
 
 # Start PHP-FPM in background
@@ -55,11 +54,11 @@ else
     php-fpm -D
 fi
 
-# Start Nginx in foreground (Nixpacks template already includes 'daemon off;')
+# Start Nginx in foreground
 if [ -f "/etc/nginx.conf" ]; then
-    exec nginx -c /etc/nginx.conf
+    exec nginx -c /etc/nginx.conf -g 'daemon off;'
 elif [ -f "/etc/nginx/nginx.conf" ]; then
-    exec nginx -c /etc/nginx/nginx.conf
+    exec nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
 else
-    exec nginx
+    exec nginx -g 'daemon off;'
 fi
