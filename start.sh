@@ -29,16 +29,27 @@ chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
 # 3. Laravel Initialization
 echo "==> [Foodigo] Setting up Laravel..."
-php artisan storage:link || true
+php artisan storage:link --force 2>/dev/null || true
 php artisan optimize:clear
 
 # 4. Start PHP-FPM and Nginx Web Server
-echo "==> [Foodigo] Launching Nginx and PHP-FPM on port ${PORT:-8000}..."
+echo "==> [Foodigo] Launching Nginx and PHP-FPM on port ${PORT:-8080}..."
 
 # Process Nginx template if Nixpacks prestart script is available
 if [ -f "/assets/scripts/prestart.mjs" ]; then
-    node /assets/scripts/prestart.mjs /assets/nginx.template.conf /etc/nginx.conf 2>/dev/null || \
-    node /assets/scripts/prestart.mjs /app/nginx.template.conf /etc/nginx.conf 2>/dev/null || true
+    if [ -f "/app/nginx.template.conf" ]; then
+        node /assets/scripts/prestart.mjs /app/nginx.template.conf /etc/nginx.conf 2>/dev/null || true
+    elif [ -f "/assets/nginx.template.conf" ]; then
+        node /assets/scripts/prestart.mjs /assets/nginx.template.conf /etc/nginx.conf 2>/dev/null || true
+    fi
+fi
+
+# Strip any existing daemon directive to prevent duplicate directive errors
+if [ -f "/etc/nginx.conf" ]; then
+    sed -i '/daemon off;/d' /etc/nginx.conf 2>/dev/null || true
+fi
+if [ -f "/etc/nginx/nginx.conf" ]; then
+    sed -i '/daemon off;/d' /etc/nginx/nginx.conf 2>/dev/null || true
 fi
 
 # Start PHP-FPM in background
