@@ -4,18 +4,21 @@ set -e
 echo "==> [Foodigo] Starting Railway runtime initialization..."
 
 # 1. Setup Persistent Storage for Uploads
-echo "==> [Foodigo] Checking persistent uploads volume..."
+echo "==> [Foodigo] Synchronizing persistent uploads volume..."
 mkdir -p /app/storage/uploads
 
-# If volume is freshly mounted and empty, seed it with default images from the container build
-if [ ! -d "/app/storage/uploads/website-images" ] && [ -d "/app/public/uploads" ]; then
-    echo "==> [Foodigo] Populating persistent volume with initial demo and branding assets..."
-    cp -rn /app/public/uploads/* /app/storage/uploads/ 2>/dev/null || true
+# Populate persistent storage with all demo media, products, and branding assets from container build
+if [ -d "/app/public/uploads" ] && [ ! -L "/app/public/uploads" ]; then
+    echo "==> [Foodigo] Copying all packaged product photos, custom-images, and website assets to storage..."
+    cp -rn /app/public/uploads/. /app/storage/uploads/ 2>/dev/null || true
+    rm -rf /app/public/uploads
 fi
 
-# Link public/uploads to the persistent volume
-rm -rf /app/public/uploads
-ln -s /app/storage/uploads /app/public/uploads
+# Ensure public/uploads is linked to persistent volume
+if [ ! -L "/app/public/uploads" ]; then
+    rm -rf /app/public/uploads
+    ln -s /app/storage/uploads /app/public/uploads
+fi
 
 # 2. Ensure Required Storage Directories & Permissions
 echo "==> [Foodigo] Configuring storage directories and permissions..."
