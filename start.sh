@@ -35,21 +35,17 @@ php artisan optimize:clear
 # 4. Start PHP-FPM and Nginx Web Server
 echo "==> [Foodigo] Launching Nginx and PHP-FPM on port ${PORT:-8080}..."
 
-# Process Nginx template if Nixpacks prestart script is available
-if [ -f "/assets/scripts/prestart.mjs" ]; then
-    if [ -f "/app/nginx.template.conf" ]; then
-        node /assets/scripts/prestart.mjs /app/nginx.template.conf /etc/nginx.conf 2>/dev/null || true
-    elif [ -f "/assets/nginx.template.conf" ]; then
-        node /assets/scripts/prestart.mjs /assets/nginx.template.conf /etc/nginx.conf 2>/dev/null || true
-    fi
+# Process Nixpacks' native Nginx template
+if [ -f "/assets/scripts/prestart.mjs" ] && [ -f "/assets/nginx.template.conf" ]; then
+    node /assets/scripts/prestart.mjs /assets/nginx.template.conf /etc/nginx.conf 2>/dev/null || true
 fi
 
-# Strip any existing daemon directive to prevent duplicate directive errors
+# Ensure high upload limit (50M) in /etc/nginx.conf
 if [ -f "/etc/nginx.conf" ]; then
-    sed -i '/daemon off;/d' /etc/nginx.conf 2>/dev/null || true
-fi
-if [ -f "/etc/nginx/nginx.conf" ]; then
-    sed -i '/daemon off;/d' /etc/nginx/nginx.conf 2>/dev/null || true
+    sed -i 's/client_max_body_size [^;]*;/client_max_body_size 50M;/g' /etc/nginx.conf 2>/dev/null || true
+    if ! grep -q "client_max_body_size" /etc/nginx.conf; then
+        sed -i '/http {/a \    client_max_body_size 50M;' /etc/nginx.conf 2>/dev/null || true
+    fi
 fi
 
 # Start PHP-FPM in background
@@ -59,11 +55,11 @@ else
     php-fpm -D
 fi
 
-# Start Nginx in foreground
+# Start Nginx in foreground (Nixpacks template already includes 'daemon off;')
 if [ -f "/etc/nginx.conf" ]; then
-    exec nginx -c /etc/nginx.conf -g 'daemon off;'
+    exec nginx -c /etc/nginx.conf
 elif [ -f "/etc/nginx/nginx.conf" ]; then
-    exec nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
+    exec nginx -c /etc/nginx/nginx.conf
 else
-    exec nginx -g 'daemon off;'
+    exec nginx
 fi
