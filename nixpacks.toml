@@ -3,8 +3,9 @@ providers = ["php"]
 
 [phases.setup]
 nixPkgs = [
-  "php82",
+  "...",
   "nodejs_20",
+  "php82Packages.composer",
   "php82Extensions.gd",
   "php82Extensions.pdo_mysql",
   "php82Extensions.zip",
@@ -16,7 +17,6 @@ nixPkgs = [
 
 [phases.build]
 cmds = [
-  "composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=php+",
   "npm install",
   "npm run build"
 ]
