@@ -21,16 +21,25 @@ ln -s /app/storage/uploads /app/public/uploads
 echo "==> [Foodigo] Configuring storage directories and permissions..."
 mkdir -p storage/framework/sessions
 mkdir -p storage/framework/views
-mkdir -p storage/framework/cache
+mkdir -p storage/framework/cache/data
 mkdir -p storage/logs
+mkdir -p storage/uploads
 mkdir -p bootstrap/cache
 
-chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+# Clear stale cached files in bootstrap/cache
+rm -f bootstrap/cache/*.php 2>/dev/null || true
+
+# Grant full read/write permissions to storage and bootstrap cache
+chmod -R 777 storage bootstrap/cache /app/storage /app/bootstrap/cache 2>/dev/null || true
+chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
 # 3. Laravel Initialization
 echo "==> [Foodigo] Setting up Laravel..."
 php artisan storage:link --force 2>/dev/null || true
 php artisan optimize:clear
+
+# Re-apply 777 permissions after artisan clear
+chmod -R 777 storage bootstrap/cache /app/storage /app/bootstrap/cache 2>/dev/null || true
 
 # 4. Start PHP-FPM and Nginx Web Server
 echo "==> [Foodigo] Launching Nginx and PHP-FPM on port ${PORT:-8080}..."
@@ -40,7 +49,7 @@ if [ -f "/assets/scripts/prestart.mjs" ] && [ -f "/assets/nginx.template.conf" ]
     node /assets/scripts/prestart.mjs /assets/nginx.template.conf /etc/nginx.conf 2>/dev/null || true
 fi
 
-# Clean and sanitize Nginx configuration (deduplicate location /, set 50M body size, remove duplicate daemon)
+# Clean and sanitize Nginx configuration
 if [ -f "/app/clean-nginx.js" ]; then
     node /app/clean-nginx.js || true
 elif [ -f "./clean-nginx.js" ]; then
