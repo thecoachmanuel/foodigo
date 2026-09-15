@@ -1,8 +1,10 @@
 # Nixpacks configuration for Foodigo Laravel on Railway
+providers = ["php"]
+
 [phases.setup]
 nixPkgs = [
-  "...",
   "php82",
+  "nodejs_20",
   "php82Extensions.gd",
   "php82Extensions.pdo_mysql",
   "php82Extensions.zip",
