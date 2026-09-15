@@ -1,0 +1,26 @@
+# Nixpacks configuration for Foodigo Laravel on Railway
+[phases.setup]
+nixPkgs = [
+  "...",
+  "php82Extensions.gd",
+  "php82Extensions.pdo_mysql",
+  "php82Extensions.zip",
+  "php82Extensions.bcmath",
+  "php82Extensions.fileinfo",
+  "php82Extensions.curl",
+  "php82Extensions.mbstring"
+]
+
+[phases.build]
+cmds = [
+  "composer install --no-dev --optimize-autoloader --no-interaction",
+  "npm install",
+  "npm run build"
+]
+
+[variables]
+NIXPACKS_PHP_ROOT_DIR = "/app/public"
+NIXPACKS_PHP_FALLBACK_PATH = "/index.php"
+
+[start]
+cmd = "bash ./start.sh"
