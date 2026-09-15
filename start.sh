@@ -43,8 +43,8 @@ php artisan optimize:clear || true
 php artisan cache:clear || true
 php artisan view:clear || true
 
-# Re-apply 777 permissions after artisan clear
-chmod -R 777 storage bootstrap/cache /app/storage /app/bootstrap/cache 2>/dev/null || true
+# Re-apply permissions
+chmod -R 777 public storage bootstrap/cache /app/public /app/storage /app/bootstrap/cache 2>/dev/null || true
 
 # 4. Start PHP-FPM and Nginx Web Server
 echo "==> [Foodigo] Launching Nginx and PHP-FPM on port ${PORT:-8080}..."

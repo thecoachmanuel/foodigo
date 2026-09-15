@@ -25,6 +25,11 @@ function cleanNginxConfig(filePath) {
         return '';
     });
 
+    // 4. Ensure HTTPS and Forwarded headers are passed to FastCGI
+    if (!content.includes('HTTP_X_FORWARDED_PROTO') && content.includes('fastcgi_param')) {
+        content = content.replace(/(fastcgi_param\s+SCRIPT_FILENAME)/, 'fastcgi_param HTTP_X_FORWARDED_PROTO $http_x_forwarded_proto;\n        fastcgi_param HTTPS $http_x_forwarded_proto;\n        $1');
+    }
+
     fs.writeFileSync(filePath, content, 'utf8');
     console.log(`[Foodigo] Successfully cleaned and validated ${filePath}`);
 }

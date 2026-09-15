@@ -17,6 +17,7 @@ use Modules\Currency\App\Models\Currency;
 use Modules\Language\App\Models\Language;
 use Modules\GlobalSetting\App\Models\GlobalSetting;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (config('app.env') === 'production' || str_contains(config('app.url', ''), 'https://') || request()->server('HTTP_X_FORWARDED_PROTO') === 'https') {
+            URL::forceScheme('https');
+        }
 
         try{
             $loadSettings = function () {
