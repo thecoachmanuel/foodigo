@@ -8,7 +8,7 @@ use Image;
 use App\Models\DeliveryMan;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Models\DeliverymanWithdraw;
+use App\Models\DeliveryManWithdraw;
 use Illuminate\Support\Facades\Log;
 use Modules\Order\App\Models\Order;
 use App\Http\Controllers\Controller;
@@ -24,8 +24,8 @@ class DeliveryManController extends Controller
     public function deliveryman_show($id){
 
         $deliveryman=DeliveryMan::findOrFail($id);
-        $withdraw_list = DeliverymanWithdraw::where('deliveryman_id', $id)->get();
-        $withdraw_without_reject_list = DeliverymanWithdraw::where('deliveryman_id', $id)->where('status', '!=','rejected')->get();
+        $withdraw_list = DeliveryManWithdraw::where('deliveryman_id', $id)->get();
+        $withdraw_without_reject_list = DeliveryManWithdraw::where('deliveryman_id', $id)->where('status', '!=','rejected')->get();
 
         $complete = (float) Order::where('delivery_man_id', $id)->where('payment_status', 'success')->where('order_request', 3)->sum('delivery_charge');
         $cancel = (float) Order::where('delivery_man_id', $id)->where('payment_status', 'success')->where('order_request', 4)->sum('delivery_charge');
@@ -44,7 +44,7 @@ class DeliveryManController extends Controller
 
         $current_balance = $net_income - $total_withdraw_amount;
 
-        $pending_withdraw = (float) DeliverymanWithdraw::where('deliveryman_id', $id)->where('status', 'pending')->sum('total_amount');
+        $pending_withdraw = (float) DeliveryManWithdraw::where('deliveryman_id', $id)->where('status', 'pending')->sum('total_amount');
 
         $orders=Order::where('delivery_man_id', $id)->get();
 
