@@ -540,6 +540,7 @@
             overflow: hidden !important;
             position: relative !important;
             background-color: #f1f5f9 !important;
+            border-radius: 16px 16px 0 0 !important;
         }
         .profile_informetion_bg img {
             width: 100% !important;
@@ -551,23 +552,32 @@
         .profile_informetion_main {
             padding: 0 28px 24px 28px !important;
             position: relative !important;
+            background-color: #ffffff !important;
+            border-radius: 0 0 16px 16px !important;
         }
         .profile_informetion_main .company_logo {
-            margin-top: -55px !important;
-            height: 110px !important;
-            width: 110px !important;
+            margin-top: -60px !important;
+            height: 120px !important;
+            width: 120px !important;
+            min-width: 120px !important;
             border-radius: 50% !important;
             border: 4px solid #ffffff !important;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16) !important;
             background: #ffffff !important;
             position: relative !important;
-            z-index: 5 !important;
+            z-index: 10 !important;
             overflow: hidden !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         .profile_informetion_main .company_logo img {
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
+            object-position: center !important;
+            border-radius: 50% !important;
+            display: block !important;
         }
         @media (max-width: 768px) {
             .profile_bg {
@@ -582,10 +592,11 @@
                 padding: 0 16px 18px 16px !important;
             }
             .profile_informetion_main .company_logo {
-                margin-top: -40px !important;
-                height: 80px !important;
-                width: 80px !important;
-                border-width: 3px !important;
+                margin-top: -45px !important;
+                height: 90px !important;
+                width: 90px !important;
+                min-width: 90px !important;
+                border-width: 3.5px !important;
             }
         }
     </style>
