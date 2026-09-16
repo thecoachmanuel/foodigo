@@ -259,12 +259,76 @@
         #google_map_area {
             display: none !important;
         }
+
+        /* High-Contrast Pure Black on White Autocomplete Dropdown */
+        .nga-geo-wrapper {
+            position: relative !important;
+            width: 100% !important;
+            display: block !important;
+        }
+        .nga-geo-dropdown {
+            position: absolute !important;
+            top: calc(100% + 4px) !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            min-width: 100% !important;
+            z-index: 10000050 !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            border: 2px solid #000000 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.35), 0 8px 15px -6px rgba(0, 0, 0, 0.2) !important;
+            max-height: 290px !important;
+            overflow-y: auto !important;
+            padding: 0 !important;
+            display: none;
+            font-family: inherit !important;
+        }
+        .nga-geo-item {
+            padding: 12px 15px !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            transition: all 0.15s ease !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            font-size: 14.5px !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            text-align: left !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            min-height: 48px !important;
+        }
+        .nga-geo-item:hover, .nga-geo-item.active {
+            background-color: #f1f5f9 !important;
+            border-left: 4px solid #ea580c !important;
+            padding-left: 14px !important;
+        }
+        .nga-geo-title {
+            font-weight: 700 !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-size: 15px !important;
+            line-height: 1.35 !important;
+            display: block !important;
+            text-shadow: none !important;
+        }
+        .nga-geo-subtitle {
+            font-size: 13.5px !important;
+            color: #1e293b !important;
+            -webkit-text-fill-color: #1e293b !important;
+            font-weight: 600 !important;
+            line-height: 1.3 !important;
+            margin-top: 2px !important;
+            display: block !important;
+            text-shadow: none !important;
+        }
     </style>
 @endpush
 
 @push('js_section')
-    <script src="{{ asset('frontend/js/nigeria-geo-autocomplete.js') }}"></script>
-
     <script>
         "use strict";
 

@@ -12,42 +12,7 @@ use Illuminate\Support\Facades\Log;
 class GeocodeController extends Controller
 {
     /**
-     * Curated local fallback dictionary for offline and lightning-fast Nigerian queries.
-     */
-    protected array $localHubs = [
-        ['name' => 'Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4250, 'lng' => 3.9050, 'type' => 'area'],
-        ['name' => 'Old Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4180, 'lng' => 3.9010, 'type' => 'area'],
-        ['name' => 'New Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4320, 'lng' => 3.9120, 'type' => 'area'],
-        ['name' => 'Awolowo Avenue, Old Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4208, 'lng' => 3.9015, 'type' => 'street'],
-        ['name' => 'Oshuntokun Avenue, Old Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4275, 'lng' => 3.9068, 'type' => 'street'],
-        ['name' => 'Aare Avenue, New Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4365, 'lng' => 3.9110, 'type' => 'street'],
-        ['name' => 'Francis Okediji Street, Old Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4240, 'lng' => 3.9035, 'type' => 'street'],
-        ['name' => 'Favos Junction, Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4280, 'lng' => 3.9060, 'type' => 'landmark'],
-        ['name' => 'Bodija Shopping Complex, New Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4320, 'lng' => 3.9142, 'type' => 'landmark'],
-        ['name' => 'Bodija Market, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4330, 'lng' => 3.9180, 'type' => 'landmark'],
-        ['name' => 'Bodija Housing Estate, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4220, 'lng' => 3.9040, 'type' => 'estate'],
-        ['name' => 'Secretariat Road, Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4172, 'lng' => 3.9095, 'type' => 'street'],
-        ['name' => 'Kongi, Bodija, Ibadan', 'city' => 'Bodija', 'state' => 'Oyo', 'lat' => 7.4390, 'lng' => 3.9020, 'type' => 'area'],
-        ['name' => 'Samonda, Ibadan', 'city' => 'Samonda', 'state' => 'Oyo', 'lat' => 7.4260, 'lng' => 3.8890, 'type' => 'area'],
-        ['name' => 'Ventura Mall, Samonda, Ibadan', 'city' => 'Samonda', 'state' => 'Oyo', 'lat' => 7.4255, 'lng' => 3.8885, 'type' => 'landmark'],
-        ['name' => 'University of Ibadan (UI Main Gate)', 'city' => 'UI', 'state' => 'Oyo', 'lat' => 7.4420, 'lng' => 3.9000, 'type' => 'landmark'],
-        ['name' => 'Sango, Ibadan', 'city' => 'Sango', 'state' => 'Oyo', 'lat' => 7.4280, 'lng' => 3.8820, 'type' => 'area'],
-        ['name' => 'Agodi GRA, Ibadan', 'city' => 'Agodi', 'state' => 'Oyo', 'lat' => 7.4120, 'lng' => 3.9140, 'type' => 'estate'],
-        ['name' => 'Dugbe Commercial Hub, Ibadan', 'city' => 'Dugbe', 'state' => 'Oyo', 'lat' => 7.3880, 'lng' => 3.8810, 'type' => 'area'],
-        ['name' => 'Ring Road, Ibadan', 'city' => 'Ring Road', 'state' => 'Oyo', 'lat' => 7.3620, 'lng' => 3.8720, 'type' => 'area'],
-        ['name' => 'Challenge, Ibadan', 'city' => 'Challenge', 'state' => 'Oyo', 'lat' => 7.3480, 'lng' => 3.8820, 'type' => 'area'],
-        ['name' => 'Akobo, Ibadan', 'city' => 'Akobo', 'state' => 'Oyo', 'lat' => 7.4480, 'lng' => 3.9420, 'type' => 'area'],
-        ['name' => 'Jericho GRA, Ibadan', 'city' => 'Jericho', 'state' => 'Oyo', 'lat' => 7.3910, 'lng' => 3.8640, 'type' => 'estate'],
-        ['name' => 'Ikeja, Lagos', 'city' => 'Ikeja', 'state' => 'Lagos', 'lat' => 6.6018, 'lng' => 3.3515, 'type' => 'city'],
-        ['name' => 'Victoria Island (VI), Lagos', 'city' => 'Victoria Island', 'state' => 'Lagos', 'lat' => 6.4281, 'lng' => 3.4219, 'type' => 'city'],
-        ['name' => 'Lekki Phase 1, Lagos', 'city' => 'Lekki', 'state' => 'Lagos', 'lat' => 6.4474, 'lng' => 3.4723, 'type' => 'area'],
-        ['name' => 'Ikoyi, Lagos', 'city' => 'Ikoyi', 'state' => 'Lagos', 'lat' => 6.4549, 'lng' => 3.4346, 'type' => 'area'],
-        ['name' => 'Wuse 2, Abuja', 'city' => 'Wuse', 'state' => 'FCT', 'lat' => 9.0797, 'lng' => 7.4723, 'type' => 'area'],
-        ['name' => 'Maitama, Abuja', 'city' => 'Maitama', 'state' => 'FCT', 'lat' => 9.0882, 'lng' => 7.4934, 'type' => 'estate'],
-    ];
-
-    /**
-     * Real-time search endpoint using live OpenStreetMap Nominatim API + local fallback.
+     * Real-time search endpoint using live OpenStreetMap Nominatim API.
      */
     public function search(Request $request)
     {
@@ -56,13 +21,13 @@ class GeocodeController extends Controller
             return response()->json([]);
         }
 
-        $cacheKey = 'geocode_search_osm_' . md5(strtolower($query));
+        $cacheKey = 'geocode_osm_live_' . md5(strtolower($query));
         $results = Cache::remember($cacheKey, 86400, function () use ($query) {
             $onlineResults = [];
 
-            // 1. Query OpenStreetMap Nominatim Live Engine
+            // Query OpenStreetMap Nominatim Live Engine
             try {
-                $response = Http::connectTimeout(2.5)->timeout(4.0)
+                $response = Http::connectTimeout(3.0)->timeout(5.0)
                     ->withHeaders(['User-Agent' => 'FoodigoDeliveryApp/1.0 (contact@foodigo.ng)'])
                     ->get('https://nominatim.openstreetmap.org/search', [
                         'format' => 'json',
@@ -102,13 +67,7 @@ class GeocodeController extends Controller
                 Log::warning('OSM Nominatim search error: ' . $e->getMessage());
             }
 
-            // Return real OSM results if found
-            if (!empty($onlineResults)) {
-                return $onlineResults;
-            }
-
-            // Fallback to local dictionary only if OSM returns empty or fails
-            return $this->searchLocal($query);
+            return $onlineResults;
         });
 
         return response()->json(array_values($results));
@@ -131,10 +90,10 @@ class GeocodeController extends Controller
             ]);
         }
 
-        $cacheKey = 'geocode_rev_osm_' . round($lat, 5) . '_' . round($lng, 5);
+        $cacheKey = 'geocode_rev_live_' . round($lat, 5) . '_' . round($lng, 5);
         $address = Cache::remember($cacheKey, 86400, function () use ($lat, $lng) {
             try {
-                $response = Http::connectTimeout(2.5)->timeout(4.0)
+                $response = Http::connectTimeout(3.0)->timeout(5.0)
                     ->withHeaders(['User-Agent' => 'FoodigoDeliveryApp/1.0 (contact@foodigo.ng)'])
                     ->get('https://nominatim.openstreetmap.org/reverse', [
                         'format' => 'json',
@@ -155,20 +114,22 @@ class GeocodeController extends Controller
                     $state = $addr['state'] ?? 'Nigeria';
 
                     $parts = array_filter([$primary, $road, $suburb, $city, $state]);
-                    $clean = implode(', ', array_unique($parts));
-                    if (!empty($clean)) {
-                        return $clean;
+                    $unique = array_unique($parts);
+
+                    if (!empty($unique)) {
+                        return implode(', ', $unique);
                     }
+
                     if (!empty($data['display_name'])) {
-                        return $data['display_name'];
+                        $rawParts = array_slice(explode(', ', $data['display_name']), 0, 4);
+                        return implode(', ', $rawParts);
                     }
                 }
             } catch (\Throwable $e) {
-                Log::warning('OSM reverse geocode error: ' . $e->getMessage());
+                Log::warning('OSM Nominatim reverse error: ' . $e->getMessage());
             }
 
-            $closeLocal = $this->findClosestLocal($lat, $lng);
-            return $closeLocal ? $closeLocal['name'] : 'Bodija, Ibadan, Oyo State';
+            return 'Bodija, Ibadan, Oyo State';
         });
 
         return response()->json([
@@ -180,7 +141,7 @@ class GeocodeController extends Controller
     }
 
     /**
-     * Silent location setter saving user address and coordinates to session.
+     * Silent location setter for background GPS detection without popups.
      */
     public function silentSetLocation(Request $request)
     {
@@ -211,49 +172,5 @@ class GeocodeController extends Controller
             'latitude' => $lat,
             'longitude' => $lng,
         ]);
-    }
-
-    /**
-     * Search local hubs matching all query terms.
-     */
-    protected function searchLocal(string $query): array
-    {
-        $clean = strtolower(trim($query));
-        $terms = array_filter(explode(' ', $clean));
-
-        return array_values(array_filter($this->localHubs, function ($hub) use ($terms) {
-            $haystack = strtolower($hub['name'] . ' ' . $hub['city'] . ' ' . $hub['state']);
-            foreach ($terms as $term) {
-                if (!str_contains($haystack, $term)) {
-                    return false;
-                }
-            }
-            return true;
-        }));
-    }
-
-    /**
-     * Find closest local hub by Haversine distance.
-     */
-    protected function findClosestLocal(float $lat, float $lng): ?array
-    {
-        $best = null;
-        $minDist = PHP_FLOAT_MAX;
-
-        foreach ($this->localHubs as $hub) {
-            $dLat = deg2rad($hub['lat'] - $lat);
-            $dLng = deg2rad($hub['lng'] - $lng);
-            $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat)) * cos(deg2rad($hub['lat'])) * sin($dLng/2) * sin($dLng/2);
-            $c = 2 * atan2(sqrt($a), sqrt(1-$a));
-            $d = 6371 * $c;
-
-            if ($d < $minDist) {
-                $minDist = $d;
-                $best = $hub;
-                $best['dist'] = $d;
-            }
-        }
-
-        return $minDist < 50 ? $best : null;
     }
 }
