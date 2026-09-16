@@ -71,9 +71,9 @@
                                                         <td class="crancy-table__column-2 crancy-table__data-2">
                                                             <h4 class="crancy-table__product-title">
                                                                 @php
-                                                                    $varification_link="{{order_id}}";
+                                                                    $order_id="{{order_id}}";
                                                                 @endphp
-                                                                {{ $varification_link }}
+                                                                {{ $order_id }}
                                                             </h4>
                                                         </td>
 

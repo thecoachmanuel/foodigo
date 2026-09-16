@@ -426,7 +426,7 @@
                                 </div>
                             </div>
 
-                            <button class="crancy-btn mg-top-25 reset_btn user_delete_btn" type="button" >{{ __('translate.Cancle') }}</button>
+                            <a href="{{ route('admin.restaurants.index') }}" class="crancy-btn mg-top-25 reset_btn user_delete_btn" style="text-decoration: none; display: inline-block; text-align: center;">{{ __('translate.Cancel') }}</a>
                             <button class="crancy-btn mg-top-25" type="submit">{{ __('translate.Save Data') }}</button>
                         </div>
                         <!-- End Dashboard Inner -->

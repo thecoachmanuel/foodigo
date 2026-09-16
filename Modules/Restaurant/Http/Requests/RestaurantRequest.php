@@ -16,32 +16,36 @@ class RestaurantRequest extends FormRequest
         $rules = [
             'restaurant_name' => 'required|max:255',
             'city_id' => 'required',
-            'cuisines' => 'required',
+            'cuisines' => 'required|array',
             'whatsapp' => 'required|max:255',
             'address' => 'required|max:255',
             'latitude' => 'required',
             'longitude' => 'required',
             'max_delivery_distance' => 'required|numeric',
             'owner_name' => 'required|max:255',
-            'owner_email' => 'required|max:255',
+            'owner_email' => 'required|max:255|email',
             'owner_phone' => 'required|max:255',
             'name' => 'required|max:255',
             'opening_hour' => 'required|max:255',
             'closing_hour' => 'required|max:255',
-            'min_processing_time' => 'required|max:255|numeric',
-            'max_processing_time' => 'required|max:255|numeric',
-            'time_slot_separate' => 'required|max:255|numeric',
+            'min_processing_time' => 'required|numeric',
+            'max_processing_time' => 'required|numeric',
+            'time_slot_separate' => 'required|numeric',
         ];
 
         if ($this->isMethod('post')) {
-            $rules = [
-                'slug' => 'required|unique:restaurants|max:255',
-                'logo' => 'required|image|mimes:jpeg,jpg,png',
-                'cover_image' => 'required|image|mimes:jpeg,jpg,png,webp',
-                'email' => 'required|max:255|email|unique:restaurants',
-                'password' => 'required|max:255|min:4',
-            ];
-
+            $rules['slug'] = 'required|unique:restaurants,slug|max:255';
+            $rules['logo'] = 'required|image|mimes:jpeg,jpg,png,webp,svg';
+            $rules['cover_image'] = 'required|image|mimes:jpeg,jpg,png,webp,svg';
+            $rules['email'] = 'required|max:255|email|unique:restaurants,email';
+            $rules['password'] = 'required|max:255|min:4';
+        } else {
+            $restaurantId = $this->route('restaurant');
+            $rules['slug'] = 'nullable|max:255|unique:restaurants,slug,' . $restaurantId;
+            $rules['email'] = 'nullable|max:255|email|unique:restaurants,email,' . $restaurantId;
+            $rules['logo'] = 'nullable|image|mimes:jpeg,jpg,png,webp,svg';
+            $rules['cover_image'] = 'nullable|image|mimes:jpeg,jpg,png,webp,svg';
+            $rules['password'] = 'nullable|min:4|max:255';
         }
 
         return $rules;

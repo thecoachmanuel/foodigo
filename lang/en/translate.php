@@ -500,7 +500,8 @@
   'Password Reset successfully' => 'Password Reset successfully',
   'Password confirmation does not match' => 'Password confirmation does not match',
   'You have to provide minimum 4 characters' => 'You have to provide minimum 4 characters',
-  'A varification link has been send to your mail, please verify and enjoy our service' => 'A varification link has been send to your mail, please verify and enjoy our service',
+  'A varification link has been send to your mail, please verify and enjoy our service' => 'A verification link has been sent to your mail, please verify and enjoy our service',
+  'A verification link has been sent to your mail, please verify and enjoy our service' => 'A verification link has been sent to your mail, please verify and enjoy our service',
   'Email already verified' => 'Email already verified',
   'Verification Successfully' => 'Verification Successfully',
   'Invalid token' => 'Invalid token',
@@ -868,7 +869,8 @@
   'Remove' => 'Remove',
   'You can not delete this restaurant, multiple products available under this restaurant' => 'You can not delete this restaurant, multiple products available under this restaurant',
   'Create Restaurant' => 'Create Restaurant',
-  'Cancle' => 'Cancle',
+  'Cancle' => 'Cancel',
+  'Cancel' => 'Cancel',
   'Save Data' => 'Save Data',
   'User denied the request for Geolocation.' => 'User denied the request for Geolocation.',
   'No details available for input.' => 'No details available for input.',
@@ -1244,6 +1246,8 @@
   'Disable (Users can sign in instantly)' => 'Disable (Users can sign in instantly)',
   'Enable (Compulsory email verification)' => 'Enable (Compulsory email verification)',
   'Registration successfully. You are now signed in.' => 'Registration successfully. You are now signed in.',
+  'Leave blank to keep current' => 'Leave blank to keep current',
+  'Enter new password' => 'Enter new password',
 );
 
 

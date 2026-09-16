@@ -67,7 +67,7 @@ class UserRegisterController extends Controller
         $subject=$template->subject;
         $message=$template->description;
         $message = str_replace('{{user_name}}',$request->name,$message);
-        $message = str_replace('{{varification_link}}',$verification_link,$message);
+        $message = str_replace(['{{varification_link}}', '{{verification_link}}', '{verification_link}'], $verification_link, $message);
 
         try {
             Mail::to($user->email)->send(new UserRegistrationMail($message,$subject,$user));
@@ -75,8 +75,8 @@ class UserRegisterController extends Controller
             Log::info($exception->getMessage());
         }
 
-        $notification= trans('translate.A varification link has been send to your mail, please verify and enjoy our service');
-        $notification=array('message'=>$notification,'alert-type'=>'success');
+        $notification = trans('translate.A verification link has been sent to your mail, please verify and enjoy our service');
+        $notification = array('message' => $notification, 'alert-type' => 'success');
         return redirect()->back()->with($notification);
 
     }

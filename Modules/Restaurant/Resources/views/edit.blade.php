@@ -284,14 +284,19 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-12">
+                                            <div class="col-md-6 col-12">
                                                 <div class="crancy__item-form--group mg-top-form-20">
                                                     <label class="crancy__item-label">{{ __('translate.Email') }} * </label>
-                                                    <input class="crancy__item-input" type="email" name="email" id="email" value="{{ $restaurant->email }}" readonly>
+                                                    <input class="crancy__item-input" type="email" name="email" id="email" value="{{ $restaurant->email }}">
                                                 </div>
                                             </div>
 
-
+                                            <div class="col-md-6 col-12">
+                                                <div class="crancy__item-form--group mg-top-form-20">
+                                                    <label class="crancy__item-label">{{ __('translate.Password') }} ({{ __('translate.Leave blank to keep current') }})</label>
+                                                    <input class="crancy__item-input" type="password" name="password" id="password" placeholder="{{ __('translate.Enter new password') }}">
+                                                </div>
+                                            </div>
 
                                         </div>
 
@@ -326,6 +331,17 @@
                                             <h4 class="crancy-product-card__title">{{ __('translate.Others Information') }}</h4>
                                         </div>
                                         <div class="row">
+
+                                            <div class="col-md-6">
+                                                <div class="crancy__item-form--group mg-top-form-20">
+                                                    <label class="crancy__item-label">{{ __('translate.Approval Status') }} *</label>
+                                                    <select class="form-select crancy__item-input" name="admin_approval">
+                                                        <option value="enable" {{ $restaurant->admin_approval == 'enable' ? 'selected' : '' }}>{{ __('translate.Approved') }}</option>
+                                                        <option value="awaiting" {{ $restaurant->admin_approval == 'awaiting' ? 'selected' : '' }}>{{ __('translate.Awaiting') }}</option>
+                                                        <option value="rejected" {{ $restaurant->admin_approval == 'rejected' ? 'selected' : '' }}>{{ __('translate.Reject') }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
 
                                             <div class="col-md-6">
                                                 <div class="crancy__item-form--group mg-top-form-20">
@@ -384,7 +400,6 @@
                                                         </label>
                                                     </div>
                                                 </div>
-
                                             </div>
 
                                             <div class="col-md-2">
@@ -422,7 +437,7 @@
                                 </div>
                             </div>
 
-                            <button class="crancy-btn mg-top-25 reset_btn user_delete_btn" type="button" >{{ __('translate.Cancle') }}</button>
+                            <a href="{{ route('admin.restaurants.index') }}" class="crancy-btn mg-top-25 reset_btn user_delete_btn" style="text-decoration: none; display: inline-block; text-align: center;">{{ __('translate.Cancel') }}</a>
                             <button class="crancy-btn mg-top-25" type="submit">{{ __('translate.Save Data') }}</button>
                         </div>
                         <!-- End Dashboard Inner -->

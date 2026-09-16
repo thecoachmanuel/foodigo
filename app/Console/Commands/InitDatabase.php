@@ -165,6 +165,14 @@ class InitDatabase extends Command
                     ]);
                 }
             }
+
+            if (Schema::hasTable('email_templates')) {
+                DB::table('email_templates')
+                    ->where('description', 'like', '%{{varification_link}}%')
+                    ->update([
+                        'description' => DB::raw("REPLACE(description, '{{varification_link}}', '{{verification_link}}')")
+                    ]);
+            }
         } catch (\Throwable $e) {
             Log::warning('Settings configuration notice: ' . $e->getMessage());
         }

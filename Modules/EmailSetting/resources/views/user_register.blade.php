@@ -71,9 +71,9 @@
                                                         <td class="crancy-table__column-2 crancy-table__data-2">
                                                             <h4 class="crancy-table__product-title">
                                                                 @php
-                                                                    $varification_link="{{varification_link}}";
+                                                                    $verification_link="{{verification_link}}";
                                                                 @endphp
-                                                                {{ $varification_link }}
+                                                                {{ $verification_link }}
                                                             </h4>
                                                         </td>
 

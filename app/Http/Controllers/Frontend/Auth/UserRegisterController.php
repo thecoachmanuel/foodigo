@@ -118,7 +118,7 @@ class UserRegisterController extends Controller
         }
 
         if ($mailSent) {
-            $notification = trans('translate.A varification link has been send to your mail, please verify and enjoy our service');
+            $notification = trans('translate.A verification link has been sent to your mail, please verify and enjoy our service');
             $notification = array('message' => $notification, 'alert-type' => 'success');
             return redirect()->route('login')->with($notification);
         } else {
@@ -209,7 +209,7 @@ class UserRegisterController extends Controller
         }
 
         if ($mailSent) {
-            $notification = trans('translate.A varification link has been send to your mail, please verify and enjoy our service');
+            $notification = trans('translate.A verification link has been sent to your mail, please verify and enjoy our service');
             return redirect()->route('login')->with(['message' => $notification, 'alert-type' => 'success']);
         } else {
             // Auto-verify as failover
