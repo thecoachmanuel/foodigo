@@ -41,13 +41,8 @@ class InitDatabase extends Command
         }
 
         if ($hasData && !$force) {
-            $this->info('Foodigo database already contains data.');
+            $this->info('Foodigo database already contains data. Skipping re-seeding to preserve custom admin data.');
             $this->ensureNairaCurrency();
-            try {
-                $this->call('foodigo:seed-nigerian-data');
-            } catch (\Throwable $e) {
-                $this->warn('Nigerian data seed notice: ' . $e->getMessage());
-            }
             return 0;
         }
 

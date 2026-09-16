@@ -100,9 +100,23 @@ class HomeController extends Controller
 
         $blogs = Blog::where('status', 1)->latest()->take(3)->get();
 
+        $activeRestaurantCuisines = Restaurant::where('is_banned', 'disable')
+            ->where('admin_approval', 'enable')
+            ->pluck('cuisines');
+
+        $cuisineCounts = [];
+        foreach ($activeRestaurantCuisines as $jsonCuisines) {
+            $ids = is_string($jsonCuisines) ? json_decode($jsonCuisines, true) : (is_array($jsonCuisines) ? $jsonCuisines : []);
+            if (is_array($ids)) {
+                foreach ($ids as $cid) {
+                    $cid = (string)$cid;
+                    $cuisineCounts[$cid] = ($cuisineCounts[$cid] ?? 0) + 1;
+                }
+            }
+        }
+
         foreach ($cuisines as $cuisine) {
-            $restaurant_count = Restaurant::where('is_banned', 'disable')->where('admin_approval', 'enable')->whereJsonContains('cuisines', "$cuisine->id")->count();
-            $cuisine->total_restaurant = $restaurant_count;
+            $cuisine->total_restaurant = $cuisineCounts[(string)$cuisine->id] ?? 0;
         }
 
         $seo_setting = SeoSetting::where('id', 1)->first();

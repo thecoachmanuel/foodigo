@@ -206,6 +206,7 @@
 
 		<script src="{{ asset('backend/js/main.js') }}"></script>
         <script src="{{ asset('global/toastr/toastr.min.js') }}"></script>
+        <script src="{{ asset('global/toastr/swipe-toast.js') }}"></script>
 
 
 

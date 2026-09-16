@@ -46,13 +46,22 @@ class RestaurantOrderController extends Controller
         return view('order::restaurant.invoice',compact('order'));
     }
 
-    public function order_status_change(Request $request, $id): RedirectResponse
+    public function order_status_change(Request $request, $id)
     {
-        $order = Order::find($id);
+        $order = Order::findOrFail($id);
         $order->order_status = $request->order_status;
         $order->save();
 
         $message = trans('translate.Status Changed Successfully');
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+                'order_status' => (int)$order->order_status
+            ]);
+        }
+
         $notification = array('message'=>$message,'alert-type'=>'success');
         return redirect()->back()->with($notification);
     }

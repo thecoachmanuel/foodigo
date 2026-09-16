@@ -37,32 +37,40 @@ function amount($amount) {
 
 
 function currency($price){
-    $currency_icon = Session::get('currency_icon');
-    $currency_rate = Session::get('currency_rate');
-    $currency_position = Session::get('currency_position');
+    static $currency_icon = null;
+    static $currency_rate = null;
+    static $currency_position = null;
 
-    if (!$currency_icon || !$currency_rate) {
-        $default_currency = \Modules\Currency\App\Models\Currency::where('is_default', 'yes')->where('status', 'active')->first()
-            ?? \Modules\Currency\App\Models\Currency::where('currency_code', 'NGN')->first()
-            ?? \Modules\Currency\App\Models\Currency::where('status', 'active')->first()
-            ?? \Modules\Currency\App\Models\Currency::first();
+    if ($currency_icon === null || $currency_rate === null) {
+        $currency_icon = Session::get('currency_icon');
+        $currency_rate = Session::get('currency_rate');
+        $currency_position = Session::get('currency_position');
 
-        if ($default_currency) {
-            $currency_icon = $default_currency->currency_icon ?: '₦';
-            $currency_rate = $default_currency->currency_rate ?: 1;
-            $currency_position = $default_currency->currency_position ?: 'before_price';
+        if (!$currency_icon || !$currency_rate) {
+            $default_currency = \Illuminate\Support\Facades\Cache::remember('default_active_currency', 3600, function() {
+                return \Modules\Currency\App\Models\Currency::where('is_default', 'yes')->where('status', 'active')->first()
+                    ?? \Modules\Currency\App\Models\Currency::where('currency_code', 'NGN')->first()
+                    ?? \Modules\Currency\App\Models\Currency::where('status', 'active')->first()
+                    ?? \Modules\Currency\App\Models\Currency::first();
+            });
 
-            try {
-                Session::put('currency_name', $default_currency->currency_name);
-                Session::put('currency_code', $default_currency->currency_code);
-                Session::put('currency_icon', $currency_icon);
-                Session::put('currency_rate', $currency_rate);
-                Session::put('currency_position', $currency_position);
-            } catch (\Throwable $e) {}
-        } else {
-            $currency_icon = '₦';
-            $currency_rate = 1;
-            $currency_position = 'before_price';
+            if ($default_currency) {
+                $currency_icon = $default_currency->currency_icon ?: '₦';
+                $currency_rate = $default_currency->currency_rate ?: 1;
+                $currency_position = $default_currency->currency_position ?: 'before_price';
+
+                try {
+                    Session::put('currency_name', $default_currency->currency_name);
+                    Session::put('currency_code', $default_currency->currency_code);
+                    Session::put('currency_icon', $currency_icon);
+                    Session::put('currency_rate', $currency_rate);
+                    Session::put('currency_position', $currency_position);
+                } catch (\Throwable $e) {}
+            } else {
+                $currency_icon = '₦';
+                $currency_rate = 1;
+                $currency_position = 'before_price';
+            }
         }
     }
 
@@ -195,26 +203,30 @@ function generateLang($path = ''){
 
 function calculateFinalPrice($product, $price = 0)
 {
-    if($price == 0){
+    if ($price == 0) {
         $price = $product->offer_price > 0 ? $product->offer_price : $product->price;
-    }else{
-        $price = $price;
     }
 
-    $isOfferSale = OfferProduct::where([
-        "product_id" => $product->id,
-        "status" => 1,
-    ])->first();
+    static $activeOfferData = null;
 
-    $today = date("Y-m-d H:i:s");
-    if ($isOfferSale) {
-        $offer = Offer::first();
-        if ($offer && $offer->status == 1) {
-            if ($today <= $offer->end_time) {
-                $offerAmount = ($offer->offer / 100) * $price;
-                $price -= $offerAmount;
+    if ($activeOfferData === null) {
+        $activeOfferData = \Illuminate\Support\Facades\Cache::remember('active_global_offer_data', 180, function() {
+            $today = date("Y-m-d H:i:s");
+            $offer = Offer::where('status', 1)->first();
+            if ($offer && $today <= $offer->end_time) {
+                $productIds = OfferProduct::where('status', 1)->pluck('product_id')->flip()->toArray();
+                return [
+                    'offer' => (float)$offer->offer,
+                    'product_ids' => $productIds,
+                ];
             }
-        }
+            return false;
+        });
+    }
+
+    if ($activeOfferData && isset($activeOfferData['product_ids'][$product->id])) {
+        $offerAmount = ($activeOfferData['offer'] / 100) * $price;
+        $price -= $offerAmount;
     }
 
     return $price;

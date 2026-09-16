@@ -249,6 +249,7 @@
 <script src="{{asset('frontend/assets/js/main.js')}}"></script>
 
 <script src="{{ asset('global/toastr/toastr.min.js') }}"></script>
+<script src="{{ asset('global/toastr/swipe-toast.js') }}"></script>
 <script src="{{ asset('frontend/js/nigeria-geo-autocomplete.js') }}"></script>
 
 <script>

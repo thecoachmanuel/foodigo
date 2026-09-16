@@ -14,7 +14,7 @@ class SeedNigerianData extends Command
      *
      * @var string
      */
-    protected $signature = 'foodigo:seed-nigerian-data';
+    protected $signature = 'foodigo:seed-nigerian-data {--force : Force re-seeding and overwrite existing data}';
 
     /**
      * The console command description.
@@ -28,6 +28,24 @@ class SeedNigerianData extends Command
      */
     public function handle()
     {
+        $force = $this->option('force');
+
+        if (!$force) {
+            $hasExistingData = false;
+            try {
+                if (Schema::hasTable('categories') && DB::table('categories')->count() > 0) {
+                    $hasExistingData = true;
+                }
+            } catch (\Throwable $e) {
+                $hasExistingData = false;
+            }
+
+            if ($hasExistingData) {
+                $this->info('Foodigo database already contains localized categories and data. Skipping to preserve custom admin changes (use --force to override).');
+                return 0;
+            }
+        }
+
         $this->info('Starting Nigerian localization data seeding...');
 
         try {
@@ -45,6 +63,9 @@ class SeedNigerianData extends Command
 
             // 5. Update Food Products & Translations
             $this->seedProducts();
+
+            // 6. Update Branding Tagline
+            $this->seedBrandingTagline();
 
             $this->info('Nigerian data successfully localized across all restaurants, cuisines, categories, and products!');
             return 0;
@@ -937,5 +958,31 @@ JSON;
         }
 
         $this->info('Food products & Nigerian dishes localized with realistic Naira pricing.');
+    }
+
+    protected function seedBrandingTagline()
+    {
+        $newTitle = 'Bringing Your Favorite Restaurants to Your Door Step!';
+
+        if (Schema::hasTable('homepage_translations')) {
+            DB::table('homepage_translations')
+                ->where('lang_code', 'en')
+                ->update(['intro_title' => $newTitle]);
+        }
+
+        if (Schema::hasTable('seo_settings')) {
+            $seoRows = DB::table('seo_settings')->get();
+            foreach ($seoRows as $seo) {
+                if (str_contains($seo->seo_title, 'Buy or Sell your Delicious Food Effortlessly')) {
+                    $newSeoTitle = str_replace('Buy or Sell your Delicious Food Effortlessly', $newTitle, $seo->seo_title);
+                    $newSeoDesc = str_replace('Buy or Sell your Delicious Food Effortlessly', $newTitle, $seo->seo_description);
+                    DB::table('seo_settings')->where('id', $seo->id)->update([
+                        'seo_title' => $newSeoTitle,
+                        'seo_description' => $newSeoDesc,
+                    ]);
+                }
+            }
+        }
+        $this->info('Branding tagline set to: ' . $newTitle);
     }
 }

@@ -91,47 +91,63 @@ class AppServiceProvider extends ServiceProvider
             }
 
             View::composer('*', function($view) use ($loadSettings){
+                static $general_setting = null;
+                static $language_list = null;
+                static $currency_list = null;
+                static $footer = null;
+                static $wishlistData = null;
+                static $wishlistUserId = null;
 
-                $general_setting = Cache::get('setting');
-                if (!$general_setting || !is_object($general_setting) || empty($general_setting->favicon)) {
-                    $general_setting = $loadSettings();
-                    Cache::forever('setting', $general_setting);
+                if ($general_setting === null) {
+                    $general_setting = Cache::get('setting');
+                    if (!$general_setting || !is_object($general_setting) || empty($general_setting->favicon)) {
+                        $general_setting = $loadSettings();
+                        Cache::forever('setting', $general_setting);
+                    }
                 }
 
-                $language_list = Language::where('status', 1)->get();
-                $currency_list = Currency::where('status', 'active')->get();
-
-                $footer = Footer::first();
-
-                if (Auth::guard('web')->check()) {
-                    $userId = Auth::guard('web')->id();
-
-                    $wishlistItems = Wishlist::where('user_id', $userId)->get();
-
-                    $wishlist = $wishlistItems->map(function ($item) {
-                        $product = Product::find($item->product_id);
-                        return [
-                            'wishlist_item' => $item,
-                            'product' => $product,
-                            'translated_name' => $product->name,
-                            'item_id' => $product->id,
-                        ];
+                if ($language_list === null) {
+                    $language_list = Cache::remember('app_languages_active', 3600, function() {
+                        return Language::where('status', 1)->get();
                     });
+                }
 
-                    $view->with('wishlist', $wishlist);
+                if ($currency_list === null) {
+                    $currency_list = Cache::remember('app_currencies_active', 3600, function() {
+                        return Currency::where('status', 'active')->get();
+                    });
+                }
+
+                if ($footer === null) {
+                    $footer = Cache::remember('app_footer_setting', 3600, function() {
+                        return Footer::first();
+                    });
+                }
+
+                $currentUserId = Auth::guard('web')->id();
+                if ($currentUserId) {
+                    if ($wishlistData === null || $wishlistUserId !== $currentUserId) {
+                        $wishlistUserId = $currentUserId;
+                        $wishlistItems = Wishlist::where('user_id', $currentUserId)->with('product')->get();
+                        $wishlistData = $wishlistItems->map(function ($item) {
+                            $product = $item->product;
+                            return [
+                                'wishlist_item' => $item,
+                                'product' => $product,
+                                'translated_name' => $product ? $product->name : '',
+                                'item_id' => $product ? $product->id : null,
+                            ];
+                        });
+                    }
+                    $view->with('wishlist', $wishlistData);
                 } else {
                     $view->with('wishlist', collect());
                 }
-
-
-
-
 
                 $view->with('general_setting', $general_setting);
                 $view->with('language_list', $language_list);
                 $view->with('currency_list', $currency_list);
                 $view->with('footer', $footer);
-
             });
 
             // Custom PWA Blade Directive

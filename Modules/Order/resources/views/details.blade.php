@@ -142,22 +142,17 @@
                                         <li>
                                             <a href="javascript:;">
                                                 @if($order->order_status == 1)
-                                                    {{__('translate.State')}} : <span class="badge bg-warning text-white">{{__('translate.Pending')}}</span>
+                                                    {{__('translate.State')}} : <span id="orderStatusDisplayBadge" class="badge bg-warning text-white">{{__('translate.Pending')}}</span>
                                                 @elseif($order->order_status == 2)
-                                                    {{__('translate.State')}} : <span
-                                                        class="badge bg-success text-white">{{__('translate.Confirmed')}}</span>
+                                                    {{__('translate.State')}} : <span id="orderStatusDisplayBadge" class="badge bg-success text-white">{{__('translate.Confirmed')}}</span>
                                                 @elseif($order->order_status == 3)
-                                                    {{__('translate.State')}} : <span
-                                                        class="badge bg-warning text-white">{{__('translate.Processing')}}</span>
+                                                    {{__('translate.State')}} : <span id="orderStatusDisplayBadge" class="badge bg-warning text-white">{{__('translate.Processing')}}</span>
                                                 @elseif($order->order_status == 4)
-                                                    {{__('translate.State')}} : <span
-                                                        class="badge bg-inprocees text-white">{{__('translate.Food on the way')}}</span>
+                                                    {{__('translate.State')}} : <span id="orderStatusDisplayBadge" class="badge bg-inprocees text-white">{{__('translate.Food on the way')}}</span>
                                                 @elseif($order->order_status == 5)
-                                                    {{__('translate.State')}} : <span
-                                                        class="badge bg-success text-white">{{__('translate.Delivered')}}</span>
+                                                    {{__('translate.State')}} : <span id="orderStatusDisplayBadge" class="badge bg-success text-white">{{__('translate.Delivered')}}</span>
                                                 @elseif($order->order_status == 6)
-                                                    {{__('translate.State')}} : <span
-                                                        class="badge bg-warning text-white">{{__('translate.Cancel')}}</span>
+                                                    {{__('translate.State')}} : <span id="orderStatusDisplayBadge" class="badge bg-warning text-white">{{__('translate.Cancel')}}</span>
                                                 @endif
                                             </a>
                                         </li>
@@ -170,11 +165,11 @@
 
                         <div class="col-lg-4 col-md-6">
                             <div class="order_status_box">
-                                <form class="order_status" ac>
+                                <form class="order_status">
                                     <div class="order_status_item">
                                         <div class="order_status_inner">
-                                            <label for="exampleFormControlInput1" class="form-label">{{__('translate.Payment status')}}</label>
-                                            <select class="form-select" aria-label="Default select example" onchange="showPaymentConfirmationModal({{ $order->id }}, this.value)">
+                                            <label for="paymentStatusSelect" class="form-label">{{__('translate.Payment status')}}</label>
+                                            <select id="paymentStatusSelect" class="form-select" data-current-status="{{ $order->payment_status }}" aria-label="Payment status" onchange="handlePaymentStatusChange({{ $order->id }}, this.value)">
                                                 @if($order->payment_status == 'pending')
                                                 <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>{{ __('translate.Pending') }}</option>
                                                 <option value="success" {{ $order->payment_status == 'success' ? 'selected' : '' }}>{{ __('translate.Success') }}</option>
@@ -184,24 +179,19 @@
                                                     <option>{{ucfirst($order->payment_status)}}</option>
                                                 @endif
                                             </select>
-
-
-
                                         </div>
                                     </div>
                                     <div class="order_status_item">
                                         <div class="order_status_inner">
-                                            <label for="exampleFormControlInput1" class="form-label">{{__('translate.Order status')}}</label>
-                                            <select class="form-select" aria-label="Default select example"  onchange="showConfirmationModal({{ $order->id }}, this.value)" name="order_status"
-                                                    name="order_status">
+                                            <label for="orderStatusSelect" class="form-label">{{__('translate.Order status')}}</label>
+                                            <select id="orderStatusSelect" class="form-select" data-current-status="{{ $order->order_status }}" aria-label="Order status" onchange="handleOrderStatusChange({{ $order->id }}, this.value)" name="order_status">
                                                 <option value="1" {{ $order->order_status == 1 ? 'selected' : '' }}>{{ __('translate.Pending') }}</option>
-                                                <option value="6" {{ $order->order_status == 6 ? 'selected' : '' }}>{{ __('translate.Cancel') }}</option>
                                                 <option value="2" {{ $order->order_status == 2 ? 'selected' : '' }}>{{ __('translate.Confirmed') }}</option>
                                                 <option value="3" {{ $order->order_status == 3 ? 'selected' : '' }}>{{ __('translate.Processing') }}</option>
                                                 <option value="4" {{ $order->order_status == 4 ? 'selected' : '' }}>{{ __('translate.Food On The Way') }}</option>
                                                 <option value="5" {{ $order->order_status == 5 ? 'selected' : '' }}>{{ __('translate.Delivered') }}</option>
+                                                <option value="6" {{ $order->order_status == 6 ? 'selected' : '' }}>{{ __('translate.Cancel') }}</option>
                                             </select>
-
                                         </div>
                                     </div>
 
@@ -477,25 +467,79 @@
             $("#item_delect_confirmation").attr("action",'{{ url("admin/order-delete/") }}'+"/"+id)
         }
 
+        function handleOrderStatusChange(orderId, selectedValue) {
+            var $select = $('#orderStatusSelect');
+            var prevStatus = $select.data('current-status');
+
+            $.ajax({
+                url: '{{ url("admin/order-status-change") }}/' + orderId,
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    order_status: selectedValue
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    $select.prop('disabled', true);
+                },
+                success: function(res) {
+                    $select.prop('disabled', false);
+                    if(res && res.status === 'success') {
+                        $select.data('current-status', selectedValue);
+                        $('#orderStatusDisplayBadge').attr('class', res.badge_class).text(res.state_label);
+                        toastr.success(res.message);
+                    } else {
+                        toastr.error((res && res.message) ? res.message : 'Failed to update order status');
+                        $select.val(prevStatus);
+                    }
+                },
+                error: function() {
+                    $select.prop('disabled', false);
+                    $select.val(prevStatus);
+                    toastr.error('Error updating order status. Please check your connection.');
+                }
+            });
+        }
+
+        function handlePaymentStatusChange(orderId, selectedValue) {
+            var $select = $('#paymentStatusSelect');
+            var prevStatus = $select.data('current-status');
+
+            $.ajax({
+                url: '{{ url("admin/payment-status-change") }}/' + orderId,
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    payment_status: selectedValue
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    $select.prop('disabled', true);
+                },
+                success: function(res) {
+                    $select.prop('disabled', false);
+                    if(res && res.status === 'success') {
+                        $select.data('current-status', selectedValue);
+                        toastr.success(res.message);
+                    } else {
+                        toastr.error((res && res.message) ? res.message : 'Failed to update payment status');
+                        $select.val(prevStatus);
+                    }
+                },
+                error: function() {
+                    $select.prop('disabled', false);
+                    $select.val(prevStatus);
+                    toastr.error('Error updating payment status.');
+                }
+            });
+        }
+
         function showConfirmationModal(orderId, selectedValue) {
-
-            $("#item_delect_confirmation1").attr("action", '{{ url("admin/order-status-change/") }}' + "/" + orderId);
-
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'order_status',
-                value: selectedValue
-            }).appendTo('#item_delect_confirmation1');
-
-            $('#deleteModal1').modal('show');
+            handleOrderStatusChange(orderId, selectedValue);
         }
 
         function showPaymentConfirmationModal(orderId, selectedValue) {
-            $("#paymentConfirmationForm").attr("action", '{{ url("admin/payment-status-change/") }}' + "/" + orderId);
-
-            $("#newPaymentStatus").val(selectedValue);
-
-            $('#paymentConfirmationModal').modal('show');
+            handlePaymentStatusChange(orderId, selectedValue);
         }
 
         function showDeliveryManModal(orderId, selectedValue) {

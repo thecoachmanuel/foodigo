@@ -99,27 +99,32 @@
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                                     <h4 class="crancy-table__product-title">
                                                         <span class="mb-1">
-
+                                                        {{__('translate.State')}} :
                                                         @if($order->order_status == 1)
-                                                            {{__('translate.State')}} : <span class="tag denger">{{__('translate.Pending')}}</span>
+                                                            <span id="order-tag-{{ $order->id }}" class="tag denger">{{__('translate.Pending')}}</span>
                                                         @elseif($order->order_status == 2)
-                                                            {{__('translate.State')}} : <span
-                                                                class="tag">{{__('translate.Confirmed')}}</span>
+                                                            <span id="order-tag-{{ $order->id }}" class="tag">{{__('translate.Confirmed')}}</span>
                                                         @elseif($order->order_status == 3)
-                                                            {{__('translate.State')}} : <span
-                                                                class="tag">{{__('translate.Processing')}}</span>
+                                                            <span id="order-tag-{{ $order->id }}" class="tag">{{__('translate.Processing')}}</span>
                                                         @elseif($order->order_status == 4)
-                                                            {{__('translate.State')}} : <span
-                                                                class="tag">{{__('translate.Food on the way')}}</span>
+                                                            <span id="order-tag-{{ $order->id }}" class="tag">{{__('translate.Food on the way')}}</span>
                                                         @elseif($order->order_status == 5)
-                                                            {{__('translate.State')}} : <span
-                                                                class="tag">{{__('translate.Delivered')}}</span>
+                                                            <span id="order-tag-{{ $order->id }}" class="tag">{{__('translate.Delivered')}}</span>
                                                         @elseif($order->order_status == 6)
-                                                            {{__('translate.State')}} : <span
-                                                                class="tag">{{__('translate.Canceled')}}</span>
+                                                            <span id="order-tag-{{ $order->id }}" class="tag">{{__('translate.Canceled')}}</span>
                                                         @endif
                                                         </span>
                                                     </h4>
+                                                    <div class="mt-1 mb-1">
+                                                        <select class="form-select form-select-sm table-order-status-select" data-order-id="{{ $order->id }}" data-prev-status="{{ $order->order_status }}" style="font-size: 11px; padding: 2px 6px; height: auto; width: 125px; border-radius: 6px; display: inline-block;">
+                                                            <option value="1" {{ $order->order_status == 1 ? 'selected' : '' }}>{{ __('translate.Pending') }}</option>
+                                                            <option value="2" {{ $order->order_status == 2 ? 'selected' : '' }}>{{ __('translate.Confirmed') }}</option>
+                                                            <option value="3" {{ $order->order_status == 3 ? 'selected' : '' }}>{{ __('translate.Processing') }}</option>
+                                                            <option value="4" {{ $order->order_status == 4 ? 'selected' : '' }}>{{ __('translate.Food on the way') }}</option>
+                                                            <option value="5" {{ $order->order_status == 5 ? 'selected' : '' }}>{{ __('translate.Delivered') }}</option>
+                                                            <option value="6" {{ $order->order_status == 6 ? 'selected' : '' }}>{{ __('translate.Cancel') }}</option>
+                                                        </select>
+                                                    </div>
                                                     <div class="text-capitalize opacity-7">
                                                         <span>{{__('translate.Type')}}:</span>
                                                         <span class="text-success">{{$order->order_type}}</span>
@@ -182,5 +187,41 @@
         function itemDeleteConfrimation(id){
             $("#item_delect_confirmation").attr("action",'{{ url("admin/restaurant/product/") }}'+"/"+id)
         }
+
+        $(document).on('change', '.table-order-status-select', function() {
+            var $select = $(this);
+            var orderId = $select.data('order-id');
+            var prevStatus = $select.data('prev-status');
+            var newStatus = $select.val();
+
+            $.ajax({
+                url: '{{ url("admin/order-status-change") }}/' + orderId,
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    order_status: newStatus
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    $select.prop('disabled', true);
+                },
+                success: function(res) {
+                    $select.prop('disabled', false);
+                    if (res && res.status === 'success') {
+                        $select.data('prev-status', newStatus);
+                        $('#order-tag-' + orderId).attr('class', res.tag_class).text(res.state_label);
+                        toastr.success(res.message);
+                    } else {
+                        toastr.error((res && res.message) ? res.message : 'Failed to update order status');
+                        $select.val(prevStatus);
+                    }
+                },
+                error: function() {
+                    $select.prop('disabled', false);
+                    $select.val(prevStatus);
+                    toastr.error('Error updating order status. Please check your connection.');
+                }
+            });
+        });
     </script>
 @endpush
