@@ -248,6 +248,44 @@
 
 
                     $('#dataTable').DataTable();
+
+                    // Sidebar active menu persistence and scroll memory across refreshes
+                    const $adminMenu = $('.admin-menu');
+                    if ($adminMenu.length) {
+                        $adminMenu.on('scroll', function () {
+                            sessionStorage.setItem('admin_sidebar_scrollTop', $(this).scrollTop());
+                        });
+
+                        $('.admin-menu a').on('click', function () {
+                            sessionStorage.setItem('admin_sidebar_scrollTop', $adminMenu.scrollTop());
+                        });
+
+                        // Ensure active submenu and dropdown are properly expanded
+                        const $activeChild = $('.admin-menu .crancy__dropdown a.active');
+                        if ($activeChild.length) {
+                            const $parentDropdown = $activeChild.closest('.crancy__dropdown');
+                            if ($parentDropdown.length && !$parentDropdown.hasClass('show')) {
+                                $parentDropdown.addClass('show');
+                                const dropdownId = $parentDropdown.attr('id');
+                                if (dropdownId) {
+                                    $(`[data-bs-target="#${dropdownId}"], [href="#${dropdownId}"]`)
+                                        .removeClass('collapsed')
+                                        .attr('aria-expanded', 'true');
+                                }
+                            }
+                        }
+
+                        // Restore scroll position or scroll active item into view
+                        const savedScrollTop = sessionStorage.getItem('admin_sidebar_scrollTop');
+                        if (savedScrollTop !== null) {
+                            $adminMenu.scrollTop(parseInt(savedScrollTop, 10));
+                        } else {
+                            const $activeItem = $('.admin-menu li.active, .admin-menu a.active').first();
+                            if ($activeItem.length) {
+                                $activeItem[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                            }
+                        }
+                    }
                 });
             })(jQuery);
 

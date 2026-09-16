@@ -5,7 +5,7 @@
     <div class="menu-bar">
         <ul id="CrancyMenu" class="menu-bar__one crancy-dashboard-menu">
 
-            <li class="{{ Route::is('admin.dashboard') ? 'active' : '' }}"><a class="collapsed"
+            <li class="{{ Route::is('admin.dashboard') ? 'active' : '' }}"><a class="{{ Route::is('admin.dashboard') ? '' : 'collapsed' }}"
                                                                               href="{{ route('admin.dashboard') }}">
             <span class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
@@ -19,7 +19,10 @@
                 <span class="menu-bar__name">{{ __('translate.Dashboard') }}</span></span></a>
             </li>
 
-            <li><a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__order_list"><span
+            @php
+                $is_order_active = Route::is('admin.order.*');
+            @endphp
+            <li class="{{ $is_order_active ? 'active' : '' }}"><a href="#!" class="{{ $is_order_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__order_list" aria-expanded="{{ $is_order_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
 
@@ -47,15 +50,15 @@
 
                 <span class="menu-bar__name">{{ __('translate.Manage Order') }}</span></span> <span class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
-                <div class="collapse crancy__dropdown {{ Route::is('admin.order.*') ? 'show' : '' }}"
+                <div class="collapse crancy__dropdown {{ $is_order_active ? 'show' : '' }}"
                      id="menu-item__order_list" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
-                        <li><a href="{{ route('admin.order.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.order.index') }}" class="{{ Route::is('admin.order.index') && !request('order_type') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.All Order') }}</span></span></a></li>
-                        <li><a href="{{ route('admin.order.index', ['order_type' => 'delivery']) }}"><span
+                        <li><a href="{{ route('admin.order.index', ['order_type' => 'delivery']) }}" class="{{ Route::is('admin.order.index') && request('order_type') == 'delivery' ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Delivery Order') }}</span></span></a></li>
-                        <li><a href="{{ route('admin.order.index', ['order_type' => 'pickup']) }}"><span
+                        <li><a href="{{ route('admin.order.index', ['order_type' => 'pickup']) }}" class="{{ Route::is('admin.order.index') && request('order_type') == 'pickup' ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span class="menu-bar__name">{{ __('translate.Pickup Order') }}</span></span></a>
                         </li>
                     </ul>
@@ -63,9 +66,12 @@
             </li>
 
 
-            <li class="{{ Route::is('admin.category.*') ? 'active' : '' }}"><a href="#!" class="collapsed"
+            @php
+                $is_product_active = Route::is('admin.category.*') || Route::is('admin.addon.*') || Route::is('admin.product.*');
+            @endphp
+            <li class="{{ $is_product_active ? 'active' : '' }}"><a href="#!" class="{{ $is_product_active ? '' : 'collapsed' }}"
                                                                                data-bs-toggle="collapse"
-                                                                               data-bs-target="#menu-item__category_list"><span
+                                                                               data-bs-target="#menu-item__category_list" aria-expanded="{{ $is_product_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -82,14 +88,14 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.category.*') || Route::is('admin.addon.*') ||  Route::is('admin.product.*') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_product_active ? 'show' : '' }}"
                     id="menu-item__category_list" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
-                        <li><a href="{{ route('admin.category.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.category.index') }}" class="{{ Route::is('admin.category.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Category List') }}</span></span></a></li>
-                        <li><a href="{{ route('admin.addon.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.addon.index') }}" class="{{ Route::is('admin.addon.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Addon List') }}</span></span></a></li>
-                        <li><a href="{{ route('admin.product.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.product.index') }}" class="{{ Route::is('admin.product.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Product List') }}</span></span></a></li>
 
                     </ul>
@@ -97,8 +103,11 @@
             </li>
 
 
-            <li class="{{ Route::is('admin.cuisine.*') || Route::is('admin.restaurants.*') || Route::is('admin.city*') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__car_list"><span
+            @php
+                $is_restaurant_active = Route::is('admin.cuisine.*') || Route::is('admin.restaurants.*') || Route::is('admin.city*');
+            @endphp
+            <li class="{{ $is_restaurant_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_restaurant_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__car_list" aria-expanded="{{ $is_restaurant_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -114,17 +123,17 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.cuisine.*') || Route::is('admin.restaurants.*') || Route::is('admin.city*') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_restaurant_active ? 'show' : '' }}"
                     id="menu-item__car_list" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.cuisine.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.cuisine.index') }}" class="{{ Route::is('admin.cuisine.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Cuisine List') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.city.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.city.index') }}" class="{{ Route::is('admin.city*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.City List') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.restaurants.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.restaurants.index') }}" class="{{ Route::is('admin.restaurants.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Restaurant List') }}</span></span></a></li>
 
                     </ul>
@@ -132,9 +141,12 @@
             </li>
 
 
-            <li class="{{ Route::is('admin.deliveryman.*') ? 'active' : '' }}">
-                <a href="#menu-item__car_list1" class="collapsed" data-bs-toggle="collapse" role="button"
-                   aria-expanded="{{ Route::is('admin.deliveryman-index') || Route::is('admin.deliveryman-pending') ? 'true' : 'false' }}"
+            @php
+                $is_deliveryman_active = Route::is('admin.deliveryman*') || Route::is('admin.document-type.*') || Route::is('admin.vehicle-type.*');
+            @endphp
+            <li class="{{ $is_deliveryman_active ? 'active' : '' }}">
+                <a href="#menu-item__car_list1" class="{{ $is_deliveryman_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" role="button"
+                   aria-expanded="{{ $is_deliveryman_active ? 'true' : 'false' }}"
                    aria-controls="menu-item__car_list1">
                     <span class="menu-bar__text">
                         <span class="crancy-menu-icon crancy-svg-icon__v1">
@@ -164,12 +176,12 @@
 
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.deliveryman-index') || Route::is('admin.deliveryman-pending') || Route::is('admin.document-type.*') || Route::is('admin.vehicle-type.*') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_deliveryman_active ? 'show' : '' }}"
                     id="menu-item__car_list1" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
                         <li>
                             <a href="{{ route('admin.deliveryman-index') }}"
-                               class="{{ Route::is('admin.deliveryman-index') ? 'active' : '' }}">
+                               class="{{ Route::is('admin.deliveryman-index') || Route::is('admin.deliveryman-show') ? 'active' : '' }}">
                                 <span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Deliveryman List') }}</span></span>
                             </a>
@@ -200,10 +212,13 @@
             </li>
 
 
-            <li class="{{ Route::is('admin.coupon.*') || Route::is('admin.offer*') ? 'active' : '' }}"><a href="#!"
-                                                                                                          class="collapsed"
-                                                                                                          data-bs-toggle="collapse"
-                                                                                                          data-bs-target="#menu-item__coupon_list"><span
+            @php
+                $is_promo_active = Route::is('admin.coupon.*') || Route::is('admin.offer*');
+            @endphp
+            <li class="{{ $is_promo_active ? 'active' : '' }}"><a href="#!"
+                                                                          class="{{ $is_promo_active ? '' : 'collapsed' }}"
+                                                                          data-bs-toggle="collapse"
+                                                                          data-bs-target="#menu-item__coupon_list" aria-expanded="{{ $is_promo_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -218,23 +233,26 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.coupon.*') || Route::is('admin.offer*') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_promo_active ? 'show' : '' }}"
                     id="menu-item__coupon_list" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.coupon.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.coupon.index') }}" class="{{ Route::is('admin.coupon.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Coupon List') }}</span></span></a></li>
-                        <li><a href="{{ route('admin.offer') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.offer') }}" class="{{ Route::is('admin.offer') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Offer') }}</span></span></a></li>
-                        <li><a href="{{ route('admin.offer-product') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.offer-product') }}" class="{{ Route::is('admin.offer-product') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Offer Product') }}</span></span></a></li>
 
                     </ul>
                 </div>
             </li>
 
-            <li class="{{ Route::is('admin.banner*') || Route::is('admin.promotional.banner.edit') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__banner_list"><span
+            @php
+                $is_banner_active = Route::is('admin.banner*') || Route::is('admin.promotional.banner.*');
+            @endphp
+            <li class="{{ $is_banner_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_banner_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__banner_list" aria-expanded="{{ $is_banner_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -248,13 +266,13 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.banner*') || Route::is('admin.promotional.banner.edit') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_banner_active ? 'show' : '' }}"
                     id="menu-item__banner_list" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.banner') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.banner') }}" class="{{ Route::is('admin.banner') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Offer Deals') }}</span></span></a></li>
-                        <li><a href="{{ route('admin.promotional.banner.edit') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.promotional.banner.edit') }}" class="{{ Route::is('admin.promotional.banner.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Promotional Banner') }}</span></span></a></li>
 
                     </ul>
@@ -262,9 +280,12 @@
             </li>
 
 
-            <li class="{{ Route::is('admin.withdraw-methods.*') || Route::is('admin.withdraw-list.*') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__withdraw_list"
-                   aria-expanded="false"><span class="menu-bar__text">
+            @php
+                $is_seller_withdraw_active = Route::is('admin.withdraw-methods.*') || Route::is('admin.withdraw-list.*') || Route::is('admin.show-withdraw');
+            @endphp
+            <li class="{{ $is_seller_withdraw_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_seller_withdraw_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__withdraw_list"
+                   aria-expanded="{{ $is_seller_withdraw_active ? 'true' : 'false' }}"><span class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C22 6.34315 22 8.22876 22 12C22 15.7712 22 17.6569 20.8284 18.8284C19.6569 20 17.7712 20 14 20H10C6.22876 20 4.34315 20 3.17157 18.8284C2 17.6569 2 15.7712 2 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -279,14 +300,14 @@
                         class="crancy__toggle"></span></a>
                 <!-- Dropdown Menu -->
                 <div
-                    class="crancy__dropdown collapse {{ Route::is('admin.withdraw-methods.*') || Route::is('admin.withdraw-list.*') ? 'show' : '' }}"
+                    class="crancy__dropdown collapse {{ $is_seller_withdraw_active ? 'show' : '' }}"
                     id="menu-item__withdraw_list" data-bs-parent="#CrancyMenu" style="">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{route('admin.withdraw-methods.index')}}"><span class="menu-bar__text"><span
+                        <li><a href="{{route('admin.withdraw-methods.index')}}" class="{{ Route::is('admin.withdraw-methods.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{__('translate.Withdraw Method')}}</span></span></a></li>
 
-                        <li><a href="{{route('admin.withdraw-list.index')}}"><span class="menu-bar__text"><span
+                        <li><a href="{{route('admin.withdraw-list.index')}}" class="{{ Route::is('admin.withdraw-list.*') || Route::is('admin.show-withdraw') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{__('translate.Withdraw List')}}</span></span></a></li>
 
                     </ul>
@@ -294,9 +315,12 @@
             </li>
 
 
-            <li class="{{ Route::is('admin.deliveryman-withdraw-methods.*') || Route::is('admin.deliveryman-withdraw-list.*') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse"
-                   data-bs-target="#menu-item__withdraw_list_delivery" aria-expanded="false"><span
+            @php
+                $is_deliveryman_withdraw_active = Route::is('admin.deliveryman-withdraw-methods.*') || Route::is('admin.deliveryman-withdraw-list.*') || Route::is('admin.deliveryman-show-withdraw');
+            @endphp
+            <li class="{{ $is_deliveryman_withdraw_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_deliveryman_withdraw_active ? '' : 'collapsed' }}" data-bs-toggle="collapse"
+                   data-bs-target="#menu-item__withdraw_list_delivery" aria-expanded="{{ $is_deliveryman_withdraw_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -314,15 +338,15 @@
                         class="crancy__toggle"></span></a>
                 <!-- Dropdown Menu -->
                 <div
-                    class="crancy__dropdown collapse {{ Route::is('admin.deliveryman-withdraw-methods.*') || Route::is('admin.deliveryman-withdraw-list.*') ? 'show' : '' }}"
+                    class="crancy__dropdown collapse {{ $is_deliveryman_withdraw_active ? 'show' : '' }}"
                     id="menu-item__withdraw_list_delivery" data-bs-parent="#CrancyMenu" style="">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{route('admin.deliveryman-withdraw-methods.index')}}"><span
+                        <li><a href="{{route('admin.deliveryman-withdraw-methods.index')}}" class="{{ Route::is('admin.deliveryman-withdraw-methods.*') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span class="menu-bar__name">{{__('translate.Withdraw Method')}}</span></span></a>
                         </li>
 
-                        <li><a href="{{route('admin.deliveryman-withdraw-list.index')}}"><span
+                        <li><a href="{{route('admin.deliveryman-withdraw-list.index')}}" class="{{ Route::is('admin.deliveryman-withdraw-list.*') || Route::is('admin.deliveryman-show-withdraw') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{__('translate.Withdraw List')}}</span></span></a></li>
 
@@ -330,8 +354,11 @@
                 </div>
             </li>
 
-            <li class="{{ Route::is('admin.user-list') || Route::is('admin.pending-user') || Route::is('admin.user-show') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__users"><span
+            @php
+                $is_user_active = Route::is('admin.user-list') || Route::is('admin.pending-user') || Route::is('admin.user-show');
+            @endphp
+            <li class="{{ $is_user_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_user_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__users" aria-expanded="{{ $is_user_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -346,14 +373,14 @@
                 <span class="menu-bar__name">{{ __('translate.Manage User') }}</span></span> <span class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.user-list') || Route::is('admin.pending-user')  || Route::is('admin.user-show') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_user_active ? 'show' : '' }}"
                     id="menu-item__users" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.user-list') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.user-list') }}" class="{{ Route::is('admin.user-list') || Route::is('admin.user-show') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.User List') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.pending-user') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.pending-user') }}" class="{{ Route::is('admin.pending-user') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Pending User') }}</span></span></a></li>
 
 
@@ -363,7 +390,7 @@
 
 
             <li class="{{ Route::is('admin.contact-message') || Route::is('admin.show-message') ? 'active' : '' }}">
-                <a class="collapsed" href="{{ route('admin.contact-message') }}">
+                <a class="{{ Route::is('admin.contact-message') || Route::is('admin.show-message') ? '' : 'collapsed' }}" href="{{ route('admin.contact-message') }}">
                 <span class="menu-bar__text">
                     <span class="crancy-menu-icon crancy-svg-icon__v1">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -381,8 +408,11 @@
 
             <h4 class="admin-menu__title pt-2">{{ __('translate.CMS & Blogs') }}</h4>
 
-            <li class="{{ Route::is('admin.blog.*') || Route::is('admin.blog-category.*') || Route::is('admin.comment-list') || Route::is('admin.show-comment') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__blog"><span
+            @php
+                $is_blog_active = Route::is('admin.blog.*') || Route::is('admin.blog-category.*') || Route::is('admin.comment-list') || Route::is('admin.show-comment');
+            @endphp
+            <li class="{{ $is_blog_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_blog_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__blog" aria-expanded="{{ $is_blog_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -395,23 +425,23 @@
                 <span class="menu-bar__name">{{ __('translate.Manage Blog') }}</span></span> <span class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.blog.*') || Route::is('admin.blog-category.*') || Route::is('admin.comment-list') || Route::is('admin.show-comment') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_blog_active ? 'show' : '' }}"
                     id="menu-item__blog" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.blog-category.create') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.blog-category.create') }}" class="{{ Route::is('admin.blog-category.create') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Create Categroy') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.blog-category.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.blog-category.index') }}" class="{{ Route::is('admin.blog-category.index') || Route::is('admin.blog-category.edit') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Categroy List') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.blog.create') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.blog.create') }}" class="{{ Route::is('admin.blog.create') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Create Blog') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.blog.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.blog.index') }}" class="{{ Route::is('admin.blog.index') || Route::is('admin.blog.edit') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Blog List') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.comment-list') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.comment-list') }}" class="{{ Route::is('admin.comment-list') || Route::is('admin.show-comment') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Comment List') }}</span></span></a></li>
 
 
@@ -420,8 +450,11 @@
             </li>
 
 
-            <li class="{{ Route::is('admin.terms-conditions') || Route::is('admin.privacy-policy') || Route::is('admin.custom-page.*') || Route::is('admin.contact-us') || Route::is('admin.about-us') || Route::is('admin.login-image') || Route::is('admin.signup-image') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__pages"><span
+            @php
+                $is_pages_active = Route::is('admin.terms-conditions') || Route::is('admin.privacy-policy') || Route::is('admin.custom-page.*') || Route::is('admin.contact-us') || Route::is('admin.about-us') || Route::is('admin.login-image') || Route::is('admin.signup-image');
+            @endphp
+            <li class="{{ $is_pages_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_pages_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__pages" aria-expanded="{{ $is_pages_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -434,28 +467,28 @@
                 <span class="menu-bar__name">{{ __('translate.Manage Pages') }}</span></span> <span class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.terms-conditions') || Route::is('admin.privacy-policy') || Route::is('admin.contact-us') || Route::is('admin.about-us') || Route::is('admin.login-image') || Route::is('admin.signup-image') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_pages_active ? 'show' : '' }}"
                     id="menu-item__pages" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.about-us', ['lang_code' => admin_lang()]) }}"><span
+                        <li><a href="{{ route('admin.about-us', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.about-us') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.About Us') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.terms-conditions', ['lang_code' => admin_lang()]) }}"><span
+                        <li><a href="{{ route('admin.terms-conditions', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.terms-conditions') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Terms and Conditions') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.privacy-policy', ['lang_code' => admin_lang()]) }}"><span
+                        <li><a href="{{ route('admin.privacy-policy', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.privacy-policy') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Privacy Policy') }}</span></span></a></li>
 
 
-                        <li><a href="{{ route('admin.contact-us', ['lang_code' => admin_lang()]) }}"><span
+                        <li><a href="{{ route('admin.contact-us', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.contact-us') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Contact Us') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.login-image') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.login-image') }}" class="{{ Route::is('admin.login-image') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Login Page') }}</span></span></a></li>
 
                     </ul>
@@ -463,8 +496,11 @@
             </li>
 
 
-            <li class="{{ Route::is('admin.intro-section') || Route::is('admin.join-restaurant') || Route::is('admin.mobile-app') || Route::is('admin.working-step') || Route::is('admin.counter') || Route::is('admin.header-footer') || Route::is('admin.footer') || Route::is('admin.home1-explore') || Route::is('admin.home2-explore') || Route::is('admin.home3-explore') || Route::is('admin.safety-tips') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__for_section"><span
+            @php
+                $is_section_active = Route::is('admin.intro-section') || Route::is('admin.join-restaurant') || Route::is('admin.mobile-app') || Route::is('admin.working-step') || Route::is('admin.counter') || Route::is('admin.footer-image-gallery*') || Route::is('admin.footer') || Route::is('admin.header-footer') || Route::is('admin.home1-explore') || Route::is('admin.home2-explore') || Route::is('admin.home3-explore') || Route::is('admin.safety-tips');
+            @endphp
+            <li class="{{ $is_section_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_section_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__for_section" aria-expanded="{{ $is_section_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -476,32 +512,32 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.intro-section') || Route::is('admin.join-restaurant') || Route::is('admin.mobile-app') || Route::is('admin.working-step') || Route::is('admin.counter') || Route::is('admin.footer-image-gallery*') || Route::is('admin.footer') || Route::is('admin.header-footer') || Route::is('admin.home1-explore') || Route::is('admin.home2-explore') || Route::is('admin.home3-explore') || Route::is('admin.safety-tips') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_section_active ? 'show' : '' }}"
                     id="menu-item__for_section" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.intro-section', ['lang_code' => admin_lang()]) }}"><span
+                        <li><a href="{{ route('admin.intro-section', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.intro-section') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span class="menu-bar__name">{{ __('translate.Intro Section') }}</span></span></a>
                         </li>
 
-                        <li><a href="{{ route('admin.working-step', ['lang_code' => admin_lang()]) }}"><span
+                        <li><a href="{{ route('admin.working-step', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.working-step') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span class="menu-bar__name">{{ __('translate.Working Step') }}</span></span></a>
                         </li>
 
 
-                        <li><a href="{{ route('admin.join-restaurant', ['lang_code' => admin_lang()]) }}"><span
+                        <li><a href="{{ route('admin.join-restaurant', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.join-restaurant') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Join Restaurant') }}</span></span></a></li>
 
 
-                        <li><a href="{{ route('admin.mobile-app', ['lang_code' => admin_lang()]) }}"><span
+                        <li><a href="{{ route('admin.mobile-app', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.mobile-app') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Mobile App') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.footer-image-gallery') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.footer-image-gallery') }}" class="{{ Route::is('admin.footer-image-gallery*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Footer Image Gallery') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.footer', ['lang_code' => admin_lang()]) }}"><span
+                        <li><a href="{{ route('admin.footer', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.footer') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Footer Info') }}</span></span></a></li>
 
@@ -514,7 +550,7 @@
             <h4 class="admin-menu__title pt-2">{{ __('translate.Setting & Configuration') }}</h4>
 
 
-            <li class="{{ Route::is('admin.general-setting') ? 'active' : '' }}"><a class="collapsed"
+            <li class="{{ Route::is('admin.general-setting') ? 'active' : '' }}"><a class="{{ Route::is('admin.general-setting') ? '' : 'collapsed' }}"
                                                                                     href="{{ route('admin.general-setting') }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
@@ -528,7 +564,7 @@
             </li>
 
             <li class="{{ Route::is('admin.multi-currency.*') ? 'active' : '' }}">
-            <a class="collapsed" href="{{ route('admin.multi-currency.index') }}">
+            <a class="{{ Route::is('admin.multi-currency.*') ? '' : 'collapsed' }}" href="{{ route('admin.multi-currency.index') }}">
                 <span class="menu-bar__text">
                     <span class="crancy-menu-icon crancy-svg-icon__v1">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -553,8 +589,11 @@
             </a>
             </li>
 
-            <li class="{{ Route::is('admin.language.*') || Route::is('admin.theme-language') ? 'active' : '' }}"><a
-                    href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__languages"><span
+            @php
+                $is_language_active = Route::is('admin.language.*') || Route::is('admin.theme-language');
+            @endphp
+            <li class="{{ $is_language_active ? 'active' : '' }}"><a
+                    href="#!" class="{{ $is_language_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__languages" aria-expanded="{{ $is_language_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -582,14 +621,14 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.language.*') || Route::is('admin.theme-language') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_language_active ? 'show' : '' }}"
                     id="menu-item__languages" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.language.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.language.index') }}" class="{{ Route::is('admin.language.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Languages') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.theme-language', ['lang_code' => 'en']) }}"><span
+                        <li><a href="{{ route('admin.theme-language', ['lang_code' => 'en']) }}" class="{{ Route::is('admin.theme-language') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Theme Languages') }}</span></span></a></li>
 
@@ -598,8 +637,11 @@
             </li>
 
 
-            <li class="{{ Route::is('admin.email-setting') || Route::is('admin.email-template') || Route::is('admin.edit-email-template') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__apps_email_config"><span
+            @php
+                $is_email_active = Route::is('admin.email-setting') || Route::is('admin.email-template') || Route::is('admin.edit-email-template');
+            @endphp
+            <li class="{{ $is_email_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_email_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__apps_email_config" aria-expanded="{{ $is_email_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -613,14 +655,14 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.email-setting') || Route::is('admin.email-template') || Route::is('admin.edit-email-template') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_email_active ? 'show' : '' }}"
                     id="menu-item__apps_email_config" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.email-setting') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.email-setting') }}" class="{{ Route::is('admin.email-setting') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Configuration') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.email-template') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.email-template') }}" class="{{ Route::is('admin.email-template') || Route::is('admin.edit-email-template') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Email Template') }}</span></span></a></li>
 
 
@@ -631,8 +673,11 @@
             @include('smssetting::sidebar')
 
 
-            <li class="{{ Route::is('admin.cookie-consent') || Route::is('admin.error-image')  || Route::is('admin.breadcrumb') || Route::is('admin.social-login') || Route::is('admin.default-avatar') || Route::is('admin.maintenance-mode') || Route::is('admin.admin-login-image') || Route::is('admin.default-cover-image') || Route::is('admin.pwa-icon-settings') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__apps"><span
+            @php
+                $is_website_setup_active = Route::is('admin.cookie-consent') || Route::is('admin.error-image') || Route::is('admin.breadcrumb') || Route::is('admin.social-login') || Route::is('admin.default-avatar') || Route::is('admin.maintenance-mode') || Route::is('admin.admin-login-image') || Route::is('admin.default-cover-image') || Route::is('admin.pwa-icon-settings') || Route::is('admin.screens.*') || Route::is('admin.deliveryman-splash-screen.*');
+            @endphp
+            <li class="{{ $is_website_setup_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_website_setup_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__apps" aria-expanded="{{ $is_website_setup_active ? 'true' : 'false' }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -648,49 +693,49 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.cookie-consent') || Route::is('admin.error-image') || Route::is('admin.breadcrumb') || Route::is('admin.social-login') || Route::is('admin.default-avatar') || Route::is('admin.maintenance-mode') || Route::is('admin.admin-login-image') || Route::is('admin.default-cover-image') || Route::is('admin.pwa-icon-settings') || Route::is('admin.screens.get') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_website_setup_active ? 'show' : '' }}"
                     id="menu-item__apps" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.cookie-consent') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.cookie-consent') }}" class="{{ Route::is('admin.cookie-consent') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Cookie Consent') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.error-image') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.error-image') }}" class="{{ Route::is('admin.error-image') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Error Page') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.admin-login-image') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.admin-login-image') }}" class="{{ Route::is('admin.admin-login-image') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Admin Login') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.breadcrumb') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.breadcrumb') }}" class="{{ Route::is('admin.breadcrumb') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Breadcrumb Image') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.social-login') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.social-login') }}" class="{{ Route::is('admin.social-login') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Social Login') }}</span></span></a></li>
 
 
-                        <li><a href="{{ route('admin.default-avatar') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.default-avatar') }}" class="{{ Route::is('admin.default-avatar') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Default Avatar') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.default-cover-image') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.default-cover-image') }}" class="{{ Route::is('admin.default-cover-image') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Default Cover Image') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.screens.get') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.screens.get') }}" class="{{ Route::is('admin.screens.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Splash Screens') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.deliveryman-splash-screen.get') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.deliveryman-splash-screen.get') }}" class="{{ Route::is('admin.deliveryman-splash-screen.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Delivery Man Splash Screen') }}</span></span></a></li>
                                         
-                        <li><a href="{{ route('admin.pwa-icon-settings') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.pwa-icon-settings') }}" class="{{ Route::is('admin.pwa-icon-settings') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.PWA Icon Settings') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.maintenance-mode') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.maintenance-mode') }}" class="{{ Route::is('admin.maintenance-mode') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Maintenance mode') }}</span></span></a></li>
 
                     </ul>
                 </div>
             </li>
 
-            <li class="{{ Route::is('admin.seo-setting') ? 'active' : '' }}"><a class="collapsed"
+            <li class="{{ Route::is('admin.seo-setting') ? 'active' : '' }}"><a class="{{ Route::is('admin.seo-setting') ? '' : 'collapsed' }}"
                                                                                 href="{{ route('admin.seo-setting') }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
@@ -705,7 +750,7 @@
                 <span class="menu-bar__name">{{ __('translate.SEO Setup') }}</span></span></a>
             </li>
 
-            <li class="{{ Route::is('admin.paymentgateway') ? 'active' : '' }}"><a class="collapsed"
+            <li class="{{ Route::is('admin.paymentgateway') ? 'active' : '' }}"><a class="{{ Route::is('admin.paymentgateway') ? '' : 'collapsed' }}"
                                                                                    href="{{ route('admin.paymentgateway') }}"><span
                         class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
@@ -730,10 +775,13 @@
     <h4 class="admin-menu__title">{{ __('translate.Others') }}</h4>
     <!-- Nav Menu -->
     <div class="menu-bar">
-        <ul class="menu-bar__one crancy-dashboard-menu" id="CrancyMenu">
-            <li class="{{ Route::is('admin.subscriber-list') || Route::is('admin.subscriber-email') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse"
-                   data-bs-target="#menu-item__apps_newsletter"><span class="menu-bar__text">
+        <ul class="menu-bar__one crancy-dashboard-menu">
+            @php
+                $is_newsletter_active = Route::is('admin.subscriber-list') || Route::is('admin.subscriber-email');
+            @endphp
+            <li class="{{ $is_newsletter_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_newsletter_active ? '' : 'collapsed' }}" data-bs-toggle="collapse"
+                   data-bs-target="#menu-item__apps_newsletter" aria-expanded="{{ $is_newsletter_active ? 'true' : 'false' }}"><span class="menu-bar__text">
                 <span class="crancy-menu-icon crancy-svg-icon__v1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M10.5 8H18.5M10.5 12H13M18.5 12H16M10.5 16H13M18.5 16H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -747,23 +795,26 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.subscriber-list') || Route::is('admin.subscriber-email') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_newsletter_active ? 'show' : '' }}"
                     id="menu-item__apps_newsletter" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.subscriber-list') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.subscriber-list') }}" class="{{ Route::is('admin.subscriber-list') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Subscriber List') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.subscriber-email') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.subscriber-email') }}" class="{{ Route::is('admin.subscriber-email') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Send Mail') }}</span></span></a></li>
 
                     </ul>
                 </div>
             </li>
 
-            <li class="{{ Route::is('admin.menus.*') ? 'active' : '' }}">
-                <a href="#!" class="collapsed" data-bs-toggle="collapse"
-                   data-bs-target="#menu-item__menus"><span class="menu-bar__text">
+            @php
+                $is_menus_active = Route::is('admin.menus.*');
+            @endphp
+            <li class="{{ $is_menus_active ? 'active' : '' }}">
+                <a href="#!" class="{{ $is_menus_active ? '' : 'collapsed' }}" data-bs-toggle="collapse"
+                   data-bs-target="#menu-item__menus" aria-expanded="{{ $is_menus_active ? 'true' : 'false' }}"><span class="menu-bar__text">
                     <span class="crancy-menu-icon crancy-svg-icon__v1">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -773,14 +824,14 @@
                         class="crancy__toggle"></span></a></span>
                 <!-- Dropdown Menu -->
                 <div
-                    class="collapse crancy__dropdown {{ Route::is('admin.menus.*') ? 'show' : '' }}"
+                    class="collapse crancy__dropdown {{ $is_menus_active ? 'show' : '' }}"
                     id="menu-item__menus" data-bs-parent="#CrancyMenu">
                     <ul class="menu-bar__one-dropdown">
 
-                        <li><a href="{{ route('admin.menus.index') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.menus.index') }}" class="{{ Route::is('admin.menus.index') || Route::is('admin.menus.edit') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Menu List') }}</span></span></a></li>
 
-                        <li><a href="{{ route('admin.menus.create') }}"><span class="menu-bar__text"><span
+                        <li><a href="{{ route('admin.menus.create') }}" class="{{ Route::is('admin.menus.create') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Create Menu') }}</span></span></a></li>
 
                     </ul>

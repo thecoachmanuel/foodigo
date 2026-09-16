@@ -1004,6 +1004,13 @@ body {
     color: #404054 !important;
 }
 
+.menu-bar li ul li a.active span,
+.menu-bar li ul li a:hover span,
+.menu-bar li ul li.active a span {
+    color: var(--theme-color) !important;
+    font-weight: 600;
+}
+
 .crancy-dashboard-menu .collapsed .crancy-menu-icon .crancy-svg-icon {
     color: #404054;
 }

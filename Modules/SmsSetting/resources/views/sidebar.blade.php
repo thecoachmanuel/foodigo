@@ -1,7 +1,8 @@
-
-
-<li class="{{ Route::is('admin.sms-setting') || Route::is('admin.sms-template') || Route::is('admin.edit-sms-template') || Route::is('admin.twilio-sms-setting') || Route::is('admin.biztech-sms-setting') ? 'active' : '' }}">
-    <a href="#!" class="collapsed" data-bs-toggle="collapse" data-bs-target="#menu-item__apps_sms_config"><span
+@php
+    $is_sms_active = Route::is('admin.sms-setting') || Route::is('admin.sms-template') || Route::is('admin.edit-sms-template') || Route::is('admin.twilio-sms-setting') || Route::is('admin.biztech-sms-setting');
+@endphp
+<li class="{{ $is_sms_active ? 'active' : '' }}">
+    <a href="#!" class="{{ $is_sms_active ? '' : 'collapsed' }}" data-bs-toggle="collapse" data-bs-target="#menu-item__apps_sms_config" aria-expanded="{{ $is_sms_active ? 'true' : 'false' }}"><span
             class="menu-bar__text">
     <span class="crancy-menu-icon crancy-svg-icon__v1">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,24 +16,24 @@
             class="crancy__toggle"></span></a></span>
     <!-- Dropdown Menu -->
     <div
-        class="collapse crancy__dropdown {{ Route::is('admin.sms-setting') || Route::is('admin.sms-template') || Route::is('admin.edit-sms-template') || Route::is('admin.twilio-sms-setting') || Route::is('admin.biztech-sms-setting') ? 'show' : '' }}"
+        class="collapse crancy__dropdown {{ $is_sms_active ? 'show' : '' }}"
         id="menu-item__apps_sms_config" data-bs-parent="#CrancyMenu">
         <ul class="menu-bar__one-dropdown">
 
-            <li><a href="{{ route('admin.sms-setting') }}"><span class="menu-bar__text"><span
+            <li><a href="{{ route('admin.sms-setting') }}" class="{{ Route::is('admin.sms-setting') ? 'active' : '' }}"><span class="menu-bar__text"><span
                             class="menu-bar__name">{{ __('translate.Sms Setting') }}</span></span></a></li>
 
-            <li><a href="{{ route('admin.twilio-sms-setting') }}"><span class="menu-bar__text"><span
+            <li><a href="{{ route('admin.twilio-sms-setting') }}" class="{{ Route::is('admin.twilio-sms-setting') ? 'active' : '' }}"><span class="menu-bar__text"><span
                             class="menu-bar__name">{{ __('translate.Twilio Configuration') }}</span></span></a></li>
 
-            <li><a href="{{ route('admin.biztech-sms-setting') }}"><span class="menu-bar__text"><span
+            <li><a href="{{ route('admin.biztech-sms-setting') }}" class="{{ Route::is('admin.biztech-sms-setting') ? 'active' : '' }}"><span class="menu-bar__text"><span
                             class="menu-bar__name">{{ __('translate.Biztech Configuration') }}</span></span></a></li>
 
 
 
 
 
-            <li><a href="{{ route('admin.sms-template') }}"><span class="menu-bar__text"><span
+            <li><a href="{{ route('admin.sms-template') }}" class="{{ Route::is('admin.sms-template') || Route::is('admin.edit-sms-template') ? 'active' : '' }}"><span class="menu-bar__text"><span
                             class="menu-bar__name">{{ __('translate.Sms Template') }}</span></span></a></li>
 
 

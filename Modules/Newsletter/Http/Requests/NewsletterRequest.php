@@ -14,7 +14,7 @@ class NewsletterRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email|unique:subscribers'
+            'email' => 'required|email'
         ];
     }
 
@@ -32,7 +32,7 @@ class NewsletterRequest extends FormRequest
     {
         return [
             'email.required' => trans('translate.Email is required'),
-            'email.unique' => trans('translate.Email already exist'),
+            'email.email' => trans('translate.Please enter a valid email address'),
         ];
     }
 }
