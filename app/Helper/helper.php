@@ -297,3 +297,12 @@ function getMenuByLocation($location)
     $menuService = app(\Modules\Menu\Services\MenuService::class);
     return $menuService->getMenuByLocation($location);
 }
+
+/**
+ * Get configured Google Maps API Key
+ */
+function google_map_key()
+{
+    return config('services.google.map_api') ?: env('MAP_API', '');
+}
+

@@ -588,7 +588,7 @@
                 return;
             }
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API') }}&libraries=places`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key={{ google_map_key() ?: env('MAP_API') }}&libraries=places`;
             script.async = true;
             script.defer = true;
             script.onload = function () {

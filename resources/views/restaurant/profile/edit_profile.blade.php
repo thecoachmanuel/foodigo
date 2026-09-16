@@ -642,6 +642,6 @@
 
 
 
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API') }}&libraries=places&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_map_key() ?: env('MAP_API') }}&libraries=places&callback=initMap" async defer></script>
 
 @endpush

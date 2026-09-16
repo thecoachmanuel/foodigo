@@ -35,6 +35,7 @@ return [
         'client_id' => '',
         'client_secret' => '',
         'redirect' => '',
+        'map_api' => env('MAP_API'),
     ],
 
     'facebook' => [
