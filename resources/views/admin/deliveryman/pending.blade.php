@@ -151,7 +151,7 @@
     <script>
         "use strict"
         function itemDeleteConfrimation(id){
-            $("#item_delect_confirmation").attr("action",'{{ url("admin/withdraw-list/") }}'+"/"+id)
+            $("#item_delect_confirmation").attr("action",'{{ url("admin/deliveryman-delete/") }}'+"/"+id)
         }
     </script>
 @endpush

@@ -139,7 +139,7 @@
 
 													<!-- Header Author -->
 													<div class="crancy-header__single">
-														<a href="{{ route('admin.edit-profile') }}"><div class="crancy-header__author-img"><img src="{{ $auth_admin->image ? asset($auth_admin->image) : asset($general_setting->default_avatar) }}" alt="#"></div></a>
+														<a href="{{ route('admin.edit-profile') }}"><div class="crancy-header__author-img"><img src="{{ !empty($auth_admin?->image) ? asset($auth_admin->image) : (!empty($general_setting?->default_avatar) ? asset($general_setting->default_avatar) : asset('uploads/website-images/default-avatar.png')) }}" alt="#"></div></a>
 														<!-- crancy Profile Hover -->
 
 														<!-- Dropdown List -->

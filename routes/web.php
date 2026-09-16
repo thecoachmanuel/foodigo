@@ -290,25 +290,24 @@ Route::group(['as'=> 'admin.', 'prefix' => 'admin'],function (){
         Route::post('offer-product-status/{id}', [OfferController::class, 'changeStatus'])->name('offer-product-status');
         Route::delete('delete-offer-product/{id}', [OfferController::class,'destroy'])->name('delete-offer-product');
 
+        Route::get('deliveryman-index', [DeliveryManController::class, 'deliveryman_index'])->name('deliveryman-index');
+        Route::get('deliveryman-show/{id}', [DeliveryManController::class, 'deliveryman_show'])->name('deliveryman-show');
+        Route::get('order-show/{id}',[DeliveryManController::class,'order_show'])->name('order-show');
+        Route::get('deliveryman-pending',[DeliveryManController::class,'deliveryman_pending'])->name('deliveryman-pending');
+        Route::delete('deliveryman-delete/{id}',[DeliveryManController::class,'deliveryman_delete'])->name('deliveryman-delete');
+
+        // Document Type Routes
+        Route::resource('document-type', App\Http\Controllers\Admin\DocumentTypeController::class);
+
+        // Vehicle Type Routes
+        Route::resource('vehicle-type', App\Http\Controllers\Admin\VehicleTypeController::class);
+
+        Route::get('deliveryman-create', [DeliveryManController::class, 'create'])->name('deliveryman-create');
+        Route::post('deliveryman-store', [DeliveryManController::class, 'deliveryman_store'])->name('deliveryman-store');
+        Route::get('deliveryman-edit/{id}', [DeliveryManController::class, 'deliveryman_edit'])->name('deliveryman-edit');
+        Route::put('deliveryman-update/{id}', [DeliveryManController::class, 'deliveryman_update'])->name('deliveryman-update');
+
     });
-    Route::get('deliveryman-index', [DeliveryManController::class, 'deliveryman_index'])->name('deliveryman-index');
-    Route::get('deliveryman-show/{id}', [DeliveryManController::class, 'deliveryman_show'])->name('deliveryman-show');
-    Route::get('order-show/{id}',[DeliveryManController::class,'order_show'])->name('order-show');
-    Route::get('deliveryman-pending',[DeliveryManController::class,'deliveryman_pending'])->name('deliveryman-pending');
-    Route::delete('deliveryman-delete/{id}',[DeliveryManController::class,'deliveryman_delete'])->name('deliveryman-delete');
-
-    // Document Type Routes
-    Route::resource('document-type', App\Http\Controllers\Admin\DocumentTypeController::class);
-
-    // Vehicle Type Routes
-    Route::resource('vehicle-type', App\Http\Controllers\Admin\VehicleTypeController::class);
-
-    Route::get('deliveryman-create', [DeliveryManController::class, 'create'])->name('deliveryman-create');
-    Route::post('deliveryman-store', [DeliveryManController::class, 'deliveryman_store'])->name('deliveryman-store');
-    Route::get('deliveryman-show', [DeliveryManController::class, 'deliveryman_show'])->name('ddeliveryman-show');
-    Route::get('deliveryman-edit/{id}', [DeliveryManController::class, 'deliveryman_edit'])->name('deliveryman-edit');
-    Route::put('deliveryman-update/{id}', [DeliveryManController::class, 'deliveryman_update'])->name('deliveryman-update');
-    Route::delete('deliveryman-delete/{id}', [DeliveryManController::class, 'deliveryman_delete'])->name('deliveryman-delete');
 });
 
 

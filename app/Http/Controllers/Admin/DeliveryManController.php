@@ -177,28 +177,20 @@ class DeliveryManController extends Controller
 
     public function deliveryman_delete($id){
 
-        $restaurant = DeliveryMan::findOrFail($id);
+        $deliveryman = DeliveryMan::findOrFail($id);
 
         $order_qty = Order::where('delivery_man_id', $id)->count();
 
         if($order_qty > 0){
-            $notification = trans('translate.You can not delete this restaurant, multiple orders available under this restaurant');
-            $notification = array('messege'=>$notification,'alert-type'=>'error');
+            $notification = trans('translate.You can not delete this deliveryman, multiple orders available under this deliveryman');
+            $notification = array('message'=>$notification,'alert-type'=>'error');
             return redirect()->back()->with($notification);
         }
 
+        $deliveryman->delete();
 
-        $restaurant->delete();
-
-
-        $notification = trans('translate.Delete Successfully');
+        $notification = trans('translate.Deleted Successfully');
         $notification = array('message'=>$notification,'alert-type'=>'success');
-        return redirect()->route('admin.restaurants.index')->with($notification);
-
-        DeliveryMan::findOrFail($id)->forcedelete();
-
-        $notification=trans('translate.Deleted Successfully');
-        $notification=array('message'=>$notification,'alert-type'=>'success');
         return redirect()->back()->with($notification);
     }
 
