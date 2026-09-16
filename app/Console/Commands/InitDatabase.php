@@ -123,6 +123,10 @@ class InitDatabase extends Command
                 }
                 $this->info('Nigerian Naira (NGN / ₦) prioritized as default currency successfully.');
             }
+
+            if (Schema::hasTable('global_settings')) {
+                DB::table('global_settings')->where('key', 'app_name')->update(['value' => 'Nectar']);
+            }
         } catch (\Throwable $e) {
             Log::warning('Naira currency configuration notice: ' . $e->getMessage());
         }

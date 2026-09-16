@@ -162,7 +162,7 @@
 								<div class="single-slider">
 									<div class="crancy-wc__slider--single">
 										<div class="crancy-wc__slider--content">
-											<h4 class="crancy-wc__slider--title">{{ __('translate.Welcome to Foodigo') }}</h4>
+											<h4 class="crancy-wc__slider--title">{{ __('translate.Welcome to Nectar') }}</h4>
 										</div>
 									</div>
 								</div>

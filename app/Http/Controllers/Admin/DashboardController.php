@@ -56,26 +56,17 @@ class DashboardController extends Controller
 
         $lable = array();
         $data = array();
-        $start = new Carbon('first day of this month');
-        $last = new Carbon('last day of this month');
-        $first_date = $start->format('Y-m-d');
-        $last_date = $last->format('Y-m-d');
-        $today = date('Y-m-d');
-        $length = date('d')-$start->format('d');
 
-        for($i=1; $i <= $length+1; $i++){
+        // Query daily order totals for the last 14 days (or current month to-date)
+        $daysToShow = max(14, Carbon::now()->day);
+        $startDate = Carbon::now()->subDays($daysToShow - 1)->startOfDay();
 
-            $date = '';
-            if($i == 1){
-                $date = $first_date;
-            }else{
-                $date = $start->addDays(1)->format('Y-m-d');
-            };
-
-            $sum = Order::whereDate('created_at', $date)->sum('total');
-            $data[] = $sum;
-            $lable[] = $i;
-
+        for ($i = 0; $i < $daysToShow; $i++) {
+            $currentDate = (clone $startDate)->addDays($i);
+            $dateStr = $currentDate->format('Y-m-d');
+            $sum = Order::whereDate('created_at', $dateStr)->sum('grand_total');
+            $data[] = round((float) $sum, 2);
+            $lable[] = $currentDate->format('M j');
         }
 
         $data = json_encode($data);

@@ -137,7 +137,7 @@
                 key: paymentData.data.razorpay_key,
                 amount: paymentData.data.amount,
                 currency: paymentData.data.currency,
-                name: 'Foodigo',
+                name: 'Nectar',
                 description: 'Food Order Payment',
                 image: '{{ asset("favicon.ico") }}',
                 handler: function (response) {

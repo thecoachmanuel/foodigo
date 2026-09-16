@@ -22,9 +22,9 @@
     ]);
 @endphp
 {
-    "name": "{{ $settings->get('app_name')->value ?? 'Foodigo - Food Delivery' }}",
-    "short_name": "{{ $settings->get('app_name')->value ?? 'Foodigo' }}",
-    "description": "{{ $settings->get('app_name')->value ?? 'Foodigo' }} - Order delicious food online",
+    "name": "{{ $settings->get('app_name')->value ?? 'Nectar - Food Delivery' }}",
+    "short_name": "{{ $settings->get('app_name')->value ?? 'Nectar' }}",
+    "description": "{{ $settings->get('app_name')->value ?? 'Nectar' }} - Order delicious food online",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",

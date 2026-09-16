@@ -11,9 +11,9 @@ return [
     */
 
     'manifest' => [
-        'name' => 'Foodigo - Food Delivery',
-        'short_name' => 'Foodigo',
-        'description' => 'Order delicious food online with Foodigo',
+        'name' => 'Nectar - Food Delivery',
+        'short_name' => 'Nectar',
+        'description' => 'Order delicious food online with Nectar',
         'start_url' => '/',
         'display' => 'standalone',
         'background_color' => '#ffffff',
@@ -135,8 +135,8 @@ return [
     'meta' => [
         'apple-mobile-web-app-capable' => 'yes',
         'apple-mobile-web-app-status-bar-style' => 'default',
-        'apple-mobile-web-app-title' => 'Foodigo',
-        'application-name' => 'Foodigo',
+        'apple-mobile-web-app-title' => 'Nectar',
+        'application-name' => 'Nectar',
         'msapplication-TileColor' => '#ff6b35',
         'msapplication-config' => '/browserconfig.xml',
         'theme-color' => '#ff6b35'

@@ -569,21 +569,22 @@
         let date_lable = @json($lable);
 		date_lable = JSON.parse(date_lable);
 
+        const currencyIcon = @json(session()->get('currency_icon', '₦'));
+
         // Chart Three
         const ctx_myChart_recent_statics = document.getElementById('myChart_recent_statics').getContext('2d');
         const gradientBgs = ctx_myChart_recent_statics.createLinearGradient(400, 100, 100, 400);
 
-        gradientBgs.addColorStop(0, 'rgba(253, 73, 23, 0.2)');
-        gradientBgs.addColorStop(1, 'rgba(253, 73, 23, 0.5)');
+        gradientBgs.addColorStop(0, 'rgba(253, 73, 23, 0.15)');
+        gradientBgs.addColorStop(1, 'rgba(253, 73, 23, 0.45)');
 
         const myChart_recent_statics = new Chart(ctx_myChart_recent_statics, {
             type: 'line',
 
             data: {
-
                 labels: date_lable,
                 datasets: [{
-                    label: 'Sells',
+                    label: "{{ __('translate.Sales') }}",
                     data: purchase_data,
                     backgroundColor: gradientBgs,
                     borderColor: 'rgb(253, 73, 23)',
@@ -592,7 +593,8 @@
                     tension: 0.4,
                     fillColor: '#fff',
                     fill: 'start',
-                    pointRadius: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
                 }]
             },
 
@@ -602,59 +604,65 @@
                 scales: {
                     x: {
                         ticks: {
-                            color: 'rgb(253, 73, 23)',
+                            color: '#6b7280',
+                            font: {
+                                size: 12
+                            }
                         },
                         grid: {
                             display: false,
                             drawBorder: false,
                             color: '#E6F3FF',
-                        },
-                        suggestedMax: 100,
-                        suggestedMin: 50,
-
+                        }
                     },
                     y: {
+                        beginAtZero: true,
                         ticks: {
-                            color: 'rgb(253, 73, 23)',
-                            callback: function(value, index, values) {
-                                return (value / 10) * 10 + '$';
+                            color: '#6b7280',
+                            callback: function(value) {
+                                if (value >= 1000000) {
+                                    return currencyIcon + (value / 1000000).toFixed(1) + 'M';
+                                } else if (value >= 1000) {
+                                    return currencyIcon + (value / 1000).toFixed(0) + 'k';
+                                }
+                                return currencyIcon + Number(value).toLocaleString();
                             }
                         },
                         grid: {
                             drawBorder: false,
-                            color: '#D7DCE7',
-                            borderDash: [5, 5]
+                            color: '#E5E7EB',
+                            borderDash: [4, 4]
                         },
                     },
                 },
                 plugins: {
                     tooltip: {
-                        padding: 10,
+                        padding: 12,
                         displayColors: true,
                         yAlign: 'bottom',
-                        backgroundColor: '#fff',
-                        titleColor: '#000',
+                        backgroundColor: '#1f2937',
+                        titleColor: '#fff',
                         titleFont: {
-                            weight: 'normal'
+                            weight: '600',
+                            size: 13
                         },
-                        bodyColor: '#2F3032',
-                        cornerRadius: 12,
-                        boxPadding: 3,
+                        bodyColor: '#f3f4f6',
+                        cornerRadius: 8,
+                        boxPadding: 4,
                         usePointStyle: true,
-                        borderWidth: 0,
-                        font: {
-                            size: 14
-                        },
-                        caretSize: 9,
-                        bodySpacing: 100,
+                        callbacks: {
+                            label: function(context) {
+                                const val = context.raw || 0;
+                                return ' ' + context.dataset.label + ': ' + currencyIcon + Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            }
+                        }
                     },
                     legend: {
-                        position: 'bottom',
                         display: false,
                     },
                     title: {
                         display: false,
-                        text: "{{ __('translate.Purchase History') }}"
+                        text: "{{ __('translate.Order Statistics') }}"
                     }
                 }
             }

@@ -196,7 +196,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🍕 {{ __('translate.favorite_food_app', ['name' => config('app.name', 'Foodigo')]) }}</h1>
+            <h1>🍕 {{ __('translate.favorite_food_app', ['name' => config('app.name', 'Nectar')]) }}</h1>
             <p>{{ __('translate.favorite_food_app') }}</p>
         </div>
         @php 
@@ -211,7 +211,7 @@
             </div>
             
             <div class="message">
-                {!! __('translate.welcome_message', ['app_name' => config('app.name', 'Foodigo')]) !!}
+                {!! __('translate.welcome_message', ['app_name' => config('app.name', 'Nectar')]) !!}
             </div>
             
             <div class="otp-container">
@@ -227,7 +227,7 @@
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <div class="step-text">{{ __('translate.step_1', ['app_name' => config('app.name')]) }}</div>
+                    <div class="step-text">{{ __('translate.step_1', ['app_name' => config('app.name', 'Nectar')]) }}</div>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
@@ -249,8 +249,8 @@
         </div>
         
         <div class="footer">
-            <p>{!! __('translate.sent_by', ['app_name' => config('app.name', 'Foodigo')]) !!}</p>
-            <p>{{ __('translate.copyright', ['year' => date('Y'), 'app_name' => config('app.name', 'Foodigo')]) }}</p>
+            <p>{!! __('translate.sent_by', ['app_name' => config('app.name', 'Nectar')]) !!}</p>
+            <p>{{ __('translate.copyright', ['year' => date('Y'), 'app_name' => config('app.name', 'Nectar')]) }}</p>
             <p style="margin-top: 20px; font-size: 12px;">
                 {{ __('translate.help_text') }}
             </p>

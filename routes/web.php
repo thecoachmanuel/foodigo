@@ -379,6 +379,7 @@ Route::get('/migrate', function(){
     Artisan::call('optimize:clear');
 
     GlobalSetting::updateOrCreate(['key' => 'splash_screens'], ['value' => '']);
+    GlobalSetting::where('key', 'app_name')->update(['value' => 'Nectar']);
 
     $notification = trans('translate.Version updated successful');
     $notification = array('message' => $notification, 'alert-type' => 'success');

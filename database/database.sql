@@ -1168,7 +1168,7 @@ CREATE TABLE `global_settings` (
 INSERT INTO `global_settings` (`id`, `key`, `value`, `created_at`, `updated_at`) VALUES
 (1, 'logo', 'uploads/website-images/logo-2025-04-29-08-20-19-6442.svg', NULL, '2025-04-29 02:20:19'),
 (2, 'favicon', 'uploads/website-images/favicon-2025-04-29-08-20-19-6989.png', NULL, '2025-04-29 02:20:19'),
-(3, 'app_name', 'Foodigo', NULL, '2025-03-23 22:46:04'),
+(3, 'app_name', 'Nectar', NULL, '2025-03-23 22:46:04'),
 (4, 'contact_message_mail', 'admin@gmail.com', NULL, '2025-03-23 22:46:04'),
 (5, 'timezone', 'Asia/Dhaka', NULL, '2025-03-23 22:46:04'),
 (6, 'selected_theme', 'theme_two', NULL, '2024-09-24 23:21:32'),
