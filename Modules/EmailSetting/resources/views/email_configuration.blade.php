@@ -17,11 +17,11 @@
                     <div class="crancy-body">
                         <!-- Dashboard Inner -->
                         <div class="crancy-dsinner">
-                            <form action="{{ route('admin.update-email-setting') }}" enctype="multipart/form-data" method="POST">
-                                @csrf
-                                @method('PUT')
-                                <div class="row">
-                                    <div class="col-12 mg-top-30">
+                            <div class="row">
+                                <div class="col-lg-8 col-12 mg-top-30">
+                                    <form action="{{ route('admin.update-email-setting') }}" enctype="multipart/form-data" method="POST">
+                                        @csrf
+                                        @method('PUT')
                                         <!-- Product Card -->
                                         <div class="crancy-product-card">
                                             <h4 class="crancy-product-card__title">{{ __('translate.Email Configuration') }}</h4>
@@ -31,59 +31,55 @@
                                                 <div class="col-12">
                                                     <div class="crancy__item-form--group mg-top-form-20">
                                                         <label class="crancy__item-label">{{ __('translate.Sender Name') }} </label>
-                                                        <input class="crancy__item-input" type="text" name="sender_name" value="{{ $email_setting->sender_name }}">
+                                                        <input class="crancy__item-input" type="text" name="sender_name" value="{{ $email_setting->sender_name }}" placeholder="e.g. Nectar">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-12">
                                                     <div class="crancy__item-form--group mg-top-form-20">
                                                         <label class="crancy__item-label">{{ __('translate.Mail Host') }} </label>
-                                                        <input class="crancy__item-input" type="text" name="mail_host" value="{{ $email_setting->mail_host }}">
+                                                        <input class="crancy__item-input" type="text" name="mail_host" value="{{ $email_setting->mail_host }}" placeholder="e.g. smtp.gmail.com">
                                                     </div>
                                                 </div>
 
-
-
                                                 <div class="col-12">
                                                     <div class="crancy__item-form--group mg-top-form-20">
-                                                        <label class="crancy__item-label">{{ __('translate.Email') }} </label>
-                                                        <input class="crancy__item-input" type="text" name="email" value="{{ $email_setting->email }}">
+                                                        <label class="crancy__item-label">{{ __('translate.Email') }} ({{ __('translate.Sender Address') }}) </label>
+                                                        <input class="crancy__item-input" type="text" name="email" value="{{ $email_setting->email }}" placeholder="e.g. info@yourdomain.com or yourname@gmail.com">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-12">
                                                     <div class="crancy__item-form--group mg-top-form-20">
                                                         <label class="crancy__item-label">{{ __('translate.SMTP User Name') }} </label>
-                                                        <input class="crancy__item-input" type="text" name="smtp_username" value="{{ $email_setting->smtp_username }}">
+                                                        <input class="crancy__item-input" type="text" name="smtp_username" value="{{ $email_setting->smtp_username }}" placeholder="e.g. yourname@gmail.com">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-12">
                                                     <div class="crancy__item-form--group mg-top-form-20">
                                                         <label class="crancy__item-label">{{ __('translate.SMTP Password') }} </label>
-                                                        <input class="crancy__item-input" type="text" name="smtp_password" value="{{ $email_setting->smtp_password }}">
+                                                        <input class="crancy__item-input" type="password" name="smtp_password" value="{{ $email_setting->smtp_password }}" placeholder="16-character Google App Password or SMTP password">
+                                                        <small class="text-muted" style="font-size: 12px; margin-top: 5px; display: block;">For Gmail, use a 16-character App Password (with or without spaces).</small>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-12">
                                                     <div class="crancy__item-form--group mg-top-form-20">
                                                         <label class="crancy__item-label">{{ __('translate.Mail Port') }} </label>
-                                                        <input class="crancy__item-input" type="text" name="mail_port" value="{{ $email_setting->mail_port }}">
+                                                        <input class="crancy__item-input" type="text" name="mail_port" value="{{ $email_setting->mail_port }}" placeholder="587 (TLS) or 465 (SSL)">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-12">
                                                     <div class="crancy__item-form--group mg-top-form-20">
-                                                        <label class="crancy__item-label">{{ __('translate.Mail Port') }} </label>
+                                                        <label class="crancy__item-label">{{ __('translate.Mail Encryption') }} </label>
                                                         <select class="form-select crancy__item-input" name="mail_encryption">
-                                                            <option {{ $email_setting->mail_encryption == 'tls' ? 'selected' : '' }} value="tls">{{ __('translate.TLS') }}</option>
-
-                                                            <option {{ $email_setting->mail_encryption == 'ssl' ? 'selected' : '' }} value="ssl">{{ __('translate.SSL') }}</option>
-
+                                                            <option {{ $email_setting->mail_encryption == 'tls' ? 'selected' : '' }} value="tls">{{ __('translate.TLS') }} (Port 587)</option>
+                                                            <option {{ $email_setting->mail_encryption == 'ssl' ? 'selected' : '' }} value="ssl">{{ __('translate.SSL') }} (Port 465)</option>
                                                         </select>
                                                     </div>
                                                 </div>
-
 
                                             </div>
 
@@ -91,9 +87,42 @@
 
                                         </div>
                                         <!-- End Product Card -->
+                                    </form>
+                                </div>
+
+                                <div class="col-lg-4 col-12 mg-top-30">
+                                    <!-- Test Email Card -->
+                                    <div class="crancy-product-card mb-4">
+                                        <h4 class="crancy-product-card__title">{{ __('translate.Test Email Delivery') }}</h4>
+                                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">Send a test email to verify that your SMTP credentials and mail server connection are working properly.</p>
+
+                                        <form action="{{ route('admin.send-test-email') }}" method="POST">
+                                            @csrf
+                                            <div class="crancy__item-form--group mg-top-form-10">
+                                                <label class="crancy__item-label">{{ __('translate.Recipient Email') }}</label>
+                                                <input class="crancy__item-input" type="email" name="test_email" required placeholder="your.email@example.com">
+                                            </div>
+
+                                            <button class="crancy-btn mg-top-20 w-100" type="submit" style="background-color: #ff6b35; border-color: #ff6b35;">
+                                                <i class="fa-solid fa-paper-plane me-2"></i> {{ __('translate.Send Test Email') }}
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Gmail SMTP Guide Card -->
+                                    <div class="crancy-product-card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                        <h5 style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 10px;">
+                                            <i class="fa-brands fa-google me-2" style="color: #4285F4;"></i> Google SMTP Guide
+                                        </h5>
+                                        <ul style="font-size: 13px; color: #475569; padding-left: 18px; line-height: 1.6; margin-bottom: 0;">
+                                            <li><strong>Host:</strong> smtp.gmail.com</li>
+                                            <li><strong>Port & Encryption:</strong> 587 with TLS or 465 with SSL</li>
+                                            <li><strong>Username:</strong> Your full Gmail address</li>
+                                            <li><strong>Password:</strong> Generate a 16-character <em>App Password</em> from your Google Account (Security &gt; 2-Step Verification &gt; App passwords). Regular Gmail passwords will fail.</li>
+                                        </ul>
                                     </div>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                         <!-- End Dashboard Inner -->
                     </div>

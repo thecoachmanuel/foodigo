@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{__("Register")}}</title>
+    <title>{{ env('APP_NAME') }} || {{ __('translate.Register') }}</title>
     <link rel="shortcut icon" href="{{asset($general_setting->favicon)}}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('frontend/css/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{ asset('frontend/css/slick.css')}}">
@@ -228,7 +228,7 @@
                 <div class="sign-up-from-item">
                     <div class="sign-up-from-inner">
                         <label for="exampleFormControlInput1" class="form-label">{{__('translate.Full name')}}</label>
-                        <input type="text" class="form-control" id="one" name="name" placeholder="Enter email address">
+                        <input type="text" class="form-control" id="one" name="name" placeholder="{{ __('translate.Enter full name') }}">
                     </div>
                     <div class="sign-up-from-inner">
                         <label for="exampleFormControlInput1" class="form-label">{{__('translate.Email address')}}</label>

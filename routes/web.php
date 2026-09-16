@@ -128,6 +128,7 @@ Route::group(['middleware' => [ 'HtmlSpecialchars', 'MaintenanceMode']], functio
     });
 
     Route::get('/user-verification', [UserRegisterController::class, 'custom_user_verification'])->name('user-verification');
+    Route::post('/resend-verification', [UserRegisterController::class, 'resend_verification'])->name('resend-verification');
 
     Route::post('/forget-password', [UserPasswordController::class, 'custom_forgot_password'])->name('forgot-password');
     Route::get('/reset-password', [UserPasswordController::class, 'reset_password_page'])->name('reset-password-page');

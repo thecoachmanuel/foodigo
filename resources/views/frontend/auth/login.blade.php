@@ -301,7 +301,13 @@
                     {{ __('translate.Do not have an account?') }}
                     <span>
                             <a href="{{route('register')}}">{{ __('translate.Sign Up') }}</a>
-                        </span>
+                    </span>
+                </p>
+                <p style="margin-top: 8px;">
+                    {{ __('translate.Did not receive verification email?') }}
+                    <span>
+                        <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#resendVerificationModal">{{ __('translate.Resend Email') }}</a>
+                    </span>
                 </p>
             </div>
 
@@ -355,6 +361,43 @@
                     </div>
                 </form>
 
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- resend_verification_modal -->
+<div class="modal fade reset_password_modal" id="resendVerificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 1L13 13M1 13L13 1L1 13Z" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <a href="{{ route('home') }}" class="modal_logo">
+                    <img src="{{asset($general_setting->logo)}}" alt="logo">
+                </a>
+
+                <div class="modal-body_txt">
+                    <h3>{{__('translate.Resend Verification Email')}}</h3>
+                    <p>{{__('translate.Enter the email address associated with your account and we will send you a new verification link.')}}</p>
+                </div>
+
+                <form class="modal_body_form" action="{{route('resend-verification')}}" method="post">
+                    @csrf
+                    <label for="resend_email" class="form-label">{{__('translate.Email address')}}</label>
+                    <input type="email" class="form-control" id="resend_email" name="email" required placeholder="{{ __('translate.Enter email address') }}">
+
+                    <div class="reset_password_modal_btn">
+                        <button class="thm-btn w-100" type="submit">{{__('translate.Resend Verification Link')}}</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
