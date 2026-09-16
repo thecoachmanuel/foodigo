@@ -30,7 +30,7 @@ class ContactUs extends Model
 
     public function getTitleAttribute()
     {
-        return $this->front_translate->title;
+        return $this->front_translate?->title ?? $this->translate?->title ?? '';
     }
 
 

@@ -26,7 +26,7 @@ class Cuisine extends Model
 
     public function getNameAttribute()
     {
-        return $this->front_translate->name;
+        return $this->front_translate?->name ?? $this->translate?->name ?? '';
     }
 
     public function translate(){

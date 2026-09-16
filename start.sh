@@ -49,8 +49,13 @@ php artisan view:clear || true
 # Re-apply permissions
 chmod -R 777 public storage bootstrap/cache /app/public /app/storage /app/bootstrap/cache 2>/dev/null || true
 
-# 4. Start PHP-FPM and Nginx Web Server
-echo "==> [Foodigo] Launching Nginx and PHP-FPM on port ${PORT:-8080}..."
+# 4. Prepare Nginx configuration
+echo "==> [Foodigo] Configuring Nginx web server..."
+
+# Copy custom template if available
+if [ -f "/app/nginx.template.conf" ]; then
+    cp /app/nginx.template.conf /assets/nginx.template.conf 2>/dev/null || true
+fi
 
 # Process Nixpacks' native Nginx template
 if [ -f "/assets/scripts/prestart.mjs" ] && [ -f "/assets/nginx.template.conf" ]; then
@@ -63,6 +68,9 @@ if [ -f "/app/clean-nginx.js" ]; then
 elif [ -f "./clean-nginx.js" ]; then
     node ./clean-nginx.js || true
 fi
+
+# 5. Start PHP-FPM and Nginx Web Server
+echo "==> [Foodigo] Launching PHP-FPM and Nginx on port ${PORT:-8080}..."
 
 # Start PHP-FPM in background
 if [ -f "/assets/php-fpm.conf" ]; then

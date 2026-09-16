@@ -93,7 +93,7 @@
                                             <select class="form-select crancy__item-input select2" name="city_id">
                                                 <option value="">{{ __('translate.Select City') }}</option>
                                                 @foreach ($cities as $city)
-                                                    <option {{ $city->id == old('city_id') ? 'selected' : '' }} value="{{ $city->id }}">{{ $city->translate->name }}</option>
+                                                    <option {{ $city->id == old('city_id') ? 'selected' : '' }} value="{{ $city->id }}">{{ $city->translate?->name ?? $city->name ?? '' }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -102,7 +102,7 @@
                                             <select class="form-select crancy__item-input select2" name="cuisines[]" multiple>
                                                 <option value="">{{ __('translate.Select Cuisine') }}</option>
                                                 @foreach ($cuisines as $cuisine)
-                                                    <option {{ $cuisine->id == old('cuisine') ? 'selected' : '' }} value="{{ $cuisine->id }}">{{ $cuisine->translate->name }}</option>
+                                                    <option {{ $cuisine->id == old('cuisine') ? 'selected' : '' }} value="{{ $cuisine->id }}">{{ $cuisine->translate?->name ?? $cuisine->name ?? '' }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
