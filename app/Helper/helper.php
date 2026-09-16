@@ -22,7 +22,10 @@ function front_lang() {
 
 
 function html_decode($text){
-    $decode_text = htmlspecialchars_decode($text, ENT_QUOTES);
+    if ($text === null) {
+        return '';
+    }
+    $decode_text = htmlspecialchars_decode((string)$text, ENT_QUOTES);
     return $decode_text;
 }
 

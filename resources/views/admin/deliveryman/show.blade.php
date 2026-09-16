@@ -253,15 +253,17 @@
                     <div class="overview-profile">
                         <div class="overview-profile-thumb-main">
                             <div class="overview-profile-thumb">
-                                @if ($deliveryman->man_image)
+                                @if (!empty($deliveryman->man_image))
                                 <img src="{{ asset($deliveryman->man_image) }}" alt="thumb">
-                                @else
+                                @elseif(!empty($general_setting?->default_avatar))
                                 <img src="{{ asset($general_setting->default_avatar) }}" alt="thumb">
+                                @else
+                                <img src="{{ asset('uploads/website-images/default-avatar.png') }}" alt="thumb">
                                 @endif
 
                             </div>
                             <div class="overview-profile-txt">
-                                <h4>{{ html_decode($deliveryman->name) }}</h4>
+                                <h4>{{ html_decode(($deliveryman->fname ?? '') . ' ' . ($deliveryman->lname ?? '')) }}</h4>
                             </div>
                         </div>
 
