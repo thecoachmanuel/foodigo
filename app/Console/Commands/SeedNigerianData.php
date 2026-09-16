@@ -1,11 +1,11 @@
 <?php
 
-namespace AppConsoleCommands;
+namespace App\Console\Commands;
 
-use IlluminateConsoleCommand;
-use IlluminateSupportFacadesDB;
-use IlluminateSupportFacadesSchema;
-use IlluminateSupportFacadesLog;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 
 class SeedNigerianData extends Command
 {
