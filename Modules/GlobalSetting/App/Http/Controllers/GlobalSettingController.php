@@ -77,6 +77,10 @@ class GlobalSettingController extends Controller
         GlobalSetting::where('key', 'commission_per_delivery')->update(['value' => $request->commission_per_delivery]);
         GlobalSetting::where('key', 'commission_per_sale')->update(['value' => $request->commission_per_sale]);
         GlobalSetting::where('key', 'commission_type')->update(['value' => $request->commission_type]);
+        GlobalSetting::updateOrCreate(
+            ['key' => 'email_verification'],
+            ['value' => $request->email_verification ?? 'disable']
+        );
 
         $this->set_cache_setting();
 

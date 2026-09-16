@@ -145,6 +145,17 @@
                                                                                     </div>
 
                                                                                     <div class="col-12">
+                                                                                        <div class="crancy__item-form--group mg-top-form-20">
+                                                                                            <label class="crancy__item-label">{{ __('translate.Email Verification after Signup') }} * </label>
+                                                                                            <select class="form-select crancy__item-input" name="email_verification">
+                                                                                                <option {{ ($general_setting->email_verification ?? 'disable') == 'disable' ? 'selected' : '' }} value="disable">{{ __('translate.Disable (Users can sign in instantly)') }}</option>
+                                                                                                <option {{ ($general_setting->email_verification ?? 'disable') == 'enable' ? 'selected' : '' }} value="enable">{{ __('translate.Enable (Compulsory email verification)') }}</option>
+                                                                                            </select>
+                                                                                            <small class="text-muted" style="font-size: 12px; margin-top: 5px; display: block;">When disabled, newly registered customers are automatically verified and can sign in immediately without waiting for confirmation emails.</small>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div class="col-12">
                                                                                         <div class="crancy__item-form--group  mg-top-form-20">
                                                                                             <label class="crancy__item-label">{{ __('translate.Commission Type') }}</label>
                                                                                             <select class="form-select crancy__item-input" name="commission_type" id="commission_type">

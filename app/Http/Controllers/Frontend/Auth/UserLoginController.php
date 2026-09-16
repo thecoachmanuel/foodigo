@@ -51,10 +51,20 @@ class UserLoginController extends Controller
             return $this->redirectWithError(trans('translate.Credentials do not match'));
         }
 
-        if($user->email_verified_at == null){
-            $notification = trans('translate.Please verify your email');
-            $notification = array('message'=>$notification,'alert-type'=>'error');
-            return redirect()->back()->with($notification);
+        $emailVerificationSetting = GlobalSetting::where('key', 'email_verification')->value('value') ?? 'disable';
+        $isCompulsoryVerification = ($emailVerificationSetting === 'enable');
+
+        if ($user->email_verified_at == null) {
+            if ($isCompulsoryVerification) {
+                $notification = trans('translate.Please verify your email');
+                $notification = array('message' => $notification, 'alert-type' => 'error');
+                return redirect()->back()->with($notification);
+            } else {
+                // Auto-verify user when email verification is disabled by admin
+                $user->email_verified_at = date('Y-m-d H:i:s');
+                $user->verification_token = null;
+                $user->save();
+            }
         }
 
         if ($user->status !== 'enable') {

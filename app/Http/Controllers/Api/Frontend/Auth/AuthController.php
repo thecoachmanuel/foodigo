@@ -45,8 +45,17 @@ class AuthController extends BaseController
                 return $this->sendError('Invalid credentials', [], 401);
             }
 
+            $emailVerificationSetting = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'email_verification')->value('value') ?? 'disable';
+            $isCompulsoryVerification = ($emailVerificationSetting === 'enable');
+
             if ($user->email_verified_at == null) {
-                return $this->sendError('Please verify your email', [], 401);
+                if ($isCompulsoryVerification) {
+                    return $this->sendError('Please verify your email', [], 401);
+                } else {
+                    $user->email_verified_at = now();
+                    $user->verification_token = null;
+                    $user->save();
+                }
             }
 
             if ($user->status !== 'enable') {
@@ -98,19 +107,24 @@ class AuthController extends BaseController
             return $this->sendValidationError($validator->errors()->toArray());
         }
 
-        // try {
-            $verificationToken = Str::random(100);
+        $emailVerificationSetting = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'email_verification')->value('value') ?? 'disable';
+        $isCompulsoryVerification = ($emailVerificationSetting === 'enable');
 
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'password' => Hash::make($request->password),
-                'status' => 'enable',
-                'is_banned' => 'disable',
-                'verification_token' => $verificationToken,
-            ]);
+        $verificationToken = $isCompulsoryVerification ? Str::random(100) : null;
+        $verifiedAt = $isCompulsoryVerification ? null : now();
 
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+            'status' => 'enable',
+            'is_banned' => 'disable',
+            'email_verified_at' => $verifiedAt,
+            'verification_token' => $verificationToken,
+        ]);
+
+        if ($isCompulsoryVerification) {
             // Send verification email
             $this->sendVerificationEmail($user);
 
@@ -123,12 +137,26 @@ class AuthController extends BaseController
                 ]
             ];
 
-            return $this->sendResponse($data, 'Registration successful. Please check your email for OTP');
+            return $this->sendResponse($data, 'Registration successful. Please check your email for verification');
+        }
 
-        // } catch (\Exception $e) {
-        //     Log::error('Registration error: ' . $e->getMessage());
-        //     return $this->sendError('Something went wrong', [], 500);
-        // }
+        // Instant sign-in mode: create bearer token immediately
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        $data = [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'image' => $user->image,
+                'status' => $user->status,
+            ],
+            'token' => $token,
+            'token_type' => 'Bearer'
+        ];
+
+        return $this->sendResponse($data, 'Registration successful. Welcome to Nectar!');
     }
 
     /**

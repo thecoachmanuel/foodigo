@@ -56,6 +56,43 @@ class UserRegisterController extends Controller
             'verification_token' => Str::random(100),
         ]);
 
+        $emailVerificationSetting = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'email_verification')->value('value') ?? 'disable';
+        $isCompulsoryVerification = ($emailVerificationSetting === 'enable');
+
+        if (!$isCompulsoryVerification) {
+            // Instant sign-in mode: auto-verify user immediately
+            $user->email_verified_at = date('Y-m-d H:i:s');
+            $user->verification_token = null;
+            $user->save();
+
+            // Auto-login user instantly
+            \Illuminate\Support\Facades\Auth::login($user);
+
+            // Send non-blocking welcome notification if SMTP is configured
+            try {
+                EmailHelper::mail_setup();
+                $appName = config('app.name', 'Nectar');
+                $welcomeSubject = 'Welcome to ' . $appName . '!';
+                $welcomeMessage = '<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 8px;">'
+                    . '<h2 style="color: #ff6b35; margin-top: 0;">Welcome to ' . htmlspecialchars($appName) . ', ' . htmlspecialchars($user->name) . '!</h2>'
+                    . '<p style="color: #4a5568; font-size: 15px; line-height: 1.6;">Your account has been created successfully. You can now explore top restaurants, place orders, and track deliveries in real time.</p>'
+                    . '<p style="color: #a0aec0; font-size: 12px; margin-top: 30px;">© ' . date('Y') . ' ' . htmlspecialchars($appName) . '. All rights reserved.</p>'
+                    . '</div>';
+
+                if (!empty($user->email)) {
+                    \Illuminate\Support\Facades\Mail::html($welcomeMessage, function ($m) use ($user, $welcomeSubject) {
+                        $m->to($user->email)->subject($welcomeSubject);
+                    });
+                }
+            } catch (\Throwable $e) {
+                Log::info('Welcome email notification skipped: ' . $e->getMessage());
+            }
+
+            $notification = ['message' => trans('translate.Registration successfully. You are now signed in.'), 'alert-type' => 'success'];
+            return redirect()->route('user.dashboard')->with($notification);
+        }
+
+        // Compulsory verification mode
         $mailSent = false;
         try {
             EmailHelper::mail_setup();
@@ -85,14 +122,15 @@ class UserRegisterController extends Controller
             $notification = array('message' => $notification, 'alert-type' => 'success');
             return redirect()->route('login')->with($notification);
         } else {
-            // Auto-activate user so they are never permanently locked out if SMTP is unavailable or offline
+            // Auto-activate user so they are never locked out if mailer is offline
             $user->email_verified_at = date('Y-m-d H:i:s');
             $user->verification_token = null;
             $user->save();
 
-            $notification = trans('translate.Registration successfully. You can now login to your account.');
+            \Illuminate\Support\Facades\Auth::login($user);
+            $notification = trans('translate.Registration successfully. You are now signed in.');
             $notification = array('message' => $notification, 'alert-type' => 'success');
-            return redirect()->route('login')->with($notification);
+            return redirect()->route('user.dashboard')->with($notification);
         }
     }
 

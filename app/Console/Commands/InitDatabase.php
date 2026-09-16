@@ -155,6 +155,15 @@ class InitDatabase extends Command
                     ];
                     DB::table('global_settings')->where('key', 'splash_screens')->update(['value' => json_encode($defaultSplash, JSON_UNESCAPED_UNICODE)]);
                 }
+
+                if (!DB::table('global_settings')->where('key', 'email_verification')->exists()) {
+                    DB::table('global_settings')->insert([
+                        'key' => 'email_verification',
+                        'value' => 'disable',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
         } catch (\Throwable $e) {
             Log::warning('Settings configuration notice: ' . $e->getMessage());

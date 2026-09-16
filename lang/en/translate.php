@@ -1240,5 +1240,10 @@
   'Failed to send test email: ' => 'Failed to send test email: ',
   'Please enter a valid email address' => 'Please enter a valid email address',
   'Email is required' => 'Email is required',
+  'Email Verification after Signup' => 'Email Verification after Signup',
+  'Disable (Users can sign in instantly)' => 'Disable (Users can sign in instantly)',
+  'Enable (Compulsory email verification)' => 'Enable (Compulsory email verification)',
+  'Registration successfully. You are now signed in.' => 'Registration successfully. You are now signed in.',
 );
+
 

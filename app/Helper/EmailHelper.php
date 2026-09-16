@@ -47,8 +47,13 @@ class EmailHelper{
             $scheme = null;
             if ($encryption === 'ssl' || $port === 465) {
                 $scheme = 'smtps';
-            } elseif ($encryption === 'tls' || $port === 587 || $port === 25) {
+                $encryption = 'ssl';
+            } elseif ($encryption === 'tls' || $port === 587 || $port === 2525) {
                 $scheme = 'smtp';
+                $encryption = 'tls';
+            } else {
+                $scheme = 'smtp';
+                $encryption = null;
             }
 
             $setting = [
