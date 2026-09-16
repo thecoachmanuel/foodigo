@@ -370,7 +370,7 @@
     })(jQuery);
 </script>
 
-
+@include('global.tawk_chat')
 </body>
 
 </html>

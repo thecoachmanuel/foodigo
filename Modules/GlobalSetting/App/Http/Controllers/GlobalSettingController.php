@@ -175,9 +175,26 @@ class GlobalSettingController extends Controller
 
     public function update_tawk_chat(TawkChatRequest $request)
     {
+        $chat_link = $request->chat_link ? trim($request->chat_link) : '';
+        if (!empty($chat_link)) {
+            if (preg_match('/src=[\'"]([^\'"]+)[\'"]/i', $chat_link, $matches)) {
+                $chat_link = $matches[1];
+            } elseif (preg_match('/embed\.tawk\.to\/([^\/\s\'"]+)\/([^\/\s\'"]+)/i', $chat_link, $matches)) {
+                $chat_link = 'https://embed.tawk.to/' . $matches[1] . '/' . $matches[2];
+            } elseif (!str_starts_with($chat_link, 'http') && str_contains($chat_link, '/')) {
+                $chat_link = 'https://embed.tawk.to/' . ltrim($chat_link, '/');
+            }
+        }
 
-        GlobalSetting::where('key', 'tawk_chat_link')->update(['value' => $request->chat_link]);
-        GlobalSetting::where('key', 'tawk_status')->update(['value' => $request->status ? 1 : 0]);
+        GlobalSetting::updateOrCreate(
+            ['key' => 'tawk_chat_link'],
+            ['value' => $chat_link]
+        );
+
+        GlobalSetting::updateOrCreate(
+            ['key' => 'tawk_status'],
+            ['value' => $request->status ? 1 : 0]
+        );
 
         $this->set_cache_setting();
 

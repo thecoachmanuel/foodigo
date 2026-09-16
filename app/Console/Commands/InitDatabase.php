@@ -164,6 +164,22 @@ class InitDatabase extends Command
                         'updated_at' => now(),
                     ]);
                 }
+
+                $tawkLink = DB::table('global_settings')->where('key', 'tawk_chat_link')->value('value');
+                if (empty($tawkLink)) {
+                    DB::table('global_settings')->updateOrInsert(
+                        ['key' => 'tawk_chat_link'],
+                        ['value' => 'https://embed.tawk.to/6aaa58bcd07e5e34429206af/1k2kml8a8', 'created_at' => now(), 'updated_at' => now()]
+                    );
+                }
+
+                $tawkStatus = DB::table('global_settings')->where('key', 'tawk_status')->value('value');
+                if ($tawkStatus === null || $tawkStatus === '') {
+                    DB::table('global_settings')->updateOrInsert(
+                        ['key' => 'tawk_status'],
+                        ['value' => '1', 'created_at' => now(), 'updated_at' => now()]
+                    );
+                }
             }
 
             if (Schema::hasTable('email_templates')) {

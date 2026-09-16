@@ -549,26 +549,13 @@
     });
 
 </script>
-<script>
-fetch("http://127.0.0.1:8000//payment-api/pay-with-stripe?address_id=13&coupon_code=newyear25&discount_amount=0&delivery_charge=3.0&vat=6.4&order_type=delivery", {
-    method: "GET",
-    headers: {
-        "Authorization": "Bearer 5|C5tUvqTby3bEuLgomCF1PIBTH2MGK6Dl6Xt1LpZXd8c80100",
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
-})
-.then(res => res.json())
-.then(data => console.log(data))
-.catch(err => console.error(err));
-</script>
-
-
 
 @endif
 
 @stack('js_section')
 
+@include('global.tawk_chat')
 </body>
 
 </html>
+

@@ -313,8 +313,9 @@
 <script src="{{asset('frontend/assets/js/bootstrap.bundle.min.js')}}"></script>
 <script src="{{asset('frontend/assets/js/slick.min.js')}}"></script>
 <script src="{{asset('frontend/assets/js/main.js')}}"></script>
-
+@include('global.tawk_chat')
 
 </body>
 
 </html>
+

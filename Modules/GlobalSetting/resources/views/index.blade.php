@@ -816,7 +816,8 @@
                                                                                     <div class="col-12">
                                                                                         <div class="crancy__item-form--group mg-top-form-20">
                                                                                             <label class="crancy__item-label">{{__('translate.Tawk Chat Link')}} </label>
-                                                                                            <input class="crancy__item-input" type="text" name="chat_link" value="{{ $general_setting->tawk_chat_link }}">
+                                                                                            <input class="crancy__item-input" type="text" name="chat_link" value="{{ $general_setting->tawk_chat_link }}" placeholder="e.g. https://embed.tawk.to/6aaa58bcd07e5e34429206af/1k2kml8a8 or paste complete script">
+                                                                                            <small class="text-muted" style="font-size: 12px; margin-top: 5px; display: block;">You can enter your direct Tawk.to widget link (e.g. https://embed.tawk.to/PROPERTY_ID/WIDGET_ID) or paste the full &lt;script&gt; code provided by Tawk.to.</small>
                                                                                         </div>
                                                                                     </div>
 

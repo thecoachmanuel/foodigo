@@ -45,9 +45,8 @@
 
 <script src="{{ asset('global/js/jquery-3.7.1.min.js') }}"></script>
 <script src="{{asset('frontend/assets/js/bootstrap.bundle.min.js')}}"></script>
-<script src="{{asset('frontend/assets/js/slick.min.js')}}"></script>
 <script src="{{asset('frontend/assets/js/main.js')}}"></script>
-
+@include('global.tawk_chat')
 
 </body>
 

@@ -9,7 +9,7 @@ class TawkChatRequest extends FormRequest
     public function rules()
     {
         return [
-            'chat_link' => 'required'
+            'chat_link' => 'nullable'
         ];
     }
 
