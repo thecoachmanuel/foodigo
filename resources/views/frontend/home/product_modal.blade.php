@@ -28,7 +28,8 @@
                             <input class="form-check-input" type="radio"
                                     name="size" value="{{ $size }},{{ $price }}"
                                     id="size_{{$product->id}}_{{ $loop->index }}_{{$price}}_{{$size}}"
-                                    data-info="{{ $size }},{{ $price }}">
+                                    data-info="{{ $size }},{{ $price }}"
+                                    {{ $loop->first ? 'checked' : '' }}>
                             <label class="form-check-label"
                                     for="size_{{$product->id}}_{{ $loop->index }}_{{$price}}_{{$size}}">
                                 {{ $size }}
@@ -221,9 +222,10 @@
             }
         });
 
-        // Checkbox change listener
-        $('.form-check-input').on('change', function () {
-            let index = $(this).attr('id').replace('addon_', '');
+        // Addon Checkbox change listener
+        $('input[type="checkbox"].form-check-input').on('change', function () {
+            let id = $(this).attr('id') || '';
+            let index = id.replace('addon_', '');
             let $modal = $(this).closest('.modal');
 
             let qtyInput = $modal.find('#qtyInput_' + index);
@@ -235,6 +237,22 @@
             } else {
                 qtyInput.val(0);
                 displayInput.val(0);
+            }
+        });
+
+        // Make whole card row clickable to select size or addon
+        $('.form_check_main_item').on('click', function (e) {
+            if ($(e.target).is('input, label, button, svg, path') || $(e.target).closest('button').length) {
+                return;
+            }
+            const $radio = $(this).find('input[type="radio"]');
+            if ($radio.length) {
+                $radio.prop('checked', true).trigger('change');
+                return;
+            }
+            const $checkbox = $(this).find('input[type="checkbox"]');
+            if ($checkbox.length && !$(e.target).closest('.inc_dic_btn').length) {
+                $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change');
             }
         });
 

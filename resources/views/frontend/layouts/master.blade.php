@@ -21,15 +21,53 @@
     <link rel="stylesheet" href="{{ asset('frontend/css/cookie_consent.css')}}">
 
     <style>
-        /* Float Header Location Modal and suggestions high above sticky navbar (z-index 999999) */
-        #staticBackdrop.modal {
+        /* Float ALL Modals and dialogs high above sticky navbar (999999) and backdrop (9999990) */
+        .modal {
             z-index: 10000000 !important;
+        }
+        .modal-backdrop {
+            z-index: 9999990 !important;
         }
         .modal-backdrop.show {
             z-index: 9999990 !important;
         }
-        #staticBackdrop .modal-dialog {
+        .modal .modal-dialog {
             z-index: 10000005 !important;
+            position: relative !important;
+        }
+        .modal .modal-content {
+            z-index: 10000010 !important;
+            position: relative !important;
+            pointer-events: auto !important;
+        }
+        .food_card_modal {
+            z-index: 10000000 !important;
+        }
+        .food_card_modal .modal-dialog {
+            z-index: 10000005 !important;
+        }
+        .food_card_modal .modal-content {
+            z-index: 10000010 !important;
+            pointer-events: auto !important;
+        }
+        .food_card_modal .modal-header .btn-close {
+            z-index: 10000020 !important;
+        }
+        /* Make card items in food modal easy to click and select */
+        .form_check_main_item {
+            cursor: pointer !important;
+            transition: background 0.15s ease, border-color 0.15s ease;
+            border-radius: 8px;
+        }
+        .form_check_main_item:hover {
+            background-color: #fff7ed !important;
+        }
+        .form_check_main_item .form-check-label {
+            cursor: pointer !important;
+            user-select: none;
+        }
+        .form_check_main_item .form-check-input {
+            cursor: pointer !important;
         }
         #header_leaflet_map {
             height: 270px;
@@ -379,8 +417,21 @@
             window.location = home_url
         });
 
-
-
+        // Ensure clicking anywhere on a modal card option item selects that size or addon
+        $(document).on('click', '.form_check_main_item', function (e) {
+            if ($(e.target).is('input, label, button, svg, path') || $(e.target).closest('button').length) {
+                return;
+            }
+            const $radio = $(this).find('input[type="radio"]');
+            if ($radio.length) {
+                $radio.prop('checked', true).trigger('change');
+                return;
+            }
+            const $checkbox = $(this).find('input[type="checkbox"]');
+            if ($checkbox.length && !$(e.target).closest('.inc_dic_btn').length) {
+                $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change');
+            }
+        });
 
     });
 
