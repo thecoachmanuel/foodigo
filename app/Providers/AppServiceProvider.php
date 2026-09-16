@@ -26,7 +26,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->extend('translator', function ($translator, $app) {
+            $customTranslator = new \App\Services\CustomTranslator(
+                $app['translation.loader'],
+                $app['config']['app.locale']
+            );
+            $customTranslator->setFallback($app['config']['app.fallback_locale']);
+            return $customTranslator;
+        });
     }
 
     /**
