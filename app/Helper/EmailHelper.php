@@ -27,7 +27,7 @@ class EmailHelper{
             'encryption' => $email_setting->mail_encryption,
             'username' => $email_setting->smtp_username,
             'password' => $email_setting->smtp_password,
-            'timeout' => null,
+            'timeout' => 4,
             'local_domain' => env('MAIL_EHLO_DOMAIN')
         ];
 
