@@ -18,6 +18,11 @@ use Psr\Container\NotFoundExceptionInterface;
 class CartController extends Controller
 {
 
+    public function index()
+    {
+        return $this->view_all_carts();
+    }
+
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -26,8 +31,7 @@ class CartController extends Controller
     {
         $carts = session()->get('cart', []);
         $homepage = Homepage::first();
-        $home_translate = HomepageTranslation::where(['homepage_id' => $homepage->id, 'lang_code' => front_lang()])->first();
-
+        $home_translate = $homepage ? HomepageTranslation::where(['homepage_id' => $homepage->id, 'lang_code' => front_lang()])->first() : null;
 
         return view('frontend.carts.cart', compact('carts', 'home_translate', 'homepage'));
     }
