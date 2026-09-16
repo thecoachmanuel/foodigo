@@ -21,6 +21,11 @@ class AdminMiddleware
         if (Auth::guard('admin')->check()) {
             return $next($request);
         }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
         return redirect()->route('admin.login');
     }
 }

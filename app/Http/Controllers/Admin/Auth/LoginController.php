@@ -70,7 +70,8 @@ class LoginController extends Controller
         if($admin){
             if($admin->status == $admin::STATUS_ACTIVE){
                 if(Hash::check($request->password, $admin->password)){
-                    if(Auth::guard('admin')->attempt($credentials, $request->remember)){
+                    $remember = $request->has('remember') ? (bool)$request->remember : true;
+                    if(Auth::guard('admin')->attempt($credentials, $remember)){
 
                         $notify_message = trans('translate.Login successfully');
                         $notify_message = array('message' => $notify_message, 'alert-type' => 'success');

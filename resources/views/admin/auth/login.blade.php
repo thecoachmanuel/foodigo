@@ -71,6 +71,14 @@
 															</div>
 														</div>
 													</div>
+													<div class="col-12" style="margin-top: 15px;">
+														<div class="form-check d-flex align-items-center" style="gap: 8px;">
+															<input class="form-check-input" type="checkbox" name="remember" value="1" id="rememberMe" checked style="width: 18px; height: 18px; accent-color: #f98c3b; cursor: pointer;">
+															<label class="form-check-label mb-0" for="rememberMe" style="cursor: pointer; font-size: 14px; color: #475569; font-weight: 500;">
+																{{ __('translate.Remember Me') }}
+															</label>
+														</div>
+													</div>
 												</div>
 
 												<!-- Form Group -->

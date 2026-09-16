@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        '/payment-api/pay-with-stripe'
+        '/payment-api/pay-with-stripe',
+        '/api/set-user-location',
     ];
 }

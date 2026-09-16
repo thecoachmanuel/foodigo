@@ -13,11 +13,51 @@
     <link rel="stylesheet" href="{{ asset('frontend/css/nouislider.min.css')}}">
     <link rel="stylesheet" href="{{ asset('frontend/css/aos.css')}}">
     @if(!Route::is('view.checkout*') && !Route::is('user.address*'))
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
         <link rel="stylesheet" href="{{ asset('frontend/css/googlemap.css')}}">
     @endif
     <link rel="stylesheet" href="{{ asset('frontend/css/style.css')}}">
     <link rel="stylesheet" href="{{ asset('frontend/css/responsive.css')}}">
     <link rel="stylesheet" href="{{ asset('frontend/css/cookie_consent.css')}}">
+
+    <style>
+        /* Float Header Location Modal and suggestions high above sticky navbar (z-index 999999) */
+        #staticBackdrop.modal {
+            z-index: 10000000 !important;
+        }
+        .modal-backdrop.show {
+            z-index: 9999990 !important;
+        }
+        #staticBackdrop .modal-dialog {
+            z-index: 10000005 !important;
+        }
+        #header_leaflet_map {
+            height: 270px;
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 10px;
+            border: 1.5px solid #cbd5e1;
+            z-index: 1;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        .foodigo-map-pin {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: #ea580c;
+            border: 2.5px solid #ffffff;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+        }
+        .foodigo-map-pin i {
+            transform: rotate(45deg);
+            color: #ffffff;
+            font-size: 15px;
+        }
+    </style>
 
     @if ($general_setting->google_analytic_status == 1)
         <script async
@@ -110,37 +150,53 @@
 
 @if(!Route::is('view.checkout*') && !Route::is('user.address*') && !Route::is('apply-for-restaurant') && !Route::is('view.payment'))
 <!-- header_location_modal Modal -->
-<div class="modal fade header_location_modal " id="staticBackdrop" data-bs-backdrop="static"
+<div class="modal fade header_location_modal" id="staticBackdrop" data-bs-backdrop="static"
      data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">{{ __('translate.Set Location') }}</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); overflow: visible;">
+            <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 16px 20px;">
+                <h5 class="modal-title" id="staticBackdropLabel" style="font-weight: 700; color: #0f172a; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: #fff7ed; color: #ea580c; font-size: 15px;">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </span>
+                    {{ __('translate.Set Delivery Location') }}
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form action="{{ route('save-address') }}"   id="map_form" method="POST">
-
+            <div class="modal-body" style="padding: 20px;">
+                <form action="{{ route('save-address') }}" id="map_form" method="POST">
                     @csrf
 
-                    <input id="searchMapInput" class="mapControls form-control" type="text" required placeholder="{{ __('translate.Enter a location') }}" value="{{ session::get('address') ?? '' }}">
-
-                    <div id="google_map_area">
-
+                    <div style="position: relative;">
+                        <input id="searchMapInput" class="mapControls form-control" type="text" required 
+                               placeholder="{{ __('translate.Search area, street, or estate...') }}" 
+                               value="{{ session::get('address') ?? '' }}"
+                               style="height: 48px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 14.5px; padding-left: 14px; font-weight: 600; color: #000000;">
                     </div>
 
+                    <!-- Quick Location Actions Bar -->
+                    <div class="d-flex align-items-center justify-content-between mt-2 mb-2 px-1">
+                        <small class="text-muted" style="font-size: 12.5px; font-weight: 500;">
+                            <i class="fa-solid fa-map-pin text-warning me-1"></i> {{ __('translate.Drag pin or click map to adjust') }}
+                        </small>
+                        <button type="button" id="btn_detect_gps_modal" class="btn btn-sm" style="font-size: 12px; font-weight: 700; color: #ea580c; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 5px 12px; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-crosshairs"></i> <span id="btn_gps_text">{{ __('translate.Locate Me') }}</span>
+                        </button>
+                    </div>
 
-                    <input type="hidden" class="form-control" name="address" id="plain_address" value="{{ old('address') }}">
-                    <input class="form-control latitude" type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}" readonly>
-                    <input class="form-control longitude" type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}" readonly>
+                    <!-- Free OpenStreetMap Leaflet Container -->
+                    <div id="header_leaflet_map"></div>
 
+                    <input type="hidden" class="form-control" name="address" id="plain_address" value="{{ old('address', session::get('address')) }}">
+                    <input class="form-control latitude" type="hidden" name="latitude" id="latitude" value="{{ old('latitude', session::get('latitude')) }}" readonly>
+                    <input class="form-control longitude" type="hidden" name="longitude" id="longitude" value="{{ old('longitude', session::get('longitude')) }}" readonly>
                 </form>
 
-                <div class="location_modal-btn">
-                    <button type="submit" onclick="handleSubmit(event)" class="thm-btn">{{ __('translate.Save') }}</button>
+                <div class="location_modal-btn mt-3">
+                    <button type="submit" onclick="handleSubmit(event)" class="thm-btn w-100" style="height: 48px; border-radius: 10px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fa-solid fa-check"></i> {{ __('translate.Confirm Location') }}
+                    </button>
                 </div>
-
-
             </div>
         </div>
     </div>
@@ -244,6 +300,7 @@
 
 <script src="{{ asset('global/js/jquery-3.7.1.min.js') }}"></script>
 <script src="{{asset('frontend/assets/js/bootstrap.bundle.min.js')}}"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="{{asset('frontend/assets/js/slick.min.js')}}"></script>
 <script src="{{asset('frontend/assets/js/aos.js')}}"></script>
 <script src="{{asset('frontend/assets/js/main.js')}}"></script>
@@ -411,177 +468,203 @@
     "use strict";
 
     document.addEventListener("DOMContentLoaded", function() {
+        let leafletMap = null;
+        let leafletMarker = null;
 
-        var map;
-        var marker;
-        var autocomplete;
-        var default_lat = 0;
-        var default_lang = 0;
-        var googleMapsLoaded = false;
+        // Session coordinates or Bodija / Ibadan / Lagos default
+        let defaultLat = parseFloat("{{ session('latitude') }}") || 7.4250;
+        let defaultLng = parseFloat("{{ session('longitude') }}") || 3.9050;
 
-
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                alert("{{ __('translate.Geolocation is not supported by this browser.') }}");
-            }
-        }
-
-        function showError(error) {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    alert("{{ __('translate.Please enable to Geolocation in yor browser ') }}");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("{{ __('translate.Location information is unavailable.') }}");
-                    break;
-                case error.TIMEOUT:
-                    alert("{{ __('translate.The request to get user location timed out.') }}");
-                    break;
-                default:
-                    alert("{{ __('translate.An unknown error occurred.') }}");
-                    break;
-            }
-        }
-
-        function showPosition(position) {
-            default_lat = position.coords.latitude;
-            default_lang = position.coords.longitude;
-            if (googleMapsLoaded) {
-                initMap();
-            }
-        }
-
-        function loadGoogleMapsAPI(callback) {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key={{ google_map_key() ?: env('MAP_API') }}&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            script.onload = function () {
-                googleMapsLoaded = true;
-                callback();
-            };
-            document.head.appendChild(script);
-        }
-
-        loadGoogleMapsAPI(function () {
-            initMap();
+        const foodigoPinIcon = L.divIcon({
+            className: 'foodigo-leaflet-div-icon',
+            html: '<div class="foodigo-map-pin"><i class="fa-solid fa-location-dot"></i></div>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 36],
+            popupAnchor: [0, -36]
         });
 
+        // Initialize Free Leaflet Map with OpenStreetMap tiles
+        function initLeafletMap() {
+            const mapContainer = document.getElementById('header_leaflet_map');
+            if (!mapContainer || leafletMap) return;
 
+            leafletMap = L.map('header_leaflet_map', {
+                center: [defaultLat, defaultLng],
+                zoom: 14,
+                zoomControl: true
+            });
 
-        window.initMap = function () {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(leafletMap);
+
+            leafletMarker = L.marker([defaultLat, defaultLng], {
+                draggable: true,
+                icon: foodigoPinIcon
+            }).addTo(leafletMap);
+
+            // Drag event on marker
+            leafletMarker.on('dragend', function(e) {
+                const pos = e.target.getLatLng();
+                reverseGeocodePosition(pos.lat, pos.lng);
+            });
+
+            // Click event on map to position pin
+            leafletMap.on('click', function(e) {
+                leafletMarker.setLatLng(e.latlng);
+                reverseGeocodePosition(e.latlng.lat, e.latlng.lng);
+            });
+
+            // Expose updatePosition for Autocomplete & External scripts
+            window.foodigoMap = {
+                map: leafletMap,
+                marker: leafletMarker,
+                updatePosition: function(lat, lng, name) {
+                    if (!leafletMap || !leafletMarker) return;
+                    leafletMap.setView([lat, lng], 15);
+                    leafletMarker.setLatLng([lat, lng]);
+                    if (name) {
+                        leafletMarker.bindPopup(`<b>${name}</b>`).openPopup();
+                    }
+                }
+            };
+        }
+
+        // Reverse geocode via server proxy to update address text and inputs
+        function reverseGeocodePosition(lat, lng) {
+            const latEl = document.getElementById('latitude');
+            const lngEl = document.getElementById('longitude');
+            if (latEl) latEl.value = lat;
+            if (lngEl) lngEl.value = lng;
+
+            fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.address) {
+                        const addr = data.address;
+                        const searchInput = document.getElementById('searchMapInput');
+                        const plainAddr = document.getElementById('plain_address');
+                        if (searchInput) searchInput.value = addr;
+                        if (plainAddr) plainAddr.value = addr;
+                        if (leafletMarker) {
+                            leafletMarker.bindPopup(`<b>${addr}</b>`).openPopup();
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.warn('Reverse geocode error:', err);
+                });
+        }
+
+        // When the modal opens, initialize or invalidateSize so Leaflet geometry renders perfectly
+        $('#staticBackdrop').on('shown.bs.modal', function () {
+            if (!leafletMap) {
+                initLeafletMap();
+            } else {
+                leafletMap.invalidateSize();
+            }
+        });
+
+        // "Locate Me" GPS Button inside modal
+        const btnGps = document.getElementById('btn_detect_gps_modal');
+        if (btnGps) {
+            btnGps.addEventListener('click', function() {
+                const btnText = document.getElementById('btn_gps_text');
+                if (btnText) btnText.textContent = "{{ __('translate.Locating...') }}";
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            const lat = pos.coords.latitude;
+                            const lng = pos.coords.longitude;
+                            if (leafletMap && leafletMarker) {
+                                leafletMap.setView([lat, lng], 16);
+                                leafletMarker.setLatLng([lat, lng]);
+                            }
+                            reverseGeocodePosition(lat, lng);
+                            if (btnText) btnText.textContent = "{{ __('translate.Located!') }}";
+                            setTimeout(() => {
+                                if (btnText) btnText.textContent = "{{ __('translate.Locate Me') }}";
+                            }, 2000);
+                        },
+                        function(err) {
+                            if (btnText) btnText.textContent = "{{ __('translate.Locate Me') }}";
+                            toastr.warning("{{ __('translate.Could not access GPS. Please choose location on the map or type your address.') }}");
+                        },
+                        { timeout: 8000, enableHighAccuracy: true }
+                    );
+                } else {
+                    if (btnText) btnText.textContent = "{{ __('translate.Locate Me') }}";
+                    toastr.warning("{{ __('translate.Geolocation is not supported by your browser.') }}");
+                }
+            });
+        }
+
+        // Silent Location Detection:
+        // Silently identifies user coordinates without alarming popups or alerts
+        // Respects manual user override
+        function detectUserLocationSilently() {
             try {
-                var mapElem = document.getElementById('google_map_area');
-                if (!mapElem) return;
+                const manualOverride = localStorage.getItem('foodigo_user_location_set');
+                const hasSessionAddr = @json(session()->has('address'));
 
-                var defaultLocation = { lat: default_lat || 6.4281, lng: default_lang || 3.4219 };
-
-                var initialLocation = {
-                    lat: parseFloat("{{ session('latitude') }}") || defaultLocation.lat,
-                    lng: parseFloat("{{ session('longitude') }}") || defaultLocation.lng
-                };
-
-                map = new google.maps.Map(mapElem, {
-                    center: initialLocation,
-                    zoom: 13,
-                });
-
-                marker = new google.maps.Marker({
-                    position: initialLocation,
-                    map: map,
-                    draggable: true
-                });
-
-                var input = document.getElementById('searchMapInput');
-                if (input && google.maps.places) {
-                    autocomplete = new google.maps.places.Autocomplete(input);
-                    autocomplete.bindTo('bounds', map);
-                    autocomplete.setFields(['geometry', 'name', 'formatted_address']);
-
-            // Listener for autocomplete
-            autocomplete.addListener('place_changed', function() {
-                var place = autocomplete.getPlace();
-
-                if (!place.geometry) {
-                    alert(`{{ __('translate.No details available for the input:') }} ${place.name}`)
+                // If user has already explicitly picked a location or has an established address, do not override
+                if (manualOverride === 'manual' || hasSessionAddr) {
                     return;
                 }
 
-                // Move the map to the selected place
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(15);
-                }
+                if (!navigator.geolocation) return;
 
-                // Move marker to the new location
-                marker.setPosition(place.geometry.location);
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
+                        if (!lat || !lng) return;
 
-                // Update address input field
-                updateAddressFields(place);
-            });
+                        // Silently reverse geocode and sync with server
+                        fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data && data.address) {
+                                    const detectedAddress = data.address;
+                                    // Update Header Address Display text
+                                    const headerTextEl = document.getElementById('header_user_address_text');
+                                    if (headerTextEl) {
+                                        headerTextEl.textContent = detectedAddress;
+                                    }
 
-            // Update latitude and longitude on marker drag event
-            google.maps.event.addListener(marker, 'dragend', function() {
-                var position = marker.getPosition();
-                updateAddressFromLatLng(position);
-            });
-
-                // Update latitude and longitude on map click event
-                google.maps.event.addListener(map, 'click', function(event) {
-                    marker.setPosition(event.latLng);
-                    updateAddressFromLatLng(event.latLng);
-                });
-            } catch (err) {
-                console.warn('Map initialization notice:', err);
-            }
+                                    // Silently notify backend session
+                                    fetch('/api/set-user-location', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            latitude: lat,
+                                            longitude: lng,
+                                            address: detectedAddress
+                                        })
+                                    }).catch(() => {});
+                                }
+                            })
+                            .catch(() => {});
+                    },
+                    function(err) {
+                        // Silently handle error without any alert/toastr
+                    },
+                    { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 }
+                );
+            } catch (e) {}
         }
 
-        function updateAddressFields(place) {
-            var formattedAddress = place.formatted_address || "Address not found";
-            $("#plain_address").val(formattedAddress);
-            $(".latitude").val(place.geometry.location.lat());
-            $(".longitude").val(place.geometry.location.lng());
-        }
-
-        function updateAddressFromLatLng(latLng) {
-            var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({'location': latLng}, function(results, status) {
-                if (status === 'OK') {
-                    if (results[0]) {
-                        var formattedAddress = results[0].formatted_address;
-                        $("#plain_address").val(formattedAddress);
-                        $(".latitude").val(latLng.lat());
-                        $(".longitude").val(latLng.lng());
-                    } else {
-                        toastr.error(`{{ __('translate.No results found') }}`)
-                    }
-                } else {
-
-                    toastr.error(`{{ __('translate.Geocoder failed due to') }} ${status}`)
-                }
-            });
-        }
-
-        function getQueryParam(param) {
-
+        // Check query param for location modal
         const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        const chooseLocation = getQueryParam('choose_location');
-
-        if (chooseLocation === 'enable') {
+        if (urlParams.get('choose_location') === 'enable') {
             $('#staticBackdrop').modal('show');
         }
 
-        getLocation()
-
+        // Run silent location detection in background
+        detectUserLocationSilently();
     });
-
 </script>
 
 @endif

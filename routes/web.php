@@ -107,6 +107,11 @@ Route::group(['middleware' => [ 'HtmlSpecialchars', 'MaintenanceMode']], functio
 
     Route::post('/save-address', [HomeController::class,'save_address'])->name('save-address');
 
+    // Real-time Geocoding & Silent Location Routes
+    Route::get('/api/geocode/search', [\App\Http\Controllers\Api\GeocodeController::class, 'search'])->name('geocode.search');
+    Route::get('/api/geocode/reverse', [\App\Http\Controllers\Api\GeocodeController::class, 'reverse'])->name('geocode.reverse');
+    Route::post('/api/set-user-location', [\App\Http\Controllers\Api\GeocodeController::class, 'silentSetLocation'])->name('geocode.set-location');
+
 
     // User Login Routes.....
     Route::group(['middleware'=>'guest'],function () {

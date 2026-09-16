@@ -30,8 +30,7 @@
                             stroke-width="1.5" />
                     </svg>
 
-                </span>
-                {{ session::get('address') ?? __('Select Location') }}
+                <span id="header_user_address_text">{{ session::get('address') ?? __('Select Location') }}</span>
 
                 <span class="arrow_icon">
                     <svg width="10" height="6" viewBox="0 0 10 6" fill="none"

@@ -264,11 +264,11 @@
             right: 0 !important;
             width: 100% !important;
             min-width: 100% !important;
-            z-index: 100000 !important;
+            z-index: 10000020 !important;
             background: #ffffff !important;
-            border: 1.5px solid #cbd5e1 !important;
+            border: 2px solid #94a3b8 !important;
             border-radius: 12px !important;
-            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.22), 0 8px 15px -6px rgba(15, 23, 42, 0.12) !important;
+            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.35), 0 8px 15px -6px rgba(15, 23, 42, 0.2) !important;
             max-height: 290px !important;
             overflow-y: auto !important;
             padding: 6px 0 !important;
@@ -284,7 +284,7 @@
             transition: all 0.15s ease !important;
             border-bottom: 1px solid #f1f5f9 !important;
             font-size: 14px !important;
-            color: #090d16 !important;
+            color: #000000 !important;
             text-align: left !important;
             background: #ffffff !important;
             min-height: 48px !important;
@@ -293,8 +293,8 @@
             border-bottom: none !important;
         }
         .nga-geo-item:hover, .nga-geo-item.active {
-            background-color: #fffbeb !important;
-            border-left: 4px solid #f98c3b !important;
+            background-color: #f3f4f6 !important;
+            border-left: 4px solid #ea580c !important;
             padding-left: 15px !important;
         }
         .nga-geo-item-left {
@@ -319,17 +319,17 @@
         }
         .nga-geo-title {
             font-weight: 700 !important;
-            color: #090d16 !important;
-            font-size: 14px !important;
+            color: #000000 !important;
+            font-size: 14.5px !important;
             line-height: 1.35 !important;
             white-space: normal !important;
             word-break: break-word !important;
             display: block !important;
         }
         .nga-geo-subtitle {
-            font-size: 12.5px !important;
-            color: #334155 !important;
-            font-weight: 500 !important;
+            font-size: 13px !important;
+            color: #1f2937 !important;
+            font-weight: 600 !important;
             line-height: 1.3 !important;
             margin-top: 2px !important;
             white-space: normal !important;
@@ -342,8 +342,8 @@
             padding: 3px 9px !important;
             border-radius: 9999px !important;
             background: #f1f5f9 !important;
-            color: #334155 !important;
-            border: 1px solid #e2e8f0 !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
             margin-left: 8px !important;
             flex-shrink: 0 !important;
             text-transform: uppercase !important;
@@ -367,17 +367,18 @@
         .nga-geo-loading {
             padding: 12px 14px !important;
             font-size: 13px !important;
-            color: #475569 !important;
-            font-weight: 500 !important;
+            color: #000000 !important;
+            font-weight: 600 !important;
             text-align: center !important;
+            background: #ffffff !important;
         }
         .nga-geo-empty {
             padding: 14px 16px !important;
             font-size: 13px !important;
-            color: #475569 !important;
-            font-weight: 500 !important;
+            color: #000000 !important;
+            font-weight: 600 !important;
             text-align: center !important;
-            background: #f8fafc !important;
+            background: #ffffff !important;
         }
         /* Custom Clean Restaurant Pickup Card */
         .pickup-clean-card {
@@ -437,40 +438,70 @@
         }).slice(0, 8);
     }
 
-    // Online Photon / OSM API search for dynamic Nigerian addresses
+    // Real-time Free Geocoding API search (via local proxy + OSM)
     async function searchOnlineOsm(query) {
         if (!query || query.trim().length < 2) return [];
+        const cleanQuery = query.trim();
+
+        // 1. First try our fast server proxy endpoint with built-in cache & fallback
         try {
-            const encoded = encodeURIComponent(query.trim());
-            const url = `https://photon.komoot.de/api/?q=${encoded}&countrycodes=NG&limit=6`;
-            
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2500);
-
-            const res = await fetch(url, { signal: controller.signal });
-            clearTimeout(timeoutId);
-
-            if (!res.ok) return [];
-            const data = await res.json();
-            
-            if (!data.features || !data.features.length) return [];
-
-            return data.features.map(f => {
-                const p = f.properties || {};
-                const nameParts = [p.name, p.street, p.district, p.city, p.state].filter(Boolean);
-                const uniqueParts = [...new Set(nameParts)];
-                return {
-                    name: uniqueParts.join(', '),
-                    city: p.city || p.district || p.county || 'Nigeria',
-                    state: p.state || 'Nigeria',
-                    lat: f.geometry.coordinates[1],
-                    lng: f.geometry.coordinates[0],
-                    type: 'osm'
-                };
+            const proxyController = new AbortController();
+            const proxyTimeout = setTimeout(() => proxyController.abort(), 2000);
+            const proxyRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(cleanQuery)}`, {
+                signal: proxyController.signal
             });
-        } catch (e) {
-            return [];
+            clearTimeout(proxyTimeout);
+
+            if (proxyRes.ok) {
+                const proxyData = await proxyRes.json();
+                const items = Array.isArray(proxyData) ? proxyData : (proxyData.results || []);
+                if (items && items.length > 0) {
+                    return items.map(item => ({
+                        name: item.name,
+                        city: item.city || '',
+                        state: item.state || 'Nigeria',
+                        lat: parseFloat(item.lat),
+                        lng: parseFloat(item.lng),
+                        type: item.type || 'hub'
+                    }));
+                }
+            }
+        } catch (err) {
+            // If proxy fails or times out, proceed to direct Photon
         }
+
+        // 2. Direct Photon OSM query fallback
+        try {
+            const directController = new AbortController();
+            const directTimeout = setTimeout(() => directController.abort(), 2000);
+            const directRes = await fetch(`https://photon.komoot.de/api/?q=${encodeURIComponent(cleanQuery)}&countrycodes=NG&limit=8`, {
+                signal: directController.signal
+            });
+            clearTimeout(directTimeout);
+
+            if (directRes.ok) {
+                const data = await directRes.json();
+                if (data.features && data.features.length) {
+                    return data.features.map(f => {
+                        const p = f.properties || {};
+                        const nameParts = [p.name, p.street, p.district, p.city, p.state].filter(Boolean);
+                        const uniqueParts = [...new Set(nameParts)];
+                        return {
+                            name: uniqueParts.join(', '),
+                            city: p.city || p.district || p.county || 'Nigeria',
+                            state: p.state || 'Nigeria',
+                            lat: f.geometry.coordinates[1],
+                            lng: f.geometry.coordinates[0],
+                            type: 'osm'
+                        };
+                    });
+                }
+            }
+        } catch (err) {
+            // Fall back to local search
+        }
+
+        return searchLocalDictionary(cleanQuery);
     }
 
     // Resolve address text into best matching lat/lng immediately
@@ -714,6 +745,16 @@
             this.input.value = item.name;
             this.populateFields(item, true);
             this.closeDropdown();
+
+            // Notify Foodigo Map if initialized
+            if (window.foodigoMap && typeof window.foodigoMap.updatePosition === 'function') {
+                window.foodigoMap.updatePosition(item.lat, item.lng, item.name);
+            }
+
+            // Record that the user made a manual selection so background detection does not override
+            try {
+                localStorage.setItem('foodigo_user_location_set', 'manual');
+            } catch (e) {}
         }
 
         populateFields(item, userExplicit = true) {
