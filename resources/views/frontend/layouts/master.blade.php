@@ -21,6 +21,46 @@
     <link rel="stylesheet" href="{{ asset('frontend/css/cookie_consent.css')}}">
 
     <style>
+        /* Anti-FOUC & Anti-Layout Shift for Sliders on Initial Load */
+        .banner_slick:not(.slick-initialized),
+        .categories_slick:not(.slick-initialized),
+        .discount_slick:not(.slick-initialized),
+        .discount_slick_two:not(.slick-initialized),
+        .deals_slick:not(.slick-initialized),
+        .slickSlider:not(.slick-initialized),
+        .sign_up_left_slider_main:not(.slick-initialized),
+        .our_chef_slick:not(.slick-initialized),
+        .brand_slider:not(.slick-initialized) {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            overflow: hidden !important;
+            visibility: visible !important;
+        }
+        .banner_slick:not(.slick-initialized) > * {
+            min-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
+        .banner_slick:not(.slick-initialized) > *:not(:first-child) {
+            display: none !important;
+        }
+        .categories_slick:not(.slick-initialized) > * {
+            min-width: 16.666% !important;
+            flex: 0 0 16.666% !important;
+        }
+        .discount_slick:not(.slick-initialized) > *,
+        .discount_slick_two:not(.slick-initialized) > *,
+        .slickSlider:not(.slick-initialized) > * {
+            min-width: 33.333% !important;
+            flex: 0 0 33.333% !important;
+        }
+        .deals_slick:not(.slick-initialized) > * {
+            min-width: 25% !important;
+            flex: 0 0 25% !important;
+        }
+        .sign_up_left_slider_main:not(.slick-initialized) > *:not(:first-child) {
+            display: none !important;
+        }
+
         /* Float ALL Modals and dialogs high above sticky navbar (999999) and backdrop (9999990) */
         .modal {
             z-index: 10000000 !important;

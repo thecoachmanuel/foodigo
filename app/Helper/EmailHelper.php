@@ -64,7 +64,7 @@ class EmailHelper{
                 'encryption' => $encryption,
                 'username' => $username,
                 'password' => $password,
-                'timeout' => 15,
+                'timeout' => 4,
                 'local_domain' => env('MAIL_EHLO_DOMAIN'),
                 'source_ip' => '0.0.0.0',
             ];

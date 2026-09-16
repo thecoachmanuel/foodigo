@@ -373,6 +373,9 @@ class HomeController extends Controller
         $home_translate = HomepageTranslation::where(['homepage_id' => $homepage->id, 'lang_code' => front_lang()])->first();
 
         $restaurant = Restaurant::where('slug', $slug)->withAvg('reviews', 'rating')->withCount('reviews')->first();
+        if (!$restaurant) {
+            abort(404);
+        }
 
         $categories = Category::with(['products' => function ($query) use ($restaurant) {
             $query->where('restaurant_id', $restaurant->id)

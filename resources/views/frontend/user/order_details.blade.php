@@ -477,7 +477,7 @@
                                     @endphp
                                     @foreach($order->items ?? [] as $key => $order_item)
                                         @php
-                                            $product = Modules\Product\App\Models\Product::where('status', 'enable')->whereIn('id', [$order_item['product_id']])->first();
+                                            $product = $order_item->products ?? Modules\Product\App\Models\Product::find($order_item['product_id']);
                                             $total += $order_item->total;
                                         @endphp
                                         <tr>
@@ -485,14 +485,14 @@
                                             <td>
                                                 <div class="td_thumb">
                                                     <img
-                                                        src="{{asset($product->image)}}"
+                                                        src="{{asset($product?->image)}}"
                                                         alt="">
                                                 </div>
                                             </td>
                                             <td>
 
                                                 <div class="td_a">
-                                                    <a href="javascript:;">{{$product->name}}</a>
+                                                    <a href="javascript:;">{{$product?->name ?? 'Product'}}</a>
                                                 </div>
 
                                             </td>
@@ -501,26 +501,28 @@
 
                                                 <div class="td_size">
                                                     <p>
-                                                        @foreach (json_decode($order_item['size']) as $size => $price)
-                                                            {{ $size }} (<strong>{{currency( $price) }}</strong>)
-                                                        @endforeach</p>
+                                                        @if(!empty($order_item['size']) && is_string($order_item['size']) && ($decodedSizes = json_decode($order_item['size'], true)))
+                                                            @foreach ($decodedSizes as $size => $price)
+                                                                {{ $size }} (<strong>{{currency( $price) }}</strong>)
+                                                            @endforeach
+                                                        @endif
+                                                    </p>
                                                 </div>
 
                                             </td>
                                             <td>
 
                                                 <div class="td_addons">
-                                                    @foreach (json_decode($order_item['addons']) as $addonId => $quantity)
+                                                    @php
+                                                        $itemAddons = $order_item->addon_details ?? [];
+                                                    @endphp
+                                                    @foreach ($itemAddons as $addon)
                                                         @php
-                                                            $addonsDb = Modules\Addon\App\Models\Addon::whereIn('id', [$addonId])->get();
-                                                            $calculate += ($addonsDb->first()->price * $quantity);
+                                                            $calculate += ($addon['price'] * $addon['quantity']);
                                                         @endphp
-                                                        @if ($addonsDb->isNotEmpty())
-                                                            {{ $addonsDb->first()->name }} <p>
-                                                                ({{ currency($addonsDb->first()->price) }}
-                                                                * {{ $quantity }})</p>
-                                                        @endif
-
+                                                        {{ $addon['name'] }} <p>
+                                                            ({{ currency($addon['price']) }}
+                                                            * {{ $addon['quantity'] }})</p>
                                                     @endforeach
                                                 </div>
 
@@ -541,11 +543,11 @@
                                             </td>
 
                                             <td>
-                                                @if ($order->order_status == 5)
+                                                @if ($order->order_status == 5 && $product)
 
 
                                                 @php
-                                                    $review = App\Models\Review::where('product_id', $product->id)->where('order_id', $order->id)->where('user_id', Auth::user()->id)->first()
+                                                    $review = Auth::check() ? App\Models\Review::where('product_id', $product->id)->where('order_id', $order->id)->where('user_id', Auth::id())->first() : null;
                                                 @endphp
                                                 @if(!$review)
                                                     <a class="thm-btn cursor-pointer" data-bs-toggle="modal" data-bs-target="#popularModal-{{$key}}">{{ __('translate.Review') }}</a>

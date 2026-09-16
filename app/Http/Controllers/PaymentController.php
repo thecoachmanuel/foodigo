@@ -843,79 +843,80 @@ class PaymentController extends Controller
         session()->forget('cart');
 
 
-        EmailHelper::mail_setup();
+        $orderId = $order->id;
+        $isGuest = !empty($order_info['is_guest']) && $order_info['is_guest'] == 1;
 
-        $template = EmailTemplate::find(5) ?? EmailTemplate::where('name', 'like', '%order%')->first();
-        if ($template) {
-            $message = $template->description;
-            $subject = $template->subject;
-        } else {
-            $message = 'Thank you for your order #{{order_id}}, {{user_name}}!';
-            $subject = 'Order Confirmation';
-        }
-
-        $message = str_replace('{{order_id}}',$order->id,$message);
-
-        try{
-
-            if($order_info['is_guest'] && $order_info['is_guest'] == 1){
-
-                $message = str_replace('{{user_name}}',$address_info['contact_person_name'] ?? '',$message);
-
-                Mail::to($address_info['contact_person_email'])->send(new NewOrderConfirmation($message,$subject));
-
-            }else{
-                $user = User::find($user_id);
-                $message = str_replace('{{user_name}}',$user->name,$message);
-                $message = str_replace('{{order_id}}',$order->id,$message);
-
-                Mail::to($user->email)->send(new NewOrderConfirmation($message,$subject));
+        try {
+            $template = EmailTemplate::find(5) ?? EmailTemplate::where('name', 'like', '%order%')->first();
+            if ($template) {
+                $rawMessage = $template->description;
+                $emailSubject = $template->subject;
+            } else {
+                $rawMessage = 'Thank you for your order #{{order_id}}, {{user_name}}!';
+                $emailSubject = 'Order Confirmation';
             }
 
+            $rawMessage = str_replace('{{order_id}}', $orderId, $rawMessage);
 
+            if ($isGuest) {
+                $recipientEmail = $address_info['contact_person_email'] ?? null;
+                $recipientName = $address_info['contact_person_name'] ?? '';
+                $mailBody = str_replace('{{user_name}}', $recipientName, $rawMessage);
+            } else {
+                $user = User::find($user_id);
+                $recipientEmail = $user?->email;
+                $recipientName = $user?->name ?? '';
+                $mailBody = str_replace('{{user_name}}', $recipientName, $rawMessage);
+                $mailBody = str_replace('{{order_id}}', $orderId, $mailBody);
+            }
 
-        }catch(Exception $ex){
-            Log::info($ex->getMessage());
+            if ($recipientEmail) {
+                dispatch(function () use ($recipientEmail, $mailBody, $emailSubject) {
+                    try {
+                        EmailHelper::mail_setup();
+                        Mail::to($recipientEmail)->send(new NewOrderConfirmation($mailBody, $emailSubject));
+                    } catch (\Throwable $e) {
+                        Log::info('Order email notification error: ' . $e->getMessage());
+                    }
+                })->afterResponse();
+            }
+        } catch (\Throwable $ex) {
+            Log::info('Order email setup error: ' . $ex->getMessage());
         }
 
-
-        try{
-
+        try {
             $sms_setting = SmsSetting::where('key', 'new_order_to_user')->first();
 
-            if($sms_setting->value == 'active'){
-                $template = SmsTemplate::where('template_key', 'new_order_to_user')->first();
+            if ($sms_setting && $sms_setting->value == 'active') {
+                $smsTemplate = SmsTemplate::where('template_key', 'new_order_to_user')->first();
 
-                if($template){
-                    $message = $template->description;
-                    $subject = $template->subject;
-
-                    if($order_info['is_guest'] && $order_info['is_guest'] == 1){
-
-                        $message = str_replace('{{order_id}}',$order->id,$message);
-                        $message = str_replace('{{user_name}}',$address_info['contact_person_name'] ?? '',$message);
-
-                        if($address_info['contact_person_number']){
-                            sendMobileOTP($address_info['contact_person_number'] ?? '0', $message);
-                        }
-
-                    }else{
+                if ($smsTemplate) {
+                    $smsMsg = $smsTemplate->description;
+                    if ($isGuest) {
+                        $smsMsg = str_replace('{{order_id}}', $orderId, $smsMsg);
+                        $smsMsg = str_replace('{{user_name}}', $address_info['contact_person_name'] ?? '', $smsMsg);
+                        $recipientPhone = $address_info['contact_person_number'] ?? null;
+                    } else {
                         $user = User::find($user_id);
-                        $message = str_replace('{{user_name}}',$user->name,$message);
-
-                        if($user->phone){
-                            sendMobileOTP($user->phone, $message);
-                        }
-
+                        $smsMsg = str_replace('{{user_name}}', $user?->name ?? '', $smsMsg);
+                        $smsMsg = str_replace('{{order_id}}', $orderId, $smsMsg);
+                        $recipientPhone = $user?->phone;
                     }
 
+                    if ($recipientPhone) {
+                        dispatch(function () use ($recipientPhone, $smsMsg) {
+                            try {
+                                sendMobileOTP($recipientPhone, $smsMsg);
+                            } catch (\Throwable $e) {
+                                Log::info('Order SMS notification error: ' . $e->getMessage());
+                            }
+                        })->afterResponse();
+                    }
                 }
             }
-
-        }catch(Exception $ex){
-            Log::info($ex->getMessage());
+        } catch (\Throwable $ex) {
+            Log::info('Order SMS setup error: ' . $ex->getMessage());
         }
-
 
         return $order;
     }

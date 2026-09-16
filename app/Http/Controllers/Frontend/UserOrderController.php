@@ -19,14 +19,40 @@ class UserOrderController extends Controller
     public function order(): Renderable
     {
         $user = Auth::user();
-        $orders = Order::where('user_id', $user->id)->latest()->paginate(5);
+        $orders = Order::with(['restaurant', 'items'])
+            ->where('user_id', $user->id)
+            ->latest()
+            ->paginate(10);
         return view('frontend.user.order', compact('user', 'orders'));
     }
 
-    public function order_details($id): Renderable
+    public function order_details($id)
     {
         $user = Auth::user();
-        $order = Order::with('items')->where('user_id', $user->id)->where('id', $id)->first();
+        $orderQuery = Order::with([
+            'restaurant',
+            'address',
+            'items.products.translate_product',
+            'items.products.restaurant'
+        ]);
+
+        if ($user) {
+            $order = $orderQuery->where('id', $id)
+                ->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('is_guest', 1);
+                })
+                ->first()
+                ?? $orderQuery->where('id', $id)->first();
+        } else {
+            $order = $orderQuery->where('id', $id)->first();
+        }
+
+        if (!$order) {
+            $notification = ['message' => trans('translate.Order not found'), 'alert-type' => 'error'];
+            return redirect()->route('home')->with($notification);
+        }
+
         return view('frontend.user.order_details', compact('user', 'order'));
     }
 

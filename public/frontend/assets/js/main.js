@@ -144,8 +144,19 @@ $(".pagination li a ").on("click", function () {
 });
 
 //  AOS js
+$(document).ready(function () {
+    if (typeof AOS !== "undefined") {
+        AOS.init({
+            duration: 600,
+            once: true,
+            offset: 40
+        });
+    }
+});
 $(window).on("scroll", function () {
-    AOS.init();
+    if (typeof AOS !== "undefined") {
+        AOS.refresh();
+    }
 });
 
 $(function () {

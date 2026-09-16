@@ -520,3 +520,73 @@
 
     </script>
 @endpush
+
+@push('style_section')
+    <style>
+        .profile_bg {
+            padding: 135px 0 20px 0 !important;
+        }
+        .profile_informetion_bg_main {
+            border-radius: 16px !important;
+            overflow: hidden !important;
+            background: #ffffff !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+        }
+        .profile_informetion_bg {
+            height: 240px !important;
+            max-height: 240px !important;
+            min-height: 240px !important;
+            width: 100% !important;
+            overflow: hidden !important;
+            position: relative !important;
+            background-color: #f1f5f9 !important;
+        }
+        .profile_informetion_bg img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            object-position: center !important;
+            display: block !important;
+        }
+        .profile_informetion_main {
+            padding: 0 28px 24px 28px !important;
+            position: relative !important;
+        }
+        .profile_informetion_main .company_logo {
+            margin-top: -55px !important;
+            height: 110px !important;
+            width: 110px !important;
+            border-radius: 50% !important;
+            border: 4px solid #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+            background: #ffffff !important;
+            position: relative !important;
+            z-index: 5 !important;
+            overflow: hidden !important;
+        }
+        .profile_informetion_main .company_logo img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+        @media (max-width: 768px) {
+            .profile_bg {
+                padding: 110px 0 15px 0 !important;
+            }
+            .profile_informetion_bg {
+                height: 175px !important;
+                max-height: 175px !important;
+                min-height: 175px !important;
+            }
+            .profile_informetion_main {
+                padding: 0 16px 18px 16px !important;
+            }
+            .profile_informetion_main .company_logo {
+                margin-top: -40px !important;
+                height: 80px !important;
+                width: 80px !important;
+                border-width: 3px !important;
+            }
+        }
+    </style>
+@endpush
