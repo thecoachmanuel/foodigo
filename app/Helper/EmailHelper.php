@@ -43,14 +43,23 @@ class EmailHelper{
             }
             $senderName = trim($email_setting->sender_name ?? config('app.name', 'Nectar'));
 
+            // Set scheme explicitly for Symfony Mailer Dsn
+            $scheme = null;
+            if ($encryption === 'ssl' || $port === 465) {
+                $scheme = 'smtps';
+            } elseif ($encryption === 'tls' || $port === 587 || $port === 25) {
+                $scheme = 'smtp';
+            }
+
             $setting = [
                 'transport' => 'smtp',
+                'scheme' => $scheme,
                 'host' => $host,
                 'port' => $port,
                 'encryption' => $encryption,
                 'username' => $username,
                 'password' => $password,
-                'timeout' => 10,
+                'timeout' => 15,
                 'local_domain' => env('MAIL_EHLO_DOMAIN'),
             ];
 

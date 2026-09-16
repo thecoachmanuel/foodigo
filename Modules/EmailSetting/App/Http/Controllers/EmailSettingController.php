@@ -37,14 +37,18 @@ class EmailSettingController extends Controller
 
     public function update(EmailSettingRequest $request)
     {
-        EmailSetting::where('key', 'sender_name')->update(['value' => $request->sender_name]);
-        EmailSetting::where('key', 'mail_host')->update(['value' => $request->mail_host]);
-        EmailSetting::where('key', 'email')->update(['value' => $request->email]);
-        EmailSetting::where('key', 'smtp_username')->update(['value' => $request->smtp_username]);
-        EmailSetting::where('key', 'smtp_password')->update(['value' => $request->smtp_password]);
-        EmailSetting::where('key', 'mail_port')->update(['value' => $request->mail_port]);
-        EmailSetting::where('key', 'mail_encryption')->update(['value' => $request->mail_encryption]);
+        $password = trim($request->smtp_password ?? '');
+        if (!empty($password) && (str_contains(strtolower($request->mail_host ?? ''), 'gmail.com') || str_contains(strtolower($request->mail_host ?? ''), 'googlemail.com') || strlen(str_replace(' ', '', $password)) === 16)) {
+            $password = str_replace(' ', '', $password);
+        }
 
+        EmailSetting::where('key', 'sender_name')->update(['value' => trim($request->sender_name ?? '')]);
+        EmailSetting::where('key', 'mail_host')->update(['value' => trim($request->mail_host ?? '')]);
+        EmailSetting::where('key', 'email')->update(['value' => trim($request->email ?? '')]);
+        EmailSetting::where('key', 'smtp_username')->update(['value' => trim($request->smtp_username ?? '')]);
+        EmailSetting::where('key', 'smtp_password')->update(['value' => $password]);
+        EmailSetting::where('key', 'mail_port')->update(['value' => trim($request->mail_port ?? '')]);
+        EmailSetting::where('key', 'mail_encryption')->update(['value' => trim($request->mail_encryption ?? '')]);
 
         $notify_message = trans('translate.Updated successfully');
         $notify_message = array('message' => $notify_message, 'alert-type' => 'success');
@@ -116,16 +120,17 @@ class EmailSettingController extends Controller
                 . '<p style="color: #a0aec0; font-size: 12px; margin-bottom: 0;">This is an automated test email sent from the ' . htmlspecialchars($appName) . ' Admin Panel.</p>'
                 . '</div>';
 
-            Mail::send([], [], function ($message) use ($request, $testSubject, $testMessage) {
+            Mail::html($testMessage, function ($message) use ($request, $testSubject) {
                 $message->to($request->test_email)
-                    ->subject($testSubject)
-                    ->html($testMessage);
+                    ->subject($testSubject);
             });
 
             $notify_message = trans('translate.Test email sent successfully to') . ' ' . $request->test_email;
             return redirect()->back()->with(['message' => $notify_message, 'alert-type' => 'success']);
         } catch (\Throwable $e) {
-            $notify_message = trans('translate.Failed to send test email: ') . $e->getMessage();
+            $errorMessage = $e->getMessage();
+            \Illuminate\Support\Facades\Log::error('SMTP Test email sending failed: ' . $errorMessage);
+            $notify_message = trans('translate.Failed to send test email: ') . $errorMessage;
             return redirect()->back()->with(['message' => $notify_message, 'alert-type' => 'error']);
         }
     }
