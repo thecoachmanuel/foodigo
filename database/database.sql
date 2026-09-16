@@ -785,7 +785,7 @@ INSERT INTO `currencies` (`id`, `currency_name`, `currency_code`, `country_code`
 (1, 'USD', 'USD', 'USA', '$', 'no', 1.00, 'before_price', 'active', '2024-05-07 12:20:36', '2024-05-07 12:20:36'),
 (3, 'BDT', 'BDT', 'BDT', '৳', 'no', 100.00, 'before_price', 'active', '2024-05-13 02:30:57', '2024-05-13 02:30:57'),
 (4, 'INR', 'INR', 'IN', '₹', 'no', 3.00, 'before_price', 'active', '2024-05-13 02:31:45', '2025-05-04 23:37:42'),
-(8, 'NGN', 'NGN', 'NG', '₦', 'no', 10.00, 'before_price', 'active', '2025-05-04 23:30:59', '2025-05-04 23:30:59');
+(8, 'Nigerian Naira', 'NGN', 'NG', '₦', 'yes', 1.00, 'before_price', 'active', '2025-05-04 23:30:59', '2025-05-04 23:30:59');
 
 -- --------------------------------------------------------
 

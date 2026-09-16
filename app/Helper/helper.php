@@ -34,33 +34,37 @@ function amount($amount) {
 
 
 function currency($price){
-    // currency information will be loaded by Session value
-    \Log::info($price);
-    
-    try {
-        $currency_icon = Session::get('currency_icon');
-        $currency_code = Session::get('currency_code');
-        $currency_rate = Session::get('currency_rate');
-        $currency_position = Session::get('currency_position');
-    } catch (Exception $e) {
-        // Fallback to default currency if session is not available
-        $default_currency = \Modules\Currency\App\Models\Currency::where('is_default', 1)->first();
+    $currency_icon = Session::get('currency_icon');
+    $currency_rate = Session::get('currency_rate');
+    $currency_position = Session::get('currency_position');
+
+    if (!$currency_icon || !$currency_rate) {
+        $default_currency = \Modules\Currency\App\Models\Currency::where('is_default', 'yes')->where('status', 'active')->first()
+            ?? \Modules\Currency\App\Models\Currency::where('currency_code', 'NGN')->first()
+            ?? \Modules\Currency\App\Models\Currency::where('status', 'active')->first()
+            ?? \Modules\Currency\App\Models\Currency::first();
+
         if ($default_currency) {
-            $currency_icon = $default_currency->currency_icon;
-            $currency_code = $default_currency->currency_code;
-            $currency_rate = $default_currency->currency_rate;
-            $currency_position = $default_currency->currency_position;
+            $currency_icon = $default_currency->currency_icon ?: '₦';
+            $currency_rate = $default_currency->currency_rate ?: 1;
+            $currency_position = $default_currency->currency_position ?: 'before_price';
+
+            try {
+                Session::put('currency_name', $default_currency->currency_name);
+                Session::put('currency_code', $default_currency->currency_code);
+                Session::put('currency_icon', $currency_icon);
+                Session::put('currency_rate', $currency_rate);
+                Session::put('currency_position', $currency_position);
+            } catch (\Throwable $e) {}
         } else {
-            // Hardcoded fallback
-            $currency_icon = '$';
-            $currency_code = 'USD';
+            $currency_icon = '₦';
             $currency_rate = 1;
             $currency_position = 'before_price';
         }
     }
 
-    $price = $price * $currency_rate;
-    $price = amount($price, 2, '.', ',');
+    $price = (float)$price * (float)$currency_rate;
+    $price = amount($price);
 
     if($currency_position == 'before_price'){
         $price = $currency_icon.$price;

@@ -21,7 +21,7 @@ class InitDatabase extends Command
      *
      * @var string
      */
-    protected $description = 'Initialize Foodigo database schema and default seed data from database.sql';
+    protected $description = 'Initialize Foodigo database schema, seed data, and configure Naira (NGN) default currency';
 
     /**
      * Execute the console command.
@@ -41,7 +41,8 @@ class InitDatabase extends Command
         }
 
         if ($hasData && !$force) {
-            $this->info('Foodigo database already contains data. Skipping initial SQL dump.');
+            $this->info('Foodigo database already contains data.');
+            $this->ensureNairaCurrency();
             return 0;
         }
 
@@ -73,12 +74,57 @@ class InitDatabase extends Command
             // Re-enable foreign key checks
             DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
 
+            // Prioritize Naira as default currency
+            $this->ensureNairaCurrency();
+
             $this->info('Foodigo database successfully initialized from database.sql!');
             return 0;
         } catch (\Throwable $e) {
             $this->error('Failed to initialize database: ' . $e->getMessage());
             Log::error('Foodigo InitDatabase error: ' . $e->getMessage());
             return 1;
+        }
+    }
+
+    /**
+     * Ensure Nigerian Naira (NGN, ₦) is set as default currency without breaking other currencies.
+     */
+    protected function ensureNairaCurrency()
+    {
+        try {
+            if (Schema::hasTable('currencies')) {
+                $ngn = DB::table('currencies')->where('currency_code', 'NGN')->first();
+                if ($ngn) {
+                    DB::table('currencies')->where('currency_code', '!=', 'NGN')->update(['is_default' => 'no']);
+                    DB::table('currencies')->where('currency_code', 'NGN')->update([
+                        'currency_name' => 'Nigerian Naira',
+                        'currency_code' => 'NGN',
+                        'country_code' => 'NG',
+                        'currency_icon' => '₦',
+                        'currency_rate' => 1.00,
+                        'currency_position' => 'before_price',
+                        'is_default' => 'yes',
+                        'status' => 'active',
+                    ]);
+                } else {
+                    DB::table('currencies')->update(['is_default' => 'no']);
+                    DB::table('currencies')->insert([
+                        'currency_name' => 'Nigerian Naira',
+                        'currency_code' => 'NGN',
+                        'country_code' => 'NG',
+                        'currency_icon' => '₦',
+                        'currency_rate' => 1.00,
+                        'currency_position' => 'before_price',
+                        'is_default' => 'yes',
+                        'status' => 'active',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+                $this->info('Nigerian Naira (NGN / ₦) prioritized as default currency successfully.');
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Naira currency configuration notice: ' . $e->getMessage());
         }
     }
 }

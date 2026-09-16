@@ -30,18 +30,26 @@ class LangSession
         // Set app locale
         app()->setLocale(Session::get('front_lang'));
 
-        if (!Session::has('currency_code') || !Currency::where('currency_code', Session::get('currency_code'))->exists()) {
+        // Set currency session if not set or sync with latest admin database settings
+        $currentCode = Session::get('currency_code');
+        $activeCurrency = null;
+        if ($currentCode) {
+            $activeCurrency = Currency::where('currency_code', $currentCode)->where('status', 'active')->first();
+        }
 
-            $default_currency = Currency::where('is_default', 'yes')->first()
-                                ?? Currency::find(1);
+        if (!$activeCurrency) {
+            $activeCurrency = Currency::where('is_default', 'yes')->where('status', 'active')->first()
+                                ?? Currency::where('currency_code', 'NGN')->where('status', 'active')->first()
+                                ?? Currency::where('status', 'active')->first()
+                                ?? Currency::first();
+        }
 
-            if ($default_currency) {
-                Session::put('currency_name', $default_currency->currency_name);
-                Session::put('currency_code', $default_currency->currency_code);
-                Session::put('currency_icon', $default_currency->currency_icon);
-                Session::put('currency_rate', $default_currency->currency_rate);
-                Session::put('currency_position', $default_currency->currency_position);
-            }
+        if ($activeCurrency) {
+            Session::put('currency_name', $activeCurrency->currency_name);
+            Session::put('currency_code', $activeCurrency->currency_code);
+            Session::put('currency_icon', $activeCurrency->currency_icon ?: '₦');
+            Session::put('currency_rate', $activeCurrency->currency_rate ?: 1);
+            Session::put('currency_position', $activeCurrency->currency_position ?: 'before_price');
         }
 
         return $next($request);
