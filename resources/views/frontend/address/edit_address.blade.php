@@ -75,12 +75,10 @@
                                             <div class="address_form_inner">
                                             <label class="crancy__item-label mb-3 mt-3">{{ __('translate.Your Location') }} * </label>
 
-                                            <input id="searchMapInput" class="mapControls" type="text"
-                                                   placeholder="{{ __('translate.Enter a location') }}" value="{{ $address->address }}">
+                                            <input id="searchMapInput" class="form-control" type="text"
+                                                   placeholder="{{ __('translate.Enter Nigerian area, estate, or street (e.g. Bodija, Ikeja, Lekki)...') }}" value="{{ $address->address }}">
 
-                                            <div id="google_map_area">
-
-                                            </div>
+                                            <div id="google_map_area" style="display: none;"></div>
                                         </div>
 
                                         </div>
@@ -134,141 +132,40 @@
 @push('style_section')
     <style>
         #google_map_area {
-            height: 350px;
-            width: 100%;
-        }
-
-        .pac-container { z-index: 100000 !important; }
-
-        .tox .tox-promotion,
-        .tox-statusbar__branding {
             display: none !important;
         }
-
-        #map {
-            width: 100%;
-            height: 400px;
-        }
-
-        .mapControls {
-            margin-top: 10px;
-            border: 1px solid transparent;
-            border-radius: 2px 0 0 2px;
-            box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            height: 32px;
-            outline: none;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        #searchMapInput {
-            background-color: #fff;
-            font-family: Roboto;
-            font-size: 15px;
-            font-weight: 300;
-            margin-left: 12px;
-            padding: 0 11px 0 13px;
-            text-overflow: ellipsis;
-            width: 50%;
-        }
-
-        #searchMapInput:focus {
-            border-color: #4d90fe;
-        }
-
-
     </style>
 @endpush
 
 @push('js_section')
+    <script src="{{ asset('frontend/js/nigeria-geo-autocomplete.js') }}"></script>
 
     <script>
-
         "use strict";
-        let my_location_lat = '{{$address->lat}}';
-        let my_location_long = '{{$address->lon}}';
 
-        function reverseGeocode(location) {
-            var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({
-                location: location
-            }, function(results, status) {
-                if (status === "OK" && results[0]) {
-                    $("#plain_address").val(results[0].formatted_address);
-                }
-            });
-        }
-
-        function initMap() {
-            var defaultLat = parseFloat(my_location_lat) || 6.4281;
-            var defaultLng = parseFloat(my_location_long) || 3.4219;
-
-            var map = new google.maps.Map(document.getElementById('google_map_area'), {
-                center: {
-                    lat: defaultLat,
-                    lng: defaultLng
-                },
-                zoom: 13
-            });
-            var input = document.getElementById('searchMapInput');
-            if (input) {
-                map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-                var autocomplete = new google.maps.places.Autocomplete(input);
-                autocomplete.bindTo('bounds', map);
-
-                var infowindow = new google.maps.InfoWindow();
-
-                autocomplete.addListener('place_changed', function () {
-                    infowindow.close();
-                    marker.setVisible(false);
-                    var place = autocomplete.getPlace();
-
-                    if (!place.geometry || !place.geometry.location) return;
-
-                    if (place.geometry.viewport) {
-                        map.fitBounds(place.geometry.viewport);
-                    } else {
-                        map.setCenter(place.geometry.location);
-                        map.setZoom(17);
+        $(document).ready(function() {
+            if (window.NigeriaGeo) {
+                window.NigeriaGeo.attach('#searchMapInput', {
+                    latField: '#latitude, .latitude',
+                    lngField: '#longitude, .longitude',
+                    plainAddressField: '#plain_address',
+                    onSelect: function(item) {
+                        $('#plain_address').val(item.name);
+                        $('#latitude').val(item.lat);
+                        $('#longitude').val(item.lng);
                     }
+                });
 
-                    marker.setPosition(place.geometry.location);
-                    marker.setVisible(true);
-
-                    $("#plain_address").val(place.formatted_address || place.name);
-                    $(".latitude").val(place.geometry.location.lat());
-                    $(".longitude").val(place.geometry.location.lng());
-
+                window.NigeriaGeo.attach('#plain_address', {
+                    latField: '#latitude, .latitude',
+                    lngField: '#longitude, .longitude',
+                    plainAddressField: '#searchMapInput',
+                    onSelect: function(item) {
+                        $('#latitude').val(item.lat);
+                        $('#longitude').val(item.lng);
+                    }
                 });
             }
-
-            var marker = new google.maps.Marker({
-                position: { lat: defaultLat, lng: defaultLng },
-                map: map,
-                draggable: true
-            });
-
-            // Map click listener
-            map.addListener('click', function(event) {
-                var clickedLocation = event.latLng;
-                marker.setPosition(clickedLocation);
-                marker.setVisible(true);
-                $(".latitude").val(clickedLocation.lat());
-                $(".longitude").val(clickedLocation.lng());
-                reverseGeocode(clickedLocation);
-            });
-
-            // Marker dragend listener
-            marker.addListener('dragend', function(event) {
-                var clickedLocation = event.latLng;
-                $(".latitude").val(clickedLocation.lat());
-                $(".longitude").val(clickedLocation.lng());
-                reverseGeocode(clickedLocation);
-            });
-        }
+        });
     </script>
-
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_map_key() ?: env('MAP_API') }}&libraries=places&callback=initMap"
-            async defer></script>
-
 @endpush

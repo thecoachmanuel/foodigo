@@ -212,25 +212,34 @@
                                     <div class="tab-pane fade" id="pills-profile" role="tabpanel"
                                         aria-labelledby="pills-profile-tab">
 
-                                        <div class="delivery-map" id="restaurant_pickup_address">
-                                            {{-- map will be loaded here --}}
-                                        </div>
-                                        <div class="delivery-address d-flex justify-content-between mt-4">
-                                            <p class="mt-1"><strong>{{ __('translate.Address') }} :
-                                                </strong>{{ $product?->restaurant?->address }}</p>
-
-                                            <a href="tel:{{ $product?->restaurant?->address }}" class="thm-btn_two">
-                                                <span>
-                                                    <svg width="25" height="24" viewBox="0 0 25 24"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path
-                                                            d="M21.5 19V17.3541C21.5 16.5363 21.0021 15.8008 20.2428 15.4971L18.2086 14.6835C17.2429 14.2971 16.1422 14.7156 15.677 15.646L15.5 16C15.5 16 13 15.5 11 13.5C9 11.5 8.5 9 8.5 9L8.85402 8.82299C9.78438 8.35781 10.2029 7.25714 9.81654 6.29136L9.00289 4.25722C8.69916 3.4979 7.96374 3 7.14593 3H5.5C4.39543 3 3.5 3.89543 3.5 5C3.5 13.8366 10.6634 21 19.5 21C20.6046 21 21.5 20.1046 21.5 19Z"
-                                                            stroke-width="1.5" stroke-linejoin="round" />
+                                        <div class="pickup-clean-card">
+                                            <div class="pickup-clean-card-header">
+                                                <div class="pickup-clean-card-icon">
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#D97706"/>
                                                     </svg>
-                                                </span>
-                                                {{ __('translate.Call Restaurant') }}
-                                            </a>
-
+                                                </div>
+                                                <div>
+                                                    <span class="pickup-clean-badge">{{ __('translate.Store Pickup') }}</span>
+                                                    <h5 class="mb-0">{{ $product?->restaurant?->name ?? 'Restaurant' }}</h5>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2 border-top">
+                                                <p class="mb-0 text-muted"><strong>{{ __('translate.Address') }}:</strong> {{ $product?->restaurant?->address }}</p>
+                                                @if(!empty($product?->restaurant?->address))
+                                                <a href="tel:{{ $product?->restaurant?->phone ?? $product?->restaurant?->address }}" class="thm-btn_two py-2 px-3">
+                                                    <span>
+                                                        <svg width="18" height="18" viewBox="0 0 25 24"
+                                                            fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M21.5 19V17.3541C21.5 16.5363 21.0021 15.8008 20.2428 15.4971L18.2086 14.6835C17.2429 14.2971 16.1422 14.7156 15.677 15.646L15.5 16C15.5 16 13 15.5 11 13.5C9 11.5 8.5 9 8.5 9L8.85402 8.82299C9.78438 8.35781 10.2029 7.25714 9.81654 6.29136L9.00289 4.25722C8.69916 3.4979 7.96374 3 7.14593 3H5.5C4.39543 3 3.5 3.89543 3.5 5C3.5 13.8366 10.6634 21 19.5 21C20.6046 21 21.5 20.1046 21.5 19Z"
+                                                                stroke-width="1.5" stroke-linejoin="round" />
+                                                        </svg>
+                                                    </span>
+                                                    {{ __('translate.Call Restaurant') }}
+                                                </a>
+                                                @endif
+                                            </div>
                                         </div>
 
                                         <div class="delivery_time_box">
@@ -473,12 +482,10 @@
                                 <div class="crancy__item-form--group mg-top-form-20">
                                     <label class="crancy__item-label">{{ __('translate.Your Location') }} * </label>
 
-                                    <input id="searchMapInput" class="mapControls" type="text"
-                                        placeholder="{{ __('translate.Enter a location') }}">
+                                    <input id="searchMapInput" class="form-control" type="text"
+                                        placeholder="{{ __('translate.Enter Nigerian area, estate, or street (e.g. Bodija, Ikeja, Lekki)...') }}">
 
-                                    <div id="google_map_area">
-
-                                    </div>
+                                    <div id="google_map_area" style="display: none;"></div>
 
                                 </div>
 
@@ -534,60 +541,12 @@
 
 @push('style_section')
     <style>
-
         .total_amount_border{
             border-top : 1px solid #e5e6eb;
         }
         #google_map_area,
         #restaurant_pickup_address {
-            height: 350px;
-            width: 100%;
-        }
-
-        .pac-container {
-            z-index: 100000 !important;
-        }
-
-        .tox .tox-promotion,
-        .tox-statusbar__branding {
             display: none !important;
-        }
-
-        #map {
-            width: 100%;
-            height: 400px;
-        }
-
-        .mapControls {
-            margin-top: 10px;
-            border: 1px solid transparent;
-            border-radius: 2px 0 0 2px;
-            box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            height: 32px;
-            outline: none;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        #pickupSearchMapInput {
-            margin-top: 8px;
-        }
-
-        #searchMapInput,
-        #pickupSearchMapInput {
-            background-color: #fff;
-            font-family: Roboto;
-            font-size: 15px;
-            font-weight: 300;
-            margin-left: 12px;
-            padding: 0 11px 0 13px;
-            text-overflow: ellipsis;
-            width: 50%;
-        }
-
-        #searchMapInput:focus,
-        #pickupSearchMapInput:focus {
-            border-color: var(--color-yellow);
         }
 
         .dashboard_address_item {
@@ -608,187 +567,39 @@
 @endpush
 
 @push('js_section')
+    <script src="{{ asset('frontend/js/nigeria-geo-autocomplete.js') }}"></script>
 
     <script>
-        "use strict"
-
-        let my_location_lat = 0;
-        let my_location_long = 0;
-        var googleMapsLoaded = false;
-        var modalMap = null;
-        var modalMarker = null;
+        "use strict";
 
         let restaurantLat = {{ (float)($restaurant->latitude ?? $product->restaurant->latitude ?? 0) }};
         let restaurantLng = {{ (float)($restaurant->longitude ?? $product->restaurant->longitude ?? 0) }};
 
-
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            }
-        }
-
-        function showError(error) {
-            console.log("Geolocation info:", error.message);
-        }
-
-        function showPosition(position) {
-            my_location_lat = position.coords.latitude;
-            my_location_long = position.coords.longitude;
-            if (googleMapsLoaded && modalMap) {
-                modalMap.setCenter({ lat: my_location_lat, lng: my_location_long });
-                if (modalMarker) {
-                    modalMarker.setPosition({ lat: my_location_lat, lng: my_location_long });
-                }
-            }
-        }
-
-        function loadGoogleMapsAPI(callback) {
-            if (window.google && window.google.maps) {
-                googleMapsLoaded = true;
-                callback();
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key={{ google_map_key() ?: env('MAP_API') }}&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            script.onload = function () {
-                googleMapsLoaded = true;
-                callback();
-            };
-            document.head.appendChild(script);
-        }
-
-
-        window.initMap = function(){
-            var mapElement = document.getElementById('google_map_area');
-            if (!mapElement) return;
-
-            var defaultLat = my_location_lat || restaurantLat || 6.4281;
-            var defaultLng = my_location_long || restaurantLng || 3.4219;
-
-            modalMap = new google.maps.Map(mapElement, {
-                center: {
-                    lat: parseFloat(defaultLat),
-                    lng: parseFloat(defaultLng)
-                },
-                zoom: 14
-            });
-
-
-            modalMarker = new google.maps.Marker({
-                position: {
-                    lat: parseFloat(defaultLat),
-                    lng: parseFloat(defaultLng)
-                },
-                map: modalMap,
-                draggable: true
-            });
-
-            var input = document.getElementById('searchMapInput');
-            if (input) {
-                modalMap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-                var autocomplete = new google.maps.places.Autocomplete(input);
-                autocomplete.bindTo('bounds', modalMap);
-
-                var infowindow = new google.maps.InfoWindow();
-
-                autocomplete.addListener('place_changed', function() {
-                    infowindow.close();
-                    modalMarker.setVisible(false);
-                    var place = autocomplete.getPlace();
-
-                    if (!place.geometry || !place.geometry.location) return;
-
-                    if (place.geometry.viewport) {
-                        modalMap.fitBounds(place.geometry.viewport);
-                    } else {
-                        modalMap.setCenter(place.geometry.location);
-                        modalMap.setZoom(17);
+        $(document).ready(function() {
+            // Attach Nigerian Geo Autocomplete to searchMapInput and new_plain_address
+            if (window.NigeriaGeo) {
+                window.NigeriaGeo.attach('#searchMapInput', {
+                    latField: '#new_latitude, .latitude',
+                    lngField: '#new_longitude, .longitude',
+                    plainAddressField: '#new_plain_address',
+                    onSelect: function(item) {
+                        $('#new_plain_address').val(item.name);
+                        $('#new_latitude').val(item.lat);
+                        $('#new_longitude').val(item.lng);
                     }
+                });
 
-                    modalMarker.setPosition(place.geometry.location);
-                    modalMarker.setVisible(true);
-
-                    $("#new_plain_address").val(place.formatted_address || place.name);
-                    $("#new_latitude").val(place.geometry.location.lat());
-                    $("#new_longitude").val(place.geometry.location.lng());
+                window.NigeriaGeo.attach('#new_plain_address', {
+                    latField: '#new_latitude, .latitude',
+                    lngField: '#new_longitude, .longitude',
+                    plainAddressField: '#searchMapInput',
+                    onSelect: function(item) {
+                        $('#new_latitude').val(item.lat);
+                        $('#new_longitude').val(item.lng);
+                    }
                 });
             }
-
-            // Listener for map clicks
-            modalMap.addListener('click', function(event) {
-                var clickedLocation = event.latLng;
-                modalMarker.setPosition(clickedLocation);
-                modalMarker.setVisible(true);
-
-                $("#new_latitude").val(clickedLocation.lat());
-                $("#new_longitude").val(clickedLocation.lng());
-
-                reverseGeocode(clickedLocation);
-            });
-
-            modalMarker.addListener('dragend', function(event) {
-                var clickedLocation = event.latLng;
-                $("#new_latitude").val(clickedLocation.lat());
-                $("#new_longitude").val(clickedLocation.lng());
-                reverseGeocode(clickedLocation);
-            });
-        }
-
-        window.initPickupMap = function(){
-            const pickupElement = document.getElementById("restaurant_pickup_address");
-            if (!pickupElement) return;
-
-            const pickupMap = new google.maps.Map(pickupElement, {
-                center: {
-                    lat: parseFloat(restaurantLat) || 6.4281,
-                    lng: parseFloat(restaurantLng) || 3.4219
-                },
-                zoom: 14,
-            });
-
-            new google.maps.Marker({
-                position: {
-                    lat: parseFloat(restaurantLat) || 6.4281,
-                    lng: parseFloat(restaurantLng) || 3.4219
-                },
-                map: pickupMap,
-            });
-        }
-
-        function reverseGeocode(location) {
-            var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({
-                location: location
-            }, function(results, status) {
-                if (status === "OK" && results[0]) {
-                    $("#new_plain_address").val(results[0].formatted_address);
-                }
-            });
-        }
-
-        loadGoogleMapsAPI(function () {
-            initMap();
-            initPickupMap();
         });
-
-        getLocation();
-
-        // Handle bootstrap modal shown to properly render map tiles
-        $('#exampleModal7').on('shown.bs.modal', function () {
-            if (modalMap) {
-                google.maps.event.trigger(modalMap, 'resize');
-                var curLat = parseFloat($("#new_latitude").val()) || my_location_lat || restaurantLat || 6.4281;
-                var curLng = parseFloat($("#new_longitude").val()) || my_location_long || restaurantLng || 3.4219;
-                modalMap.setCenter({ lat: curLat, lng: curLng });
-                if (modalMarker) {
-                    modalMarker.setPosition({ lat: curLat, lng: curLng });
-                }
-            }
-        });
-
     </script>
 
 

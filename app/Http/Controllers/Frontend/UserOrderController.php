@@ -41,6 +41,14 @@ class UserOrderController extends Controller
             if (auth()->check()) {
                 $rules['address_id'] = 'required|exists:user_addresses,id';
             } else {
+                if (empty($request->latitude) || empty($request->longitude) || (float)$request->latitude == 0) {
+                    $coords = resolve_nigerian_coordinates($request->address);
+                    $request->merge([
+                        'latitude' => $coords['latitude'],
+                        'longitude' => $coords['longitude'],
+                    ]);
+                }
+
                 $rules = array_merge($rules, [
                     'name' => 'required|string|max:255',
                     'email' => 'max:255',

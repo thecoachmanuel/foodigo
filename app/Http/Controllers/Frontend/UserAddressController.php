@@ -21,6 +21,15 @@ class UserAddressController extends Controller
 
     public function store_address(Request $request)
     {
+        // Auto-resolve coordinates if missing or zero
+        if (empty($request->latitude) || empty($request->longitude) || (float)$request->latitude == 0) {
+            $coords = resolve_nigerian_coordinates($request->address);
+            $request->merge([
+                'latitude' => $coords['latitude'],
+                'longitude' => $coords['longitude'],
+            ]);
+        }
+
         $rules = [
             'name' => 'required',
             'phone' => 'required',
@@ -68,6 +77,15 @@ class UserAddressController extends Controller
     {
         // Retrieve the user address instance by ID
         $user_address = UserAddress::findOrFail($id);
+
+        // Auto-resolve coordinates if address changed or coords missing
+        if (empty($request->latitude) || empty($request->longitude) || (float)$request->latitude == 0) {
+            $coords = resolve_nigerian_coordinates($request->address);
+            $request->merge([
+                'latitude' => $coords['latitude'],
+                'longitude' => $coords['longitude'],
+            ]);
+        }
 
         // Define validation rules
         $rules = [
