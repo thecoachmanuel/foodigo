@@ -103,7 +103,7 @@ class CheckoutController extends Controller
                                     sin(radians(?)) *
                                     sin(radians(latitude))
                                 )
-                            ) <= max_delivery_distance", [$lat, $lon, $lat])
+                            ) <= COALESCE(NULLIF(max_delivery_distance, 0), 2000.00)", [$lat, $lon, $lat])
                             ->first();
 
                 if (!$restaurant) {

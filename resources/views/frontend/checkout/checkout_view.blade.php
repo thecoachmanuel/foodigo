@@ -479,40 +479,17 @@
                                     </div>
                                 </div>
 
-                                <div class="crancy__item-form--group mg-top-form-20">
-                                    <label class="crancy__item-label">{{ __('translate.Your Location') }} * </label>
-
-                                    <input id="searchMapInput" class="form-control" type="text"
-                                        placeholder="{{ __('translate.Enter Nigerian area, estate, or street (e.g. Bodija, Ikeja, Lekki)...') }}">
-
-                                    <div id="google_map_area" style="display: none;"></div>
-
-                                </div>
-
-                                <div class="address_form_item d-none">
-                                    <div class="address_form_inner">
-                                        <label for="" class="form-label">{{ __('translate.Latitude') }}</label>
-                                        <input class="form-control latitude" type="text" name="latitude"
-                                            id="new_latitude" value="{{ old('latitude') }}" readonly>
-                                    </div>
-                                </div>
-
-                                <div class="address_form_item d-none">
-                                    <div class="address_form_inner">
-                                        <label for="" class="form-label">{{ __('translate.Longitude') }}</label>
-                                        <input class="form-control longitude" type="text" name="longitude"
-                                            id="new_longitude" value="{{ old('longitude') }}" readonly>
-                                    </div>
-                                </div>
-
-
                                 <div class="address_form_item">
                                     <div class="address_form_inner">
-                                        <label for="" class="form-label">{{ __('translate.Address') }} </label>
-                                        <input type="text" class="form-control" id="new_plain_address"
-                                            placeholder="{{ __('translate.Address') }}" name="address">
+                                        <label for="checkout_modal_address"
+                                            class="form-label">{{ __('translate.Delivery Address') }} *</label>
+                                        <input type="text" class="form-control" id="checkout_modal_address"
+                                            placeholder="{{ __('translate.Enter your delivery address, street, estate, or area in Ibadan / Nigeria...') }}" name="address" required autocomplete="off">
                                     </div>
                                 </div>
+
+                                <input type="hidden" name="latitude" id="new_latitude" value="{{ old('latitude') }}">
+                                <input type="hidden" name="longitude" id="new_longitude" value="{{ old('longitude') }}">
 
                                 <div class="address_form_item">
                                     <div class="address_form_inner">
@@ -576,29 +553,28 @@
         let restaurantLng = {{ (float)($restaurant->longitude ?? $product->restaurant->longitude ?? 0) }};
 
         $(document).ready(function() {
-            // Attach Nigerian Geo Autocomplete to searchMapInput and new_plain_address
+            // Attach Nigerian Geo Autocomplete to single address input in modal
             if (window.NigeriaGeo) {
-                window.NigeriaGeo.attach('#searchMapInput', {
-                    latField: '#new_latitude, .latitude',
-                    lngField: '#new_longitude, .longitude',
-                    plainAddressField: '#new_plain_address',
-                    onSelect: function(item) {
-                        $('#new_plain_address').val(item.name);
-                        $('#new_latitude').val(item.lat);
-                        $('#new_longitude').val(item.lng);
-                    }
-                });
-
-                window.NigeriaGeo.attach('#new_plain_address', {
-                    latField: '#new_latitude, .latitude',
-                    lngField: '#new_longitude, .longitude',
-                    plainAddressField: '#searchMapInput',
+                window.NigeriaGeo.attach('#checkout_modal_address', {
+                    latField: '#new_latitude',
+                    lngField: '#new_longitude',
                     onSelect: function(item) {
                         $('#new_latitude').val(item.lat);
                         $('#new_longitude').val(item.lng);
                     }
                 });
             }
+
+            $('.address_form_main').on('submit', function() {
+                var lat = $('#new_latitude').val();
+                var lng = $('#new_longitude').val();
+                var addr = $('#checkout_modal_address').val();
+                if ((!lat || !lng || parseFloat(lat) === 0) && addr && window.NigeriaGeo) {
+                    var resolved = window.NigeriaGeo.resolve(addr);
+                    $('#new_latitude').val(resolved.lat);
+                    $('#new_longitude').val(resolved.lng);
+                }
+            });
         });
     </script>
 

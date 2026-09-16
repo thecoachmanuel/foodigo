@@ -128,138 +128,209 @@
 
                             <div class="col-xxl-5 col-xl-5 col-lg-5">
                                 <div class="delivery">
-                                    <div class="payment_method_box">
-
-                                        <div class="payment_method_btn_main">
-
-                                            @if($payment_setting->stripe_status)
-                                                <a href="javascript:;" class="payment_method_btn">
-                                                    <div class="payment_method_btn_item" data-bs-toggle="modal" data-bs-target="#stripemodal">
-                                                        <div class="cheak_thumb">
-                                                            <img src="{{ check_icon() }}"
-                                                                 alt="icon">
-                                                        </div>
-
-                                                        <div class="payment_method_btn_thumb">
-                                                            <img src="{{asset($payment_setting->stripe_image)}}"
-                                                                 alt="thumb">
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            @endif
-
-
-                                            @if($payment_setting->paypal_status)
-                                            <a href="{{ url('paypal/' . session('order_data.new_total')) }}" class="payment_method_btn">
-                                                    <div class="payment_method_btn_item">
-                                                        <div class="cheak_thumb">
-                                                            <img src="{{ check_icon() }}"
-                                                                 alt="icon">
-                                                        </div>
-
-                                                        <div class="payment_method_btn_thumb">
-                                                            <img src="{{asset($payment_setting->paypal_image)}}"
-                                                                 alt="thumb">
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            @endif
-                                            @if($payment_setting->flutterwave_status)
-                                                <a href="javascript:;" class="payment_method_btn" id="payWithFlutterwave">
-                                                    <div class="payment_method_btn_item">
-                                                        <div class="cheak_thumb">
-                                                            <img src="{{ check_icon() }}"
-                                                                 alt="icon">
-                                                        </div>
-
-                                                        <div class="payment_method_btn_thumb">
-                                                            <img src="{{asset($payment_setting->flutterwave_logo)}}"
-                                                                 alt="thumb">
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            @endif
-
-                                            @if ($payment_setting->razorpay_status == 1)
-                                                <a href="javascript:;" class="payment_method_btn" id="razorpay_btn">
-                                                    <div class="payment_method_btn_item">
-                                                        <div class="cheak_thumb">
-                                                            <img src="{{ check_icon() }}" alt="icon">
-                                                        </div>
-                                                        <div class="payment_method_btn_thumb">
-                                                            <img src="{{ asset($payment_setting->razorpay_image) }}" alt="thumb">
-                                                        </div>
-                                                    </div>
-                                                </a>
-
-                                                <form id="razorpay_payment_form" action="{{ route('razorpay', ['amount' => session('order_data.new_total')]) }}" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
-                                                </form>
-                                            @endif
-                                            @if($payment_setting->paystack_status)
-                                                <a href="javascript:;" class="payment_method_btn" id="paystackPayment">
-                                                    <div class="payment_method_btn_item">
-                                                        <div class="cheak_thumb">
-                                                            <img src="{{ check_icon() }}"
-                                                                 alt="icon">
-                                                        </div>
-
-                                                        <div class="payment_method_btn_thumb">
-                                                            <img src="{{asset($payment_setting->paystack_image)}}"
-                                                                 alt="thumb">
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            @endif
-                                            @if($payment_setting->mollie_status)
-                                                <a href="javascript:;" class="payment_method_btn" id="mollie_payment">
-                                                    <div class="payment_method_btn_item">
-                                                        <div class="cheak_thumb">
-                                                            <img src="{{ check_icon() }}"
-                                                                 alt="icon">
-                                                        </div>
-
-                                                        <div class="payment_method_btn_thumb">
-                                                            <img src="{{asset($payment_setting->mollie_image)}}"
-                                                                 alt="thumb">
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            @endif
-                                            @if($payment_setting->instamojo_status)
-                                                <a href="{{ route('pay-via-instamojo') }}" class="payment_method_btn">
-                                                    <div class="payment_method_btn_item">
-                                                        <div class="cheak_thumb">
-                                                            <img src="{{ check_icon() }}"
-                                                                 alt="icon">
-                                                        </div>
-
-                                                        <div class="payment_method_btn_thumb">
-                                                            <img src="{{asset($payment_setting->instamojo_image)}}"
-                                                                 alt="thumb">
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            @endif
-                                            @if($payment_setting->bank_status)
-                                                <a href="javascript:;" class="payment_method_btn"  data-bs-toggle="modal"
-                                                data-bs-target="#bankPayment">
-                                                    <div class="payment_method_btn_item">
-                                                        <div class="cheak_thumb">
-                                                            <img src="{{ check_icon() }}"
-                                                                 alt="icon">
-                                                        </div>
-
-                                                        <div class="payment_method_btn_thumb">
-                                                            <img src="{{asset($payment_setting->bank_image)}}"
-                                                                 alt="thumb">
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            @endif
-
+                                    <div class="payment_method_box p-4 bg-white rounded-3 shadow-sm border">
+                                        <div class="payment-methods-header mb-3">
+                                            <h5 class="fw-bold mb-1" style="color: #090d16;">{{ __('translate.Select Payment Method') }}</h5>
+                                            <p class="text-muted small mb-0">{{ __('translate.Choose your preferred secure payment gateway') }}</p>
                                         </div>
+
+                                        @php
+                                            $isStripeEnabled = (string)($payment_setting->stripe_status ?? '') === '1';
+                                            $isPaypalEnabled = (string)($payment_setting->paypal_status ?? '') === '1';
+                                            $isFlutterwaveEnabled = (string)($payment_setting->flutterwave_status ?? '') === '1';
+                                            $isRazorpayEnabled = (string)($payment_setting->razorpay_status ?? '') === '1';
+                                            $isPaystackEnabled = (string)($payment_setting->paystack_status ?? '') === '1';
+                                            $isMollieEnabled = (string)($payment_setting->mollie_status ?? '') === '1';
+                                            $isInstamojoEnabled = (string)($payment_setting->instamojo_status ?? '') === '1';
+                                            $isBankEnabled = (string)($payment_setting->bank_status ?? '') === '1';
+
+                                            $hasAnyPaymentMethod = $isStripeEnabled || $isPaypalEnabled || $isFlutterwaveEnabled || $isRazorpayEnabled || $isPaystackEnabled || $isMollieEnabled || $isInstamojoEnabled || $isBankEnabled;
+                                        @endphp
+
+                                        @if($hasAnyPaymentMethod)
+                                            <div class="payment-options-list d-flex flex-column gap-3">
+
+                                                {{-- Paystack --}}
+                                                @if($isPaystackEnabled)
+                                                    <div class="payment-card-item" id="paystackPayment" role="button" tabindex="0">
+                                                        <div class="payment-card-inner d-flex align-items-center justify-content-between p-3">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <div class="payment-radio-indicator">
+                                                                    <span class="radio-dot"></span>
+                                                                </div>
+                                                                <div class="payment-method-icon">
+                                                                    <img src="{{ asset($payment_setting->paystack_image ?? 'frontend/assets/images/paystack.png') }}" alt="Paystack" style="max-height: 32px; max-width: 80px; object-fit: contain;">
+                                                                </div>
+                                                                <div class="payment-method-details">
+                                                                    <h6 class="mb-0 fw-semibold text-dark">{{ __('translate.Paystack') }}</h6>
+                                                                    <span class="text-muted small">{{ __('translate.Debit/Credit Card, Bank Transfer, USSD') }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span class="badge bg-light text-dark border px-2 py-1 small">{{ __('translate.Instant') }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- Flutterwave --}}
+                                                @if($isFlutterwaveEnabled)
+                                                    <div class="payment-card-item" id="payWithFlutterwave" role="button" tabindex="0">
+                                                        <div class="payment-card-inner d-flex align-items-center justify-content-between p-3">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <div class="payment-radio-indicator">
+                                                                    <span class="radio-dot"></span>
+                                                                </div>
+                                                                <div class="payment-method-icon">
+                                                                    <img src="{{ asset($payment_setting->flutterwave_logo ?? 'frontend/assets/images/flutterwave.png') }}" alt="Flutterwave" style="max-height: 32px; max-width: 80px; object-fit: contain;">
+                                                                </div>
+                                                                <div class="payment-method-details">
+                                                                    <h6 class="mb-0 fw-semibold text-dark">{{ __('translate.Flutterwave') }}</h6>
+                                                                    <span class="text-muted small">{{ __('translate.Card, Mobile Money, Transfer') }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span class="badge bg-light text-dark border px-2 py-1 small">{{ __('translate.Instant') }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- Stripe --}}
+                                                @if($isStripeEnabled)
+                                                    <div class="payment-card-item" data-bs-toggle="modal" data-bs-target="#stripemodal" role="button" tabindex="0">
+                                                        <div class="payment-card-inner d-flex align-items-center justify-content-between p-3">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <div class="payment-radio-indicator">
+                                                                    <span class="radio-dot"></span>
+                                                                </div>
+                                                                <div class="payment-method-icon">
+                                                                    <img src="{{ asset($payment_setting->stripe_image) }}" alt="Stripe" style="max-height: 32px; max-width: 80px; object-fit: contain;">
+                                                                </div>
+                                                                <div class="payment-method-details">
+                                                                    <h6 class="mb-0 fw-semibold text-dark">{{ __('translate.Credit / Debit Card') }}</h6>
+                                                                    <span class="text-muted small">{{ __('translate.Visa, Mastercard, AMEX via Stripe') }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span class="badge bg-light text-dark border px-2 py-1 small">{{ __('translate.Secure') }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- PayPal --}}
+                                                @if($isPaypalEnabled)
+                                                    <a href="{{ url('paypal/' . session('order_data.new_total')) }}" class="payment-card-item text-decoration-none" role="button">
+                                                        <div class="payment-card-inner d-flex align-items-center justify-content-between p-3">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <div class="payment-radio-indicator">
+                                                                    <span class="radio-dot"></span>
+                                                                </div>
+                                                                <div class="payment-method-icon">
+                                                                    <img src="{{ asset($payment_setting->paypal_image) }}" alt="PayPal" style="max-height: 32px; max-width: 80px; object-fit: contain;">
+                                                                </div>
+                                                                <div class="payment-method-details">
+                                                                    <h6 class="mb-0 fw-semibold text-dark">{{ __('translate.PayPal') }}</h6>
+                                                                    <span class="text-muted small">{{ __('translate.Pay with PayPal account or card') }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span class="badge bg-light text-dark border px-2 py-1 small">{{ __('translate.Online') }}</span>
+                                                        </div>
+                                                    </a>
+                                                @endif
+
+                                                {{-- Razorpay --}}
+                                                @if($isRazorpayEnabled)
+                                                    <div class="payment-card-item" id="razorpay_btn" role="button" tabindex="0">
+                                                        <div class="payment-card-inner d-flex align-items-center justify-content-between p-3">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <div class="payment-radio-indicator">
+                                                                    <span class="radio-dot"></span>
+                                                                </div>
+                                                                <div class="payment-method-icon">
+                                                                    <img src="{{ asset($payment_setting->razorpay_image) }}" alt="Razorpay" style="max-height: 32px; max-width: 80px; object-fit: contain;">
+                                                                </div>
+                                                                <div class="payment-method-details">
+                                                                    <h6 class="mb-0 fw-semibold text-dark">{{ __('translate.Razorpay') }}</h6>
+                                                                    <span class="text-muted small">{{ __('translate.Card, NetBanking, UPI') }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span class="badge bg-light text-dark border px-2 py-1 small">{{ __('translate.Instant') }}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <form id="razorpay_payment_form" action="{{ route('razorpay', ['amount' => session('order_data.new_total')]) }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+                                                    </form>
+                                                @endif
+
+                                                {{-- Mollie --}}
+                                                @if($isMollieEnabled)
+                                                    <div class="payment-card-item" id="mollie_payment" role="button" tabindex="0">
+                                                        <div class="payment-card-inner d-flex align-items-center justify-content-between p-3">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <div class="payment-radio-indicator">
+                                                                    <span class="radio-dot"></span>
+                                                                </div>
+                                                                <div class="payment-method-icon">
+                                                                    <img src="{{ asset($payment_setting->mollie_image) }}" alt="Mollie" style="max-height: 32px; max-width: 80px; object-fit: contain;">
+                                                                </div>
+                                                                <div class="payment-method-details">
+                                                                    <h6 class="mb-0 fw-semibold text-dark">{{ __('translate.Mollie') }}</h6>
+                                                                    <span class="text-muted small">{{ __('translate.iDEAL, Cards, European methods') }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span class="badge bg-light text-dark border px-2 py-1 small">{{ __('translate.Instant') }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- Instamojo --}}
+                                                @if($isInstamojoEnabled)
+                                                    <a href="{{ route('pay-via-instamojo') }}" class="payment-card-item text-decoration-none" role="button">
+                                                        <div class="payment-card-inner d-flex align-items-center justify-content-between p-3">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <div class="payment-radio-indicator">
+                                                                    <span class="radio-dot"></span>
+                                                                </div>
+                                                                <div class="payment-method-icon">
+                                                                    <img src="{{ asset($payment_setting->instamojo_image) }}" alt="Instamojo" style="max-height: 32px; max-width: 80px; object-fit: contain;">
+                                                                </div>
+                                                                <div class="payment-method-details">
+                                                                    <h6 class="mb-0 fw-semibold text-dark">{{ __('translate.Instamojo') }}</h6>
+                                                                    <span class="text-muted small">{{ __('translate.Online Payment via Instamojo') }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span class="badge bg-light text-dark border px-2 py-1 small">{{ __('translate.Instant') }}</span>
+                                                        </div>
+                                                    </a>
+                                                @endif
+
+                                                {{-- Direct Bank Transfer --}}
+                                                @if($isBankEnabled)
+                                                    <div class="payment-card-item" data-bs-toggle="modal" data-bs-target="#bankPayment" role="button" tabindex="0">
+                                                        <div class="payment-card-inner d-flex align-items-center justify-content-between p-3">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <div class="payment-radio-indicator">
+                                                                    <span class="radio-dot"></span>
+                                                                </div>
+                                                                <div class="payment-method-icon">
+                                                                    <img src="{{ asset($payment_setting->bank_image) }}" alt="Bank Transfer" style="max-height: 32px; max-width: 80px; object-fit: contain;">
+                                                                </div>
+                                                                <div class="payment-method-details">
+                                                                    <h6 class="mb-0 fw-semibold text-dark">{{ __('translate.Direct Bank Transfer') }}</h6>
+                                                                    <span class="text-muted small">{{ __('translate.Send payment to our bank account') }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span class="badge bg-warning bg-opacity-25 text-warning-emphasis border px-2 py-1 small">{{ __('translate.Manual') }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                            </div>
+                                        @else
+                                            <div class="alert alert-warning text-center p-4 rounded-3 mb-0">
+                                                <i class="fas fa-exclamation-triangle fa-2x mb-2 text-warning"></i>
+                                                <h6 class="fw-bold mb-1">{{ __('translate.No Payment Methods Available') }}</h6>
+                                                <p class="mb-0 small text-muted">{{ __('translate.No payment method has been enabled by the administrator. Please contact support.') }}</p>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -270,7 +341,7 @@
         </section>
         <!-- Checkout part end -->
 
-        @if ($payment_setting->stripe_status )
+        @if ((string)($payment_setting->stripe_status ?? '') === '1')
             <!-- Modal -->
             <div class="modal fade" id="stripemodal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
                  aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -351,61 +422,134 @@
 
     </main>
 
-                  {{-- start bank modal --}}
-                  <div class="modal fade" id="bankPayment" tabindex="-1" aria-labelledby="jobDetailsModalLabel"  aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
+        @if ((string)($payment_setting->bank_status ?? '') === '1')
+            {{-- start bank modal --}}
+            <div class="modal fade" id="bankPayment" tabindex="-1" aria-labelledby="jobDetailsModalLabel"  aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
 
-                            <div class="modal-body">
-                                <div class="bg-white rounded-3">
-                                    <div class="proposal-container">
-                                        <div class="proposal-header d-flex justify-content-between align-items-center ">
-                                            <h3 class="text-dark-300 text-24 fw-bold">{{ __('translate.Pay via Bank') }}</h3>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <form action="{{ route('bank', session('order_data.new_total')) }}" method="POST">
-                                            @csrf
-
-                                            <div class="my-2">
-                                                {!! clean(nl2br($payment_setting->bank_account_info)) !!}
-                                            </div>
-
-
-                                            <div class="bank_modal">
-
-                                                <div class="proposal-input-container">
-                                                    <label for="time" class="proposal-form-label" >{{ __('translate.Transaction information') }}*</label >
-                                                    <textarea placeholder="{{ ('Transaction information') }}" class="form-control" rows="5" name="tnx_info"></textarea>
-                                                </div>
-
-                                                <div class="d-flex gap-4 align-items-center justify-content-end" >
-                                                    <button type="button" class="thm-btn_two" data-bs-dismiss="modal">
-                                                        {{ __('translate.Cancel') }}
-                                                    </button>
-                                                    <button class="thm-btn">
-                                                        {{ __('translate.Submit Now') }}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </form>
+                        <div class="modal-body">
+                            <div class="bg-white rounded-3">
+                                <div class="proposal-container">
+                                    <div class="proposal-header d-flex justify-content-between align-items-center ">
+                                        <h3 class="text-dark-300 text-24 fw-bold">{{ __('translate.Pay via Bank') }}</h3>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
+                                    <form action="{{ route('bank', session('order_data.new_total')) }}" method="POST">
+                                        @csrf
+
+                                        <div class="my-2">
+                                            {!! clean(nl2br($payment_setting->bank_account_info)) !!}
+                                        </div>
+
+
+                                        <div class="bank_modal">
+
+                                            <div class="proposal-input-container">
+                                                <label for="time" class="proposal-form-label" >{{ __('translate.Transaction information') }}*</label >
+                                                <textarea placeholder="{{ ('Transaction information') }}" class="form-control" rows="5" name="tnx_info"></textarea>
+                                            </div>
+
+                                            <div class="d-flex gap-4 align-items-center justify-content-end" >
+                                                <button type="button" class="thm-btn_two" data-bs-dismiss="modal">
+                                                    {{ __('translate.Cancel') }}
+                                                </button>
+                                                <button class="thm-btn">
+                                                    {{ __('translate.Submit Now') }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-              {{-- end bank modal --}}
+            </div>
+            {{-- end bank modal --}}
+        @endif
 
-                {{-- start mollie payment --}}
-                <form id="mollie_form" action="{{ route('mollie') }}" method="POST" class="d-none">
-                @csrf
-                    <input type="hidden" name="amount" value="{{ session('order_data.new_total') }}">
-                </form>
+        @if ((string)($payment_setting->mollie_status ?? '') === '1')
+            {{-- start mollie payment --}}
+            <form id="mollie_form" action="{{ route('mollie') }}" method="POST" class="d-none">
+            @csrf
+                <input type="hidden" name="amount" value="{{ session('order_data.new_total') }}">
+            </form>
+        @endif
 
 @endsection
 
 @push('style_section')
     <style>
+        .payment-card-item {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.22s ease-in-out;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            text-decoration: none;
+            display: block;
+        }
+        .payment-card-item:hover {
+            border-color: #f98c3b;
+            box-shadow: 0 4px 14px rgba(249, 140, 59, 0.12);
+            transform: translateY(-1px);
+        }
+        .payment-card-item.active {
+            border-color: #f98c3b;
+            background: #fffcf9;
+            box-shadow: 0 4px 16px rgba(249, 140, 59, 0.18);
+        }
+        .payment-radio-indicator {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            background: #ffffff;
+        }
+        .payment-card-item:hover .payment-radio-indicator,
+        .payment-card-item.active .payment-radio-indicator {
+            border-color: #f98c3b;
+        }
+        .payment-radio-indicator .radio-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+        .payment-card-item.active .payment-radio-indicator .radio-dot {
+            background: #f98c3b;
+        }
+        .payment-method-icon {
+            width: 78px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: 8px;
+            padding: 4px 8px;
+            flex-shrink: 0;
+        }
+        .payment-method-details h6 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #090d16;
+        }
+        .payment-method-details span {
+            font-size: 12.5px;
+            color: #64748b;
+        }
+
         .btn--payment,
         .homec-btn--payment {
             padding: 15px 15px;
@@ -440,6 +584,15 @@
 @endpush
 
 @push('js_section')
+    <script>
+        "use strict";
+        $(document).ready(function() {
+            $(document).on('click', '.payment-card-item', function() {
+                $('.payment-card-item').removeClass('active');
+                $(this).addClass('active');
+            });
+        });
+    </script>
     {{-- start stripe payment --}}
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 
@@ -562,7 +715,7 @@
         });
     </script>
 
-@if ($payment_setting->paystack_status == 1)
+@if ((string)($payment_setting->paystack_status ?? '') === '1')
 <script src="https://js.paystack.co/v1/inline.js"></script>
 
 @php
@@ -629,7 +782,7 @@
 @endif
 
 
-@if ($payment_setting->flutterwave_status == 1)
+@if ((string)($payment_setting->flutterwave_status ?? '') === '1')
 
     <script src="https://checkout.flutterwave.com/v3.js"></script>
 

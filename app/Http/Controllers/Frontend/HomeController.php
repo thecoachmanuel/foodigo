@@ -424,11 +424,15 @@ class HomeController extends Controller
      * @param Request $request
      * @return Renderable
      */
-    public function search(Request $request): Renderable
+    public function search(Request $request): Renderable|\Illuminate\Http\JsonResponse
     {
         $homepage = Homepage::first();
         $home_translate = HomepageTranslation::where(['homepage_id' => $homepage->id, 'lang_code' => front_lang()])->first();
         $cuisines = Cuisine::where('status', 'enable')->get();
+
+        $maxProductPrice = Product::where('status', 'enable')->max('price') ?: 25000;
+        $sliderMax = (int) max(10000, ceil($maxProductPrice / 5000) * 5000);
+
         $foods = Product::where('products.status', 'enable')
             ->withAvg('reviews', 'rating')->withCount('reviews')
             ->when($request->has('search_value') && !empty($request->input('search_value')), function ($query) use ($request) {
@@ -443,14 +447,15 @@ class HomeController extends Controller
                 });
             })
             ->when($request->categories != null, function ($query) use ($request) {
-                $query->whereIn('category_id', $request->categories);
+                $categories = is_array($request->categories) ? $request->categories : explode(',', $request->categories);
+                $query->whereIn('category_id', $categories);
             })
             ->when($request->sort == 'most_recent', function ($query) {
                 $query->latest();
-            })->when($request->price_max > 0, function ($query) use ($request) {
+            })->when($request->price_max > 0, function ($query) use ($request, $sliderMax) {
                 // Approximate final price calculation
-                $min = is_numeric($request->price_min) ? $request->price_min : 0;
-                $max = is_numeric($request->price_max) ? $request->price_max : 100000;
+                $min = is_numeric($request->price_min) ? (float)$request->price_min : 0;
+                $max = is_numeric($request->price_max) ? (float)$request->price_max : $sliderMax;
 
                 // Optional: join offer_products and offers
                 $query->leftJoin('offer_products', function ($join) {
@@ -545,7 +550,19 @@ class HomeController extends Controller
 
         $seo_setting = SeoSetting::where('id', 12)->first();
 
-        return view('frontend.search.index', compact('foods', 'categories', 'discount_products', 'cuisines', 'home_translate', 'homepage', 'restaurants', 'offer_data', 'offer_status', 'seo_setting'));
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'foods_html' => view('frontend.search.partials.foods', compact('foods', 'offer_status', 'offer_data', 'discount_products'))->render(),
+                'pagination_html' => $foods->links('frontend.layouts.partials.pagination')->render(),
+                'restaurants_html' => view('frontend.search.partials.restaurants', compact('restaurants'))->render(),
+                'total_foods' => $foods->total(),
+                'total_restaurants' => $restaurants->count(),
+                'slider_max' => $sliderMax,
+            ]);
+        }
+
+        return view('frontend.search.index', compact('foods', 'categories', 'discount_products', 'cuisines', 'home_translate', 'homepage', 'restaurants', 'offer_data', 'offer_status', 'seo_setting', 'sliderMax'));
     }
 
 

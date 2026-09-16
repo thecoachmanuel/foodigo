@@ -114,13 +114,24 @@
         // ==================== IBADAN / OYO STATE ====================
         { name: 'Ibadan Central', city: 'Ibadan', state: 'Oyo', lat: 7.3775, lng: 3.9470, type: 'city' },
         
-        // Bodija
+        // Bodija & Environs
         { name: 'Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4250, lng: 3.9050, type: 'area' },
         { name: 'Old Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4180, lng: 3.9010, type: 'area' },
         { name: 'New Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4320, lng: 3.9120, type: 'area' },
+        { name: 'Awolowo Avenue, Old Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4208, lng: 3.9015, type: 'street' },
+        { name: 'Oshuntokun Avenue, Old Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4275, lng: 3.9068, type: 'street' },
+        { name: 'Aare Avenue, New Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4365, lng: 3.9110, type: 'street' },
+        { name: 'Francis Okediji Street, Old Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4240, lng: 3.9035, type: 'street' },
+        { name: 'Favos Junction / The Favours, Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4280, lng: 3.9060, type: 'landmark' },
+        { name: 'Bodija Shopping Complex, New Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4320, lng: 3.9142, type: 'landmark' },
         { name: 'Bodija Market, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4330, lng: 3.9180, type: 'landmark' },
         { name: 'Bodija Housing Estate, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4220, lng: 3.9040, type: 'estate' },
-        { name: 'Awolowo Avenue, Old Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4200, lng: 3.8990, type: 'street' },
+        { name: 'Sango - Bodija Road (UI 2nd Gate Link), Kongi, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4385, lng: 3.8980, type: 'street' },
+        { name: 'Secretariat Road, Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4172, lng: 3.9095, type: 'street' },
+        { name: 'Ikolaba Estate, Bodija / Agodi, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4150, lng: 3.9180, type: 'estate' },
+        { name: 'Kongi, Bodija, Ibadan', city: 'Bodija', state: 'Oyo', lat: 7.4390, lng: 3.9020, type: 'area' },
+        { name: 'Aerodrome GRA, Samonda (Bodija Link), Ibadan', city: 'Samonda', state: 'Oyo', lat: 7.4290, lng: 3.8860, type: 'estate' },
+        { name: 'Ventura Mall, Samonda, Ibadan', city: 'Samonda', state: 'Oyo', lat: 7.4255, lng: 3.8885, type: 'landmark' },
 
         // Ring Road & Challenge
         { name: 'Ring Road, Ibadan', city: 'Ring Road', state: 'Oyo', lat: 7.3620, lng: 3.8720, type: 'area' },
@@ -244,26 +255,28 @@
         .nga-geo-wrapper {
             position: relative !important;
             width: 100% !important;
+            display: block !important;
         }
         .nga-geo-dropdown {
             position: absolute !important;
-            top: 100% !important;
+            top: calc(100% + 4px) !important;
             left: 0 !important;
             right: 0 !important;
-            z-index: 99999 !important;
+            width: 100% !important;
+            min-width: 100% !important;
+            z-index: 100000 !important;
             background: #ffffff !important;
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 10px !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-            max-height: 280px !important;
+            border: 1.5px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.22), 0 8px 15px -6px rgba(15, 23, 42, 0.12) !important;
+            max-height: 290px !important;
             overflow-y: auto !important;
-            margin-top: 4px !important;
             padding: 6px 0 !important;
             display: none;
             font-family: inherit !important;
         }
         .nga-geo-item {
-            padding: 10px 14px !important;
+            padding: 11px 15px !important;
             cursor: pointer !important;
             display: flex !important;
             align-items: center !important;
@@ -271,21 +284,23 @@
             transition: all 0.15s ease !important;
             border-bottom: 1px solid #f1f5f9 !important;
             font-size: 14px !important;
-            color: #1e293b !important;
+            color: #090d16 !important;
             text-align: left !important;
+            background: #ffffff !important;
+            min-height: 48px !important;
         }
         .nga-geo-item:last-child {
             border-bottom: none !important;
         }
         .nga-geo-item:hover, .nga-geo-item.active {
-            background-color: #f8fafc !important;
-            border-left: 3px solid #f9c200 !important;
+            background-color: #fffbeb !important;
+            border-left: 4px solid #f98c3b !important;
             padding-left: 15px !important;
         }
         .nga-geo-item-left {
             display: flex !important;
             align-items: center !important;
-            gap: 10px !important;
+            gap: 12px !important;
             flex: 1 !important;
             overflow: hidden !important;
         }
@@ -293,64 +308,76 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            width: 28px !important;
-            height: 28px !important;
-            border-radius: 6px !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 8px !important;
             background: #fef3c7 !important;
             color: #d97706 !important;
-            font-size: 14px !important;
+            font-size: 15px !important;
             flex-shrink: 0 !important;
+            border: 1px solid #fde68a !important;
         }
         .nga-geo-title {
-            font-weight: 600 !important;
-            color: #0f172a !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
+            font-weight: 700 !important;
+            color: #090d16 !important;
+            font-size: 14px !important;
+            line-height: 1.35 !important;
+            white-space: normal !important;
+            word-break: break-word !important;
             display: block !important;
         }
         .nga-geo-subtitle {
-            font-size: 12px !important;
-            color: #64748b !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
+            font-size: 12.5px !important;
+            color: #334155 !important;
+            font-weight: 500 !important;
+            line-height: 1.3 !important;
+            margin-top: 2px !important;
+            white-space: normal !important;
+            word-break: break-word !important;
             display: block !important;
         }
         .nga-geo-badge {
             font-size: 11px !important;
-            font-weight: 600 !important;
-            padding: 3px 8px !important;
+            font-weight: 700 !important;
+            padding: 3px 9px !important;
             border-radius: 9999px !important;
             background: #f1f5f9 !important;
-            color: #475569 !important;
+            color: #334155 !important;
+            border: 1px solid #e2e8f0 !important;
             margin-left: 8px !important;
             flex-shrink: 0 !important;
             text-transform: uppercase !important;
+            letter-spacing: 0.03em !important;
         }
         .nga-geo-badge-lagos {
-            background: #ecfdf5 !important;
-            color: #059669 !important;
+            background: #dcfce7 !important;
+            color: #166534 !important;
+            border-color: #bbf7d0 !important;
         }
         .nga-geo-badge-oyo {
-            background: #eff6ff !important;
-            color: #2563eb !important;
+            background: #dbeafe !important;
+            color: #1e40af !important;
+            border-color: #bfdbfe !important;
         }
         .nga-geo-badge-fct {
-            background: #fdf2f8 !important;
-            color: #db2777 !important;
+            background: #fce7f3 !important;
+            color: #9d174d !important;
+            border-color: #fbcfe8 !important;
         }
         .nga-geo-loading {
-            padding: 10px 14px !important;
+            padding: 12px 14px !important;
             font-size: 13px !important;
-            color: #94a3b8 !important;
+            color: #475569 !important;
+            font-weight: 500 !important;
             text-align: center !important;
         }
         .nga-geo-empty {
-            padding: 12px 14px !important;
+            padding: 14px 16px !important;
             font-size: 13px !important;
-            color: #64748b !important;
+            color: #475569 !important;
+            font-weight: 500 !important;
             text-align: center !important;
+            background: #f8fafc !important;
         }
         /* Custom Clean Restaurant Pickup Card */
         .pickup-clean-card {
@@ -449,16 +476,19 @@
     // Resolve address text into best matching lat/lng immediately
     function resolveLocationSync(addressText) {
         if (!addressText || typeof addressText !== 'string') {
-            return { lat: 6.4281, lng: 3.4219, name: 'Lagos, Nigeria' };
+            return { lat: 7.4250, lng: 3.9050, name: 'Bodija, Ibadan, Oyo State', city: 'Ibadan', state: 'Oyo' };
         }
         const matches = searchLocalDictionary(addressText);
         if (matches.length > 0) {
             return matches[0];
         }
-        // Fallback default coordinates (Lagos / Ibadan / Abuja)
+        // Fallback default coordinates (Bodija / Ibadan / Lagos / Abuja)
         const lower = addressText.toLowerCase();
-        if (lower.includes('ibadan') || lower.includes('bodija') || lower.includes('ring road') || lower.includes('dugbe') || lower.includes('samonda') || lower.includes('akobo') || lower.includes('jericho') || lower.includes('uch') || lower.includes('challenge')) {
-            return { lat: 7.3775, lng: 3.9470, name: addressText, city: 'Ibadan', state: 'Oyo' };
+        if (lower.includes('bodija') || lower.includes('awolowo') || lower.includes('oshuntokun') || lower.includes('aare') || lower.includes('okediji') || lower.includes('favos') || lower.includes('kongi') || lower.includes('samonda') || lower.includes('sango') || lower.includes('ui') || lower.includes('ibadan') || lower.includes('ring road') || lower.includes('dugbe') || lower.includes('akobo') || lower.includes('jericho') || lower.includes('uch') || lower.includes('challenge') || lower.includes('oyo')) {
+            return { lat: 7.4250, lng: 3.9050, name: addressText, city: 'Ibadan', state: 'Oyo' };
+        }
+        if (lower.includes('lagos') || lower.includes('ikeja') || lower.includes('lekki') || lower.includes('victoria island') || lower.includes('vi ') || lower.includes('ikoyi') || lower.includes('yaba') || lower.includes('surulere') || lower.includes('ajah')) {
+            return { lat: 6.4281, lng: 3.4219, name: addressText, city: 'Lagos', state: 'Lagos' };
         }
         if (lower.includes('abuja') || lower.includes('wuse') || lower.includes('maitama') || lower.includes('garki') || lower.includes('gwarinpa') || lower.includes('fct')) {
             return { lat: 9.0579, lng: 7.4951, name: addressText, city: 'Abuja', state: 'FCT' };
@@ -469,8 +499,8 @@
         if (lower.includes('port harcourt') || lower.includes('rivers') || lower.includes('ph')) {
             return { lat: 4.8156, lng: 7.0498, name: addressText, city: 'Port Harcourt', state: 'Rivers' };
         }
-        // Default to Lagos Center
-        return { lat: 6.4281, lng: 3.4219, name: addressText, city: 'Lagos', state: 'Lagos' };
+        // Default to Bodija, Ibadan
+        return { lat: 7.4250, lng: 3.9050, name: addressText, city: 'Ibadan', state: 'Oyo' };
     }
 
     // Main Autocomplete Class attached to input fields

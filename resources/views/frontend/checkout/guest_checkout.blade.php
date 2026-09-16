@@ -194,21 +194,11 @@
 
                                                         <div class="pickup_item_from_item">
                                                             <div class="pickup_item_from_inner">
-                                                                <label class="form-label">{{ __('translate.Your Location') }} *</label>
-                                                                <input id="searchMapInput" class="form-control" type="text"
-                                                                    placeholder="{{ __('translate.Enter Nigerian area, estate, or street (e.g. Bodija, Ikeja, Lekki)...') }}" value="{{ Session::get('address') ?? '' }}">
-
-                                                                <div id="google_map_area" style="display: none;"></div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="pickup_item_from_item">
-                                                            <div class="pickup_item_from_inner">
-                                                                <label for="exampleFormControlInput1" class="form-label">
-                                                                    {{ __('translate.Address') }}</label>
-                                                                <input type="text" class="form-control plain_address"
-                                                                    placeholder="{{ __('translate.Address') }}" name="address"
-                                                                    id="new_plain_address" value="{{ Session::get('address') ?? '' }}">
+                                                                <label class="form-label">{{ __('translate.Delivery Address') }} *</label>
+                                                                <input id="guest_address_input" class="form-control" type="text"
+                                                                    placeholder="{{ __('translate.Enter delivery address, street, estate, or area in Ibadan / Nigeria...') }}"
+                                                                    name="address"
+                                                                    value="{{ Session::get('address') ?? '' }}" required autocomplete="off">
                                                             </div>
                                                         </div>
 
@@ -505,25 +495,11 @@
         let restaurantLat = {{ (float)($restaurant->latitude ?? $product->restaurant->latitude ?? 0) }};
         let restaurantLng = {{ (float)($restaurant->longitude ?? $product->restaurant->longitude ?? 0) }};
 
-        $(document).ready(function() {
-            // Attach Nigerian Geo Autocomplete to searchMapInput and new_plain_address
+            // Attach Nigerian Geo Autocomplete to single guest address input
             if (window.NigeriaGeo) {
-                window.NigeriaGeo.attach('#searchMapInput', {
+                window.NigeriaGeo.attach('#guest_address_input', {
                     latField: '#latitude, .latitude',
                     lngField: '#longitude, .longitude',
-                    plainAddressField: '#new_plain_address',
-                    onSelect: function(item) {
-                        $('#new_plain_address').val(item.name);
-                        $('#latitude').val(item.lat);
-                        $('#longitude').val(item.lng);
-                        calculateDeliveryCharge(item.lat, item.lng);
-                    }
-                });
-
-                window.NigeriaGeo.attach('#new_plain_address', {
-                    latField: '#latitude, .latitude',
-                    lngField: '#longitude, .longitude',
-                    plainAddressField: '#searchMapInput',
                     onSelect: function(item) {
                         $('#latitude').val(item.lat);
                         $('#longitude').val(item.lng);
@@ -621,9 +597,22 @@
                 if (!$('#flexCheckDefault').is(':checked')) {
                     toastr.warning(
                         'Please agree to the Terms of Service and Privacy Policy before proceeding.');
-                } else {
-                    $('#order-form').submit();
+                    return;
                 }
+
+                if ($('#order-type').val() === 'delivery') {
+                    var addr = $('#guest_address_input').val();
+                    var lat = $('#latitude').val();
+                    var lng = $('#longitude').val();
+                    if ((!lat || !lng || parseFloat(lat) === 0) && addr && window.NigeriaGeo) {
+                        var resolved = window.NigeriaGeo.resolve(addr);
+                        $('#latitude').val(resolved.lat);
+                        $('#longitude').val(resolved.lng);
+                        calculateDeliveryCharge(resolved.lat, resolved.lng);
+                    }
+                }
+
+                $('#order-form').submit();
             });
 
 

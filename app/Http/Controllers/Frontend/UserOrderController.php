@@ -84,9 +84,10 @@ class UserOrderController extends Controller
         $this->validate($request, $rules, $customMessages);
 
         // Get cart session data
-        $carts = session('cart');
+        $carts = session('cart', []);
         $subtotal = $this->calculateCartSubtotal($carts);
-        $restaurant_id = Product::find($carts[0]['product_id'])?->restaurant?->id;
+        $first_cart = is_array($carts) ? reset($carts) : null;
+        $restaurant_id = !empty($first_cart['product_id']) ? Product::find($first_cart['product_id'])?->restaurant?->id : null;
 
         $orderData = [
             'order_type' => $request->order_type,

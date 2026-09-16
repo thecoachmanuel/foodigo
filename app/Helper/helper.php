@@ -309,7 +309,7 @@ function google_map_key()
 /**
  * Automatically resolve Nigerian coordinates from address string
  */
-function resolve_nigerian_coordinates($address_text = '', $default_lat = 6.4281, $default_lng = 3.4219)
+function resolve_nigerian_coordinates($address_text = '', $default_lat = 7.4250, $default_lng = 3.9050)
 {
     if (empty($address_text)) {
         return ['latitude' => $default_lat, 'longitude' => $default_lng];
@@ -318,6 +318,52 @@ function resolve_nigerian_coordinates($address_text = '', $default_lat = 6.4281,
     $lower = strtolower(trim((string)$address_text));
 
     $nigerian_map = [
+        // Ibadan - Bodija & Key Environs
+        'awolowo' => [7.4208, 3.9015],
+        'oshuntokun' => [7.4275, 3.9068],
+        'osuntokun' => [7.4275, 3.9068],
+        'aare' => [7.4365, 3.9110],
+        'francis okediji' => [7.4240, 3.9035],
+        'okediji' => [7.4240, 3.9035],
+        'favos' => [7.4280, 3.9060],
+        'the favours' => [7.4280, 3.9060],
+        'bodija market' => [7.4330, 3.9180],
+        'new bodija' => [7.4320, 3.9120],
+        'old bodija' => [7.4180, 3.9010],
+        'bodija estate' => [7.4220, 3.9040],
+        'kongi' => [7.4385, 3.8980],
+        'ikolaba' => [7.4150, 3.9180],
+        'bodija' => [7.4250, 3.9050],
+        'ventura' => [7.4270, 3.8900],
+        'aerodrome' => [7.4290, 3.8860],
+        'samonda' => [7.4260, 3.8890],
+        'sango' => [7.4280, 3.8820],
+        'secretariat' => [7.4172, 3.9095],
+        'agodi' => [7.4120, 3.9140],
+        'uch' => [7.4015, 3.9025],
+        'total garden' => [7.4030, 3.9060],
+        'ui ' => [7.4420, 3.9000],
+        'ui,' => [7.4420, 3.9000],
+        'university of ibadan' => [7.4420, 3.9000],
+        'polytechnic' => [7.4390, 3.8740],
+        'poly' => [7.4390, 3.8740],
+        'ashi' => [7.4210, 3.9320],
+        'basorun' => [7.4080, 3.9290],
+        'akobo' => [7.4480, 3.9420],
+        'iwo road' => [7.4090, 3.9490],
+        'ojoo' => [7.4580, 3.9180],
+        'mokola' => [7.4040, 3.8860],
+        'dugbe' => [7.3880, 3.8810],
+        'cocoa house' => [7.3872, 3.8825],
+        'jericho' => [7.3910, 3.8640],
+        'eleyele' => [7.4140, 3.8620],
+        'ring road' => [7.3620, 3.8720],
+        'challenge' => [7.3480, 3.8820],
+        'oluyole' => [7.3520, 3.8640],
+        'apata' => [7.3620, 3.8320],
+        'ibadan' => [7.4250, 3.9050],
+        'oyo' => [7.4250, 3.9050],
+
         // Lagos
         'ikeja' => [6.6018, 3.3515],
         'allen' => [6.6006, 3.3548],
@@ -362,30 +408,6 @@ function resolve_nigerian_coordinates($address_text = '', $default_lat = 6.4281,
         'iyana ipaja' => [6.6120, 3.2860],
         'ikorodu' => [6.6194, 3.5105],
         'lagos' => [6.4281, 3.4219],
-
-        // Ibadan
-        'bodija' => [7.4250, 3.9050],
-        'ring road' => [7.3620, 3.8720],
-        'challenge' => [7.3480, 3.8820],
-        'dugbe' => [7.3880, 3.8810],
-        'cocoa house' => [7.3872, 3.8825],
-        'mokola' => [7.4040, 3.8860],
-        'agodi' => [7.4120, 3.9140],
-        'samonda' => [7.4260, 3.8890],
-        'sango' => [7.4280, 3.8820],
-        'ui ' => [7.4420, 3.9000],
-        'ui,' => [7.4420, 3.9000],
-        'university of ibadan' => [7.4420, 3.9000],
-        'polytechnic' => [7.4390, 3.8740],
-        'jericho' => [7.3910, 3.8640],
-        'idi ishin' => [7.3980, 3.8550],
-        'eleyele' => [7.4140, 3.8620],
-        'akobo' => [7.4480, 3.9420],
-        'iwo road' => [7.4090, 3.9490],
-        'oluyole' => [7.3520, 3.8640],
-        'apata' => [7.3620, 3.8320],
-        'uch' => [7.4015, 3.9025],
-        'ibadan' => [7.3775, 3.9470],
 
         // Abuja
         'wuse' => [9.0797, 7.4723],
