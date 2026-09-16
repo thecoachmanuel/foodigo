@@ -250,7 +250,7 @@
         { name: 'Uyo Central', city: 'Uyo', state: 'Akwa Ibom', lat: 5.0377, lng: 7.9128, type: 'city' }
     ];
 
-    // CSS Styling for the Autocomplete Dropdown
+    // CSS Styling for the Autocomplete Dropdown (High Contrast Black on White)
     const CSS_STYLES = `
         .nga-geo-wrapper {
             position: relative !important;
@@ -264,38 +264,41 @@
             right: 0 !important;
             width: 100% !important;
             min-width: 100% !important;
-            z-index: 10000020 !important;
+            z-index: 10000050 !important;
             background: #ffffff !important;
-            border: 2px solid #94a3b8 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.35), 0 8px 15px -6px rgba(15, 23, 42, 0.2) !important;
+            background-color: #ffffff !important;
+            border: 2px solid #000000 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.35), 0 8px 15px -6px rgba(0, 0, 0, 0.2) !important;
             max-height: 290px !important;
             overflow-y: auto !important;
-            padding: 6px 0 !important;
+            padding: 0 !important;
             display: none;
             font-family: inherit !important;
         }
         .nga-geo-item {
-            padding: 11px 15px !important;
+            padding: 12px 15px !important;
             cursor: pointer !important;
             display: flex !important;
             align-items: center !important;
             justify-content: space-between !important;
             transition: all 0.15s ease !important;
             border-bottom: 1px solid #f1f5f9 !important;
-            font-size: 14px !important;
+            font-size: 14.5px !important;
             color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
             text-align: left !important;
             background: #ffffff !important;
+            background-color: #ffffff !important;
             min-height: 48px !important;
         }
         .nga-geo-item:last-child {
             border-bottom: none !important;
         }
         .nga-geo-item:hover, .nga-geo-item.active {
-            background-color: #f3f4f6 !important;
+            background-color: #f1f5f9 !important;
             border-left: 4px solid #ea580c !important;
-            padding-left: 15px !important;
+            padding-left: 14px !important;
         }
         .nga-geo-item-left {
             display: flex !important;
@@ -320,21 +323,25 @@
         .nga-geo-title {
             font-weight: 700 !important;
             color: #000000 !important;
-            font-size: 14.5px !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-size: 15px !important;
             line-height: 1.35 !important;
             white-space: normal !important;
             word-break: break-word !important;
             display: block !important;
+            text-shadow: none !important;
         }
         .nga-geo-subtitle {
-            font-size: 13px !important;
-            color: #1f2937 !important;
+            font-size: 13.5px !important;
+            color: #1e293b !important;
+            -webkit-text-fill-color: #1e293b !important;
             font-weight: 600 !important;
             line-height: 1.3 !important;
             margin-top: 2px !important;
             white-space: normal !important;
             word-break: break-word !important;
             display: block !important;
+            text-shadow: none !important;
         }
         .nga-geo-badge {
             font-size: 11px !important;
@@ -342,7 +349,8 @@
             padding: 3px 9px !important;
             border-radius: 9999px !important;
             background: #f1f5f9 !important;
-            color: #0f172a !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
             border: 1px solid #cbd5e1 !important;
             margin-left: 8px !important;
             flex-shrink: 0 !important;
@@ -352,68 +360,40 @@
         .nga-geo-badge-lagos {
             background: #dcfce7 !important;
             color: #166534 !important;
+            -webkit-text-fill-color: #166534 !important;
             border-color: #bbf7d0 !important;
         }
         .nga-geo-badge-oyo {
             background: #dbeafe !important;
             color: #1e40af !important;
+            -webkit-text-fill-color: #1e40af !important;
             border-color: #bfdbfe !important;
         }
         .nga-geo-badge-fct {
             background: #fce7f3 !important;
             color: #9d174d !important;
+            -webkit-text-fill-color: #9d174d !important;
             border-color: #fbcfe8 !important;
         }
         .nga-geo-loading {
-            padding: 12px 14px !important;
-            font-size: 13px !important;
+            padding: 14px 16px !important;
+            font-size: 14px !important;
             color: #000000 !important;
-            font-weight: 600 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 700 !important;
             text-align: center !important;
             background: #ffffff !important;
+            background-color: #ffffff !important;
         }
         .nga-geo-empty {
             padding: 14px 16px !important;
-            font-size: 13px !important;
+            font-size: 14px !important;
             color: #000000 !important;
-            font-weight: 600 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 700 !important;
             text-align: center !important;
             background: #ffffff !important;
-        }
-        /* Custom Clean Restaurant Pickup Card */
-        .pickup-clean-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        .pickup-clean-card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-        .pickup-clean-card-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: #fef3c7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #b45309;
-        }
-        .pickup-clean-badge {
-            display: inline-block;
-            background: #e0f2fe;
-            color: #0369a1;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 20px;
-            margin-bottom: 4px;
+            background-color: #ffffff !important;
         }
     `;
 
@@ -438,15 +418,15 @@
         }).slice(0, 8);
     }
 
-    // Real-time Free Geocoding API search (via local proxy + OSM)
+    // Real-time Free Geocoding API search via OpenStreetMap Live Engine
     async function searchOnlineOsm(query) {
         if (!query || query.trim().length < 2) return [];
         const cleanQuery = query.trim();
 
-        // 1. First try our fast server proxy endpoint with built-in cache & fallback
+        // 1. Fast server proxy endpoint with built-in caching & OSM connection
         try {
             const proxyController = new AbortController();
-            const proxyTimeout = setTimeout(() => proxyController.abort(), 2000);
+            const proxyTimeout = setTimeout(() => proxyController.abort(), 2500);
             const proxyRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(cleanQuery)}`, {
                 signal: proxyController.signal
             });
@@ -462,43 +442,51 @@
                         state: item.state || 'Nigeria',
                         lat: parseFloat(item.lat),
                         lng: parseFloat(item.lng),
-                        type: item.type || 'hub'
+                        type: item.type || 'osm'
                     }));
                 }
             }
         } catch (err) {
-            // If proxy fails or times out, proceed to direct Photon
+            // Fallback to direct client-side OSM query if proxy fails
         }
 
-        // 2. Direct Photon OSM query fallback
+        // 2. Direct OpenStreetMap Nominatim query fallback
         try {
             const directController = new AbortController();
-            const directTimeout = setTimeout(() => directController.abort(), 2000);
-            const directRes = await fetch(`https://photon.komoot.de/api/?q=${encodeURIComponent(cleanQuery)}&countrycodes=NG&limit=8`, {
+            const directTimeout = setTimeout(() => directController.abort(), 2500);
+            const directRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanQuery)}&countrycodes=ng&addressdetails=1&limit=8`, {
+                headers: { 'Accept': 'application/json' },
                 signal: directController.signal
             });
             clearTimeout(directTimeout);
 
             if (directRes.ok) {
                 const data = await directRes.json();
-                if (data.features && data.features.length) {
-                    return data.features.map(f => {
-                        const p = f.properties || {};
-                        const nameParts = [p.name, p.street, p.district, p.city, p.state].filter(Boolean);
+                if (Array.isArray(data) && data.length > 0) {
+                    return data.map(item => {
+                        const addr = item.address || {};
+                        const name = item.name || '';
+                        const road = addr.road || addr.neighbourhood || addr.suburb || '';
+                        const city = addr.city || addr.town || addr.county || addr.city_district || '';
+                        const state = addr.state || 'Nigeria';
+
+                        const nameParts = [name, road, city, state].filter(Boolean);
                         const uniqueParts = [...new Set(nameParts)];
+                        const formattedName = uniqueParts.length > 0 ? uniqueParts.join(', ') : (item.display_name || 'Nigeria');
+
                         return {
-                            name: uniqueParts.join(', '),
-                            city: p.city || p.district || p.county || 'Nigeria',
-                            state: p.state || 'Nigeria',
-                            lat: f.geometry.coordinates[1],
-                            lng: f.geometry.coordinates[0],
-                            type: 'osm'
+                            name: formattedName,
+                            city: city || state,
+                            state: state,
+                            lat: parseFloat(item.lat),
+                            lng: parseFloat(item.lon),
+                            type: item.type || 'osm'
                         };
                     });
                 }
             }
         } catch (err) {
-            // Fall back to local search
+            // Offline fallback
         }
 
         return searchLocalDictionary(cleanQuery);
@@ -515,22 +503,15 @@
         }
         // Fallback default coordinates (Bodija / Ibadan / Lagos / Abuja)
         const lower = addressText.toLowerCase();
-        if (lower.includes('bodija') || lower.includes('awolowo') || lower.includes('oshuntokun') || lower.includes('aare') || lower.includes('okediji') || lower.includes('favos') || lower.includes('kongi') || lower.includes('samonda') || lower.includes('sango') || lower.includes('ui') || lower.includes('ibadan') || lower.includes('ring road') || lower.includes('dugbe') || lower.includes('akobo') || lower.includes('jericho') || lower.includes('uch') || lower.includes('challenge') || lower.includes('oyo')) {
+        if (lower.includes('bodija') || lower.includes('awolowo') || lower.includes('oshuntokun') || lower.includes('aare') || lower.includes('favos') || lower.includes('ibadan') || lower.includes('ring road') || lower.includes('dugbe') || lower.includes('challenge') || lower.includes('oyo')) {
             return { lat: 7.4250, lng: 3.9050, name: addressText, city: 'Ibadan', state: 'Oyo' };
         }
-        if (lower.includes('lagos') || lower.includes('ikeja') || lower.includes('lekki') || lower.includes('victoria island') || lower.includes('vi ') || lower.includes('ikoyi') || lower.includes('yaba') || lower.includes('surulere') || lower.includes('ajah')) {
+        if (lower.includes('lagos') || lower.includes('ikeja') || lower.includes('lekki') || lower.includes('victoria island') || lower.includes('ikoyi') || lower.includes('yaba') || lower.includes('surulere') || lower.includes('ajah')) {
             return { lat: 6.4281, lng: 3.4219, name: addressText, city: 'Lagos', state: 'Lagos' };
         }
-        if (lower.includes('abuja') || lower.includes('wuse') || lower.includes('maitama') || lower.includes('garki') || lower.includes('gwarinpa') || lower.includes('fct')) {
+        if (lower.includes('abuja') || lower.includes('wuse') || lower.includes('maitama') || lower.includes('garki') || lower.includes('fct')) {
             return { lat: 9.0579, lng: 7.4951, name: addressText, city: 'Abuja', state: 'FCT' };
         }
-        if (lower.includes('abeokuta') || lower.includes('ogun') || lower.includes('ota') || lower.includes('mowe')) {
-            return { lat: 7.1475, lng: 3.3619, name: addressText, city: 'Abeokuta', state: 'Ogun' };
-        }
-        if (lower.includes('port harcourt') || lower.includes('rivers') || lower.includes('ph')) {
-            return { lat: 4.8156, lng: 7.0498, name: addressText, city: 'Port Harcourt', state: 'Rivers' };
-        }
-        // Default to Bodija, Ibadan
         return { lat: 7.4250, lng: 3.9050, name: addressText, city: 'Ibadan', state: 'Oyo' };
     }
 
@@ -572,6 +553,7 @@
             // Create dropdown element
             this.dropdown = document.createElement('div');
             this.dropdown.className = 'nga-geo-dropdown';
+            this.dropdown.style.cssText = 'position: absolute !important; top: calc(100% + 4px) !important; left: 0 !important; right: 0 !important; width: 100% !important; z-index: 10000050 !important; background: #ffffff !important; background-color: #ffffff !important; border: 2px solid #000000 !important; border-radius: 10px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.3) !important; max-height: 290px !important; overflow-y: auto !important; padding: 0 !important; display: none;';
             wrapper.appendChild(this.dropdown);
 
             // Bind Input Events
@@ -580,7 +562,7 @@
 
             this.input.addEventListener('input', (e) => this.handleInput(e.target.value));
             this.input.addEventListener('focus', () => {
-                if (this.input.value.trim().length >= 1) {
+                if (this.input.value.trim().length >= 2) {
                     this.handleInput(this.input.value);
                 }
             });
@@ -600,60 +582,75 @@
             clearTimeout(this.debounceTimer);
             const query = value ? value.trim() : '';
 
-            if (query.length < 1) {
+            if (query.length < 2) {
                 this.closeDropdown();
                 return;
             }
 
-            // Step 1: Render Local Matches instantly
-            const localResults = searchLocalDictionary(query);
-            this.renderResults(localResults, true);
+            // Step 1: Show Loading State (Pure Black text on Pure White background)
+            this.dropdown.innerHTML = `<div class="nga-geo-loading" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; padding: 14px; font-weight: 700; text-align: center;"><i class="fa-solid fa-spinner fa-spin me-2" style="color: #ea580c;"></i> Searching map locations...</div>`;
+            this.dropdown.style.display = 'block';
 
-            // Step 2: Fetch Live Online OSM matches after short debounce
+            // Step 2: Fetch Live Real-Time OpenStreetMap locations
             this.debounceTimer = setTimeout(async () => {
                 const onlineResults = await searchOnlineOsm(query);
-                
-                // Merge without duplicates
-                const combined = [...localResults];
-                const seenCoords = new Set(localResults.map(r => `${r.lat.toFixed(3)},${r.lng.toFixed(3)}`));
+                this.renderResults(onlineResults, false);
 
-                for (const item of onlineResults) {
-                    const key = `${item.lat.toFixed(3)},${item.lng.toFixed(3)}`;
-                    if (!seenCoords.has(key)) {
-                        seenCoords.add(key);
-                        combined.push(item);
+                // Step 3: AUTO-RESOLVE ON MAP WHILE TYPING
+                if (onlineResults && onlineResults.length > 0) {
+                    const top = onlineResults[0];
+                    
+                    // Update hidden coordinates
+                    document.querySelectorAll(this.options.latField).forEach(el => {
+                        el.value = top.lat;
+                    });
+                    document.querySelectorAll(this.options.lngField).forEach(el => {
+                        el.value = top.lng;
+                    });
+                    document.querySelectorAll(this.options.plainAddressField).forEach(el => {
+                        if (el !== this.input) {
+                            el.value = top.name;
+                        }
+                    });
+
+                    // Update Leaflet map marker and position
+                    if (window.foodigoMap && typeof window.foodigoMap.updatePosition === 'function') {
+                        window.foodigoMap.updatePosition(top.lat, top.lng, top.name);
+                    }
+
+                    if (typeof window.calculateDeliveryCharge === 'function') {
+                        window.calculateDeliveryCharge(top.lat, top.lng);
                     }
                 }
-
-                this.renderResults(combined, false);
-            }, 250);
+            }, 280);
         }
 
         renderResults(results, isSearching = false) {
-            this.currentResults = results;
+            this.currentResults = results || [];
             this.activeIdx = -1;
             this.dropdown.innerHTML = '';
 
-            if (results.length === 0) {
+            if (this.currentResults.length === 0) {
                 if (isSearching) {
-                    this.dropdown.innerHTML = `<div class="nga-geo-loading">Searching Nigerian locations...</div>`;
+                    this.dropdown.innerHTML = `<div class="nga-geo-loading" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; background: #ffffff !important; padding: 14px; font-weight: 700; text-align: center;">Searching OpenStreetMap...</div>`;
                 } else {
-                    this.dropdown.innerHTML = `<div class="nga-geo-empty">No exact location found. Enter your street/estate directly.</div>`;
+                    this.dropdown.innerHTML = `<div class="nga-geo-empty" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; background: #ffffff !important; padding: 14px; font-weight: 700; text-align: center;">No exact location found. Enter your street or landmark directly.</div>`;
                 }
                 this.dropdown.style.display = 'block';
                 return;
             }
 
-            results.forEach((item, idx) => {
+            this.currentResults.forEach((item, idx) => {
                 const div = document.createElement('div');
                 div.className = 'nga-geo-item';
                 div.dataset.index = idx;
+                div.style.cssText = 'background: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 12px 15px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; min-height: 48px;';
 
                 let iconChar = '📍';
-                if (item.type === 'landmark') iconChar = '🏛️';
-                if (item.type === 'estate') iconChar = '🏡';
-                if (item.type === 'street') iconChar = '🛣️';
-                if (item.type === 'city') iconChar = '🏙️';
+                if (item.type === 'landmark' || item.type === 'amenity') iconChar = '🏛️';
+                if (item.type === 'estate' || item.type === 'residential') iconChar = '🏡';
+                if (item.type === 'street' || item.type === 'highway') iconChar = '🛣️';
+                if (item.type === 'city' || item.type === 'town') iconChar = '🏙️';
 
                 let badgeClass = '';
                 const st = (item.state || '').toLowerCase();
@@ -662,15 +659,24 @@
                 else if (st.includes('fct') || st.includes('abuja')) badgeClass = 'nga-geo-badge-fct';
 
                 div.innerHTML = `
-                    <div class="nga-geo-item-left">
-                        <span class="nga-geo-icon">${iconChar}</span>
-                        <div>
-                            <span class="nga-geo-title">${item.name}</span>
-                            <span class="nga-geo-subtitle">${item.city ? item.city + ', ' : ''}${item.state || 'Nigeria'}</span>
+                    <div class="nga-geo-item-left" style="display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden;">
+                        <span class="nga-geo-icon" style="width: 32px; height: 32px; border-radius: 8px; background: #fef3c7; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; border: 1px solid #fde68a;">${iconChar}</span>
+                        <div style="overflow: hidden;">
+                            <span class="nga-geo-title" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 700 !important; font-size: 15px !important; line-height: 1.35; display: block; text-shadow: none;">${item.name}</span>
+                            <span class="nga-geo-subtitle" style="color: #1e293b !important; -webkit-text-fill-color: #1e293b !important; font-weight: 600 !important; font-size: 13px !important; line-height: 1.3; display: block; margin-top: 2px; text-shadow: none;">${item.city ? item.city + ', ' : ''}${item.state || 'Nigeria'}</span>
                         </div>
                     </div>
-                    <span class="nga-geo-badge ${badgeClass}">${item.state || 'NG'}</span>
+                    <span class="nga-geo-badge ${badgeClass}" style="font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 9999px; margin-left: 8px; flex-shrink: 0; text-transform: uppercase;">${item.state || 'NG'}</span>
                 `;
+
+                div.addEventListener('mouseenter', () => {
+                    div.style.backgroundColor = '#f1f5f9';
+                });
+                div.addEventListener('mouseleave', () => {
+                    if (this.activeIdx !== idx) {
+                        div.style.backgroundColor = '#ffffff';
+                    }
+                });
 
                 div.addEventListener('mousedown', (e) => {
                     e.preventDefault();
@@ -712,9 +718,11 @@
             items.forEach((it, i) => {
                 if (i === this.activeIdx) {
                     it.classList.add('active');
+                    it.style.backgroundColor = '#f1f5f9';
                     it.scrollIntoView({ block: 'nearest' });
                 } else {
                     it.classList.remove('active');
+                    it.style.backgroundColor = '#ffffff';
                 }
             });
         }
@@ -736,8 +744,21 @@
             const hasCoords = Array.from(latEls).some(el => el.value && parseFloat(el.value) !== 0);
 
             if (!hasCoords) {
-                const resolved = resolveLocationSync(val);
-                this.populateFields(resolved, false);
+                // Try resolving via online OSM or fallback
+                searchOnlineOsm(val).then(results => {
+                    if (results && results.length > 0) {
+                        this.populateFields(results[0], false);
+                        if (window.foodigoMap && typeof window.foodigoMap.updatePosition === 'function') {
+                            window.foodigoMap.updatePosition(results[0].lat, results[0].lng, results[0].name);
+                        }
+                    } else {
+                        const resolved = resolveLocationSync(val);
+                        this.populateFields(resolved, false);
+                        if (window.foodigoMap && typeof window.foodigoMap.updatePosition === 'function') {
+                            window.foodigoMap.updatePosition(resolved.lat, resolved.lng, resolved.name);
+                        }
+                    }
+                });
             }
         }
 
@@ -746,12 +767,12 @@
             this.populateFields(item, true);
             this.closeDropdown();
 
-            // Notify Foodigo Map if initialized
+            // Locate immediately on Leaflet Map
             if (window.foodigoMap && typeof window.foodigoMap.updatePosition === 'function') {
                 window.foodigoMap.updatePosition(item.lat, item.lng, item.name);
             }
 
-            // Record that the user made a manual selection so background detection does not override
+            // Record manual selection
             try {
                 localStorage.setItem('foodigo_user_location_set', 'manual');
             } catch (e) {}
@@ -775,7 +796,7 @@
                 }
             });
 
-            // Trigger global distance/delivery calculation if available
+            // Trigger global delivery charge calculation
             if (typeof window.calculateDeliveryCharge === 'function') {
                 window.calculateDeliveryCharge(item.lat, item.lng);
             }

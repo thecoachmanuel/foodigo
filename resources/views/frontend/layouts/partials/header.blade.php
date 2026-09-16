@@ -30,7 +30,7 @@
                             stroke-width="1.5" />
                     </svg>
 
-                <span id="header_user_address_text">{{ session::get('address') ?? __('Select Location') }}</span>
+                <span id="header_user_address_text">{{ Session::get('address') ?? __('Select Location') }}</span>
 
                 <span class="arrow_icon">
                     <svg width="10" height="6" viewBox="0 0 10 6" fill="none"
@@ -162,7 +162,7 @@
                             </span>
 
 
-                            {{ strtoupper(session::get('front_lang')) }}
+                            {{ strtoupper(Session::get('front_lang')) }}
                             <span>
                                 <svg width="10" height="6" viewBox="0 0 10 6" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -611,7 +611,7 @@
                     </span>
 
 
-                    {{ strtoupper(session::get('front_lang')) }}
+                    {{ strtoupper(Session::get('front_lang')) }}
                     <span>
                         <svg width="10" height="6" viewBox="0 0 10 6" fill="none"
                             xmlns="http://www.w3.org/2000/svg">

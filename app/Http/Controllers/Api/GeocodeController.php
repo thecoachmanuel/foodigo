@@ -47,7 +47,7 @@ class GeocodeController extends Controller
     ];
 
     /**
-     * Real-time search endpoint using local Nigerian database + Photon (OSM) API.
+     * Real-time search endpoint using live OpenStreetMap Nominatim API + local fallback.
      */
     public function search(Request $request)
     {
@@ -56,78 +56,66 @@ class GeocodeController extends Controller
             return response()->json([]);
         }
 
-        $cacheKey = 'geocode_search_' . md5(strtolower($query));
+        $cacheKey = 'geocode_search_osm_' . md5(strtolower($query));
         $results = Cache::remember($cacheKey, 86400, function () use ($query) {
-            // 1. Instant local matches
-            $localMatches = $this->searchLocal($query);
-
-            // 2. Query online if few local matches
             $onlineResults = [];
-            if (count($localMatches) < 5) {
-                try {
-                    $response = Http::connectTimeout(0.8)->timeout(1.0)
-                        ->withHeaders(['User-Agent' => 'FoodigoDelivery/1.0'])
-                        ->get('https://photon.komoot.io/api/', [
-                            'q' => $query,
-                            'countrycodes' => 'NG',
-                            'limit' => 6,
-                        ]);
 
-                    if ($response->successful()) {
-                        $data = $response->json();
-                        if (!empty($data['features'])) {
-                            foreach ($data['features'] as $f) {
-                                $props = $f['properties'] ?? [];
-                                $coords = $f['geometry']['coordinates'] ?? [0, 0];
-                                
-                                $nameParts = array_filter([
-                                    $props['name'] ?? null,
-                                    $props['street'] ?? null,
-                                    $props['district'] ?? null,
-                                    $props['city'] ?? null,
-                                    $props['state'] ?? null,
-                                ]);
-                                $unique = array_unique($nameParts);
-                                $formattedName = implode(', ', $unique);
+            // 1. Query OpenStreetMap Nominatim Live Engine
+            try {
+                $response = Http::connectTimeout(2.5)->timeout(4.0)
+                    ->withHeaders(['User-Agent' => 'FoodigoDeliveryApp/1.0 (contact@foodigo.ng)'])
+                    ->get('https://nominatim.openstreetmap.org/search', [
+                        'format' => 'json',
+                        'q' => $query,
+                        'countrycodes' => 'ng',
+                        'addressdetails' => 1,
+                        'limit' => 8,
+                    ]);
 
-                                if (!empty($formattedName)) {
-                                    $onlineResults[] = [
-                                        'name' => $formattedName,
-                                        'city' => $props['city'] ?? ($props['district'] ?? 'Nigeria'),
-                                        'state' => $props['state'] ?? 'Nigeria',
-                                        'lat' => (float)$coords[1],
-                                        'lng' => (float)$coords[0],
-                                        'type' => $props['osm_value'] ?? 'street',
-                                    ];
-                                }
-                            }
+                if ($response->successful()) {
+                    $data = $response->json();
+                    if (is_array($data) && count($data) > 0) {
+                        foreach ($data as $item) {
+                            $addr = $item['address'] ?? [];
+                            $name = $item['name'] ?? '';
+                            $road = $addr['road'] ?? ($addr['neighbourhood'] ?? ($addr['suburb'] ?? ''));
+                            $city = $addr['city'] ?? ($addr['town'] ?? ($addr['county'] ?? ($addr['city_district'] ?? '')));
+                            $state = $addr['state'] ?? 'Nigeria';
+
+                            $nameParts = array_filter([$name, $road, $city, $state]);
+                            $unique = array_unique($nameParts);
+                            $formattedName = !empty($unique) ? implode(', ', $unique) : ($item['display_name'] ?? 'Nigeria');
+
+                            $onlineResults[] = [
+                                'name' => $formattedName,
+                                'display_name' => $item['display_name'] ?? $formattedName,
+                                'city' => $city ?: $state,
+                                'state' => $state,
+                                'lat' => (float)$item['lat'],
+                                'lng' => (float)$item['lon'],
+                                'type' => $item['type'] ?? 'osm',
+                            ];
                         }
                     }
-                } catch (\Throwable $e) {
-                    // Network unavailable or timed out, local matches will serve
                 }
+            } catch (\Throwable $e) {
+                Log::warning('OSM Nominatim search error: ' . $e->getMessage());
             }
 
-            // 3. Merge results with local priority
-            $merged = [];
-            $seen = [];
-
-            foreach (array_merge($localMatches, $onlineResults) as $item) {
-                $key = round($item['lat'], 3) . '_' . round($item['lng'], 3);
-                if (!isset($seen[$key])) {
-                    $seen[$key] = true;
-                    $merged[] = $item;
-                }
+            // Return real OSM results if found
+            if (!empty($onlineResults)) {
+                return $onlineResults;
             }
 
-            return array_slice($merged, 0, 10);
+            // Fallback to local dictionary only if OSM returns empty or fails
+            return $this->searchLocal($query);
         });
 
         return response()->json(array_values($results));
     }
 
     /**
-     * Real-time Reverse Geocode endpoint (lat, lng -> readable address).
+     * Real-time Reverse Geocode endpoint (lat, lng -> readable address via OSM Nominatim).
      */
     public function reverse(Request $request)
     {
@@ -143,22 +131,11 @@ class GeocodeController extends Controller
             ]);
         }
 
-        // Fast match against local hubs if within 2km
-        $closeLocal = $this->findClosestLocal($lat, $lng);
-        if ($closeLocal && $closeLocal['dist'] < 2.0) {
-            return response()->json([
-                'status' => true,
-                'address' => $closeLocal['name'],
-                'lat' => $lat,
-                'lng' => $lng,
-            ]);
-        }
-
-        $cacheKey = 'geocode_rev_' . round($lat, 4) . '_' . round($lng, 4);
-        $address = Cache::remember($cacheKey, 86400, function () use ($lat, $lng, $closeLocal) {
+        $cacheKey = 'geocode_rev_osm_' . round($lat, 5) . '_' . round($lng, 5);
+        $address = Cache::remember($cacheKey, 86400, function () use ($lat, $lng) {
             try {
-                $response = Http::connectTimeout(0.8)->timeout(1.0)
-                    ->withHeaders(['User-Agent' => 'FoodigoDelivery/1.0'])
+                $response = Http::connectTimeout(2.5)->timeout(4.0)
+                    ->withHeaders(['User-Agent' => 'FoodigoDeliveryApp/1.0 (contact@foodigo.ng)'])
                     ->get('https://nominatim.openstreetmap.org/reverse', [
                         'format' => 'json',
                         'lat' => $lat,
@@ -171,13 +148,13 @@ class GeocodeController extends Controller
                     $data = $response->json();
                     $addr = $data['address'] ?? [];
 
-                    $parts = array_filter([
-                        $addr['road'] ?? ($addr['neighbourhood'] ?? ($addr['suburb'] ?? null)),
-                        $addr['suburb'] ?? ($addr['city_district'] ?? null),
-                        $addr['city'] ?? ($addr['town'] ?? ($addr['county'] ?? null)),
-                        $addr['state'] ?? 'Nigeria',
-                    ]);
+                    $primary = $addr['amenity'] ?? ($addr['building'] ?? ($addr['shop'] ?? null));
+                    $road = $addr['road'] ?? ($addr['pedestrian'] ?? ($addr['neighbourhood'] ?? ($addr['suburb'] ?? null)));
+                    $suburb = $addr['suburb'] ?? ($addr['city_district'] ?? null);
+                    $city = $addr['city'] ?? ($addr['town'] ?? ($addr['county'] ?? null));
+                    $state = $addr['state'] ?? 'Nigeria';
 
+                    $parts = array_filter([$primary, $road, $suburb, $city, $state]);
                     $clean = implode(', ', array_unique($parts));
                     if (!empty($clean)) {
                         return $clean;
@@ -186,8 +163,11 @@ class GeocodeController extends Controller
                         return $data['display_name'];
                     }
                 }
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+                Log::warning('OSM reverse geocode error: ' . $e->getMessage());
+            }
 
+            $closeLocal = $this->findClosestLocal($lat, $lng);
             return $closeLocal ? $closeLocal['name'] : 'Bodija, Ibadan, Oyo State';
         });
 

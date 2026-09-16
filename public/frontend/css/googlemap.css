@@ -27,16 +27,20 @@
 }
 
 #searchMapInput {
-    background-color: #fff;
-    font-family: Roboto;
-    font-size: 15px;
-    font-weight: 300;
-    margin-left: 12px;
-    padding: 0 11px 0 13px;
-    text-overflow: ellipsis;
-    width: 50%;
+    background-color: #fff !important;
+    font-family: inherit !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    margin-left: 0 !important;
+    padding: 10px 14px !important;
+    width: 100% !important;
+    color: #000000 !important;
+    border-radius: 8px !important;
+    border: 1.5px solid #000000 !important;
 }
 
 #searchMapInput:focus {
-    border-color: #4d90fe;
+    border-color: #ea580c !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15) !important;
 }

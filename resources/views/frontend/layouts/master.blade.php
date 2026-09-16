@@ -95,6 +95,71 @@
             color: #ffffff;
             font-size: 15px;
         }
+        /* High-Contrast Pure Black on White Autocomplete Dropdown */
+        .nga-geo-wrapper {
+            position: relative !important;
+            width: 100% !important;
+            display: block !important;
+        }
+        .nga-geo-dropdown {
+            position: absolute !important;
+            top: calc(100% + 4px) !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            min-width: 100% !important;
+            z-index: 10000050 !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            border: 2px solid #000000 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.35), 0 8px 15px -6px rgba(0, 0, 0, 0.2) !important;
+            max-height: 290px !important;
+            overflow-y: auto !important;
+            padding: 0 !important;
+            display: none;
+            font-family: inherit !important;
+        }
+        .nga-geo-item {
+            padding: 12px 15px !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            transition: all 0.15s ease !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            font-size: 14.5px !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            text-align: left !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            min-height: 48px !important;
+        }
+        .nga-geo-item:hover, .nga-geo-item.active {
+            background-color: #f1f5f9 !important;
+            border-left: 4px solid #ea580c !important;
+            padding-left: 14px !important;
+        }
+        .nga-geo-title {
+            font-weight: 700 !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-size: 15px !important;
+            line-height: 1.35 !important;
+            display: block !important;
+            text-shadow: none !important;
+        }
+        .nga-geo-subtitle {
+            font-size: 13.5px !important;
+            color: #1e293b !important;
+            -webkit-text-fill-color: #1e293b !important;
+            font-weight: 600 !important;
+            line-height: 1.3 !important;
+            margin-top: 2px !important;
+            display: block !important;
+            text-shadow: none !important;
+        }
     </style>
 
     @if ($general_setting->google_analytic_status == 1)
@@ -208,7 +273,7 @@
                     <div style="position: relative;">
                         <input id="searchMapInput" class="mapControls form-control" type="text" required 
                                placeholder="{{ __('translate.Search area, street, or estate...') }}" 
-                               value="{{ session::get('address') ?? '' }}"
+                               value="{{ Session::get('address') ?? '' }}"
                                style="height: 48px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 14.5px; padding-left: 14px; font-weight: 600; color: #000000;">
                     </div>
 
@@ -225,9 +290,9 @@
                     <!-- Free OpenStreetMap Leaflet Container -->
                     <div id="header_leaflet_map"></div>
 
-                    <input type="hidden" class="form-control" name="address" id="plain_address" value="{{ old('address', session::get('address')) }}">
-                    <input class="form-control latitude" type="hidden" name="latitude" id="latitude" value="{{ old('latitude', session::get('latitude')) }}" readonly>
-                    <input class="form-control longitude" type="hidden" name="longitude" id="longitude" value="{{ old('longitude', session::get('longitude')) }}" readonly>
+                    <input type="hidden" class="form-control" name="address" id="plain_address" value="{{ old('address', Session::get('address')) }}">
+                    <input class="form-control latitude" type="hidden" name="latitude" id="latitude" value="{{ old('latitude', Session::get('latitude')) }}" readonly>
+                    <input class="form-control longitude" type="hidden" name="longitude" id="longitude" value="{{ old('longitude', Session::get('longitude')) }}" readonly>
                 </form>
 
                 <div class="location_modal-btn mt-3">
@@ -345,7 +410,7 @@
 
 <script src="{{ asset('global/toastr/toastr.min.js') }}"></script>
 <script src="{{ asset('global/toastr/swipe-toast.js') }}"></script>
-<script src="{{ asset('frontend/js/nigeria-geo-autocomplete.js') }}"></script>
+<script src="{{ asset('frontend/js/nigeria-geo-autocomplete.js') }}?v={{ time() }}"></script>
 
 <script>
     "use strict";
@@ -566,21 +631,25 @@
                 leafletMarker.setLatLng(e.latlng);
                 reverseGeocodePosition(e.latlng.lat, e.latlng.lng);
             });
-
-            // Expose updatePosition for Autocomplete & External scripts
-            window.foodigoMap = {
-                map: leafletMap,
-                marker: leafletMarker,
-                updatePosition: function(lat, lng, name) {
-                    if (!leafletMap || !leafletMarker) return;
-                    leafletMap.setView([lat, lng], 15);
-                    leafletMarker.setLatLng([lat, lng]);
-                    if (name) {
-                        leafletMarker.bindPopup(`<b>${name}</b>`).openPopup();
-                    }
-                }
-            };
         }
+
+        // Global foodigoMap instance
+        window.foodigoMap = {
+            get map() { return leafletMap; },
+            get marker() { return leafletMarker; },
+            init: initLeafletMap,
+            updatePosition: function(lat, lng, name) {
+                if (!leafletMap) {
+                    initLeafletMap();
+                }
+                if (!leafletMap || !leafletMarker) return;
+                leafletMap.setView([lat, lng], 16);
+                leafletMarker.setLatLng([lat, lng]);
+                if (name) {
+                    leafletMarker.bindPopup(`<b>${name}</b>`).openPopup();
+                }
+            }
+        };
 
         // Reverse geocode via server proxy to update address text and inputs
         function reverseGeocodePosition(lat, lng) {
@@ -609,13 +678,43 @@
         }
 
         // When the modal opens, initialize or invalidateSize so Leaflet geometry renders perfectly
+        $('#staticBackdrop').on('show.bs.modal', function () {
+            if (!leafletMap) {
+                initLeafletMap();
+            }
+        });
         $('#staticBackdrop').on('shown.bs.modal', function () {
             if (!leafletMap) {
                 initLeafletMap();
-            } else {
-                leafletMap.invalidateSize();
             }
+            setTimeout(() => {
+                if (leafletMap) leafletMap.invalidateSize();
+            }, 100);
         });
+
+        // Auto-locate address on Leaflet map on change / paste
+        const searchInput = document.getElementById('searchMapInput');
+        if (searchInput) {
+            searchInput.addEventListener('change', function() {
+                const val = this.value.trim();
+                if (val && window.NigeriaGeo) {
+                    window.NigeriaGeo.searchOnline(val).then(function(results) {
+                        if (results && results.length > 0) {
+                            const top = results[0];
+                            if (window.foodigoMap) {
+                                window.foodigoMap.updatePosition(top.lat, top.lng, top.name);
+                            }
+                            const latEl = document.getElementById('latitude');
+                            const lngEl = document.getElementById('longitude');
+                            const plainEl = document.getElementById('plain_address');
+                            if (latEl) latEl.value = top.lat;
+                            if (lngEl) lngEl.value = top.lng;
+                            if (plainEl) plainEl.value = top.name;
+                        }
+                    });
+                }
+            });
+        }
 
         // "Locate Me" GPS Button inside modal
         const btnGps = document.getElementById('btn_detect_gps_modal');
