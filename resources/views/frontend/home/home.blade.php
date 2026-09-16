@@ -69,7 +69,7 @@
 
 
         <!-- work prosses start -->
-        <section class="work_prosses">
+        <section class="work_prosses {{ ($homepage->show_working_step_on_mobile ?? 'disable') == 'enable' ? '' : 'd-none d-lg-block' }}">
             <div class="container">
                 <div class="row g-4">
                     <div class="col-xxl-3 col-sm-6 col-xl-3">

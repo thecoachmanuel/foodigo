@@ -43,6 +43,11 @@ class InitDatabase extends Command
         if ($hasData && !$force) {
             $this->info('Foodigo database already contains data.');
             $this->ensureNairaCurrency();
+            try {
+                $this->call('foodigo:seed-nigerian-data');
+            } catch (\Throwable $e) {
+                $this->warn('Nigerian data seed notice: ' . $e->getMessage());
+            }
             return 0;
         }
 
@@ -76,6 +81,13 @@ class InitDatabase extends Command
 
             // Prioritize Naira as default currency
             $this->ensureNairaCurrency();
+
+            // Seed Nigerian Localization data
+            try {
+                $this->call('foodigo:seed-nigerian-data');
+            } catch (\Throwable $e) {
+                $this->warn('Nigerian data seed notice: ' . $e->getMessage());
+            }
 
             $this->info('Foodigo database successfully initialized from database.sql!');
             return 0;
@@ -188,6 +200,12 @@ class InitDatabase extends Command
                     ->update([
                         'description' => DB::raw("REPLACE(description, '{{varification_link}}', '{{verification_link}}')")
                     ]);
+            }
+
+            if (Schema::hasTable('homepages') && !Schema::hasColumn('homepages', 'show_working_step_on_mobile')) {
+                Schema::table('homepages', function ($table) {
+                    $table->string('show_working_step_on_mobile')->default('disable')->nullable();
+                });
             }
         } catch (\Throwable $e) {
             Log::warning('Settings configuration notice: ' . $e->getMessage());

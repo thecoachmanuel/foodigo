@@ -1,6 +1,9 @@
 <?php
  return array (
   '404' => '404',
+  'Show on Mobile Screen' => 'মোবাইল স্ক্রিনে দেখান',
+  'Mobile Display Setting' => 'মোবাইল প্রদর্শন সেটিং',
+  'Toggle whether the working steps section is visible on mobile screens' => 'মোবাইল স্ক্রিনে ওয়ার্কিং স্টেপ সেকশন দৃশ্যমান কিনা তা নির্ধারণ করুন',
   'Ads Banner' => 'বিজ্ঞাপন ব্যানার',
   'Dashboard' => 'Dashboard',
   'Click here to' => 'এখানে ক্লিক করুন',

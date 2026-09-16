@@ -21,4 +21,19 @@ class UserAddress extends Model
         'lon',
     ];
 
+    public function getLatitudeAttribute()
+    {
+        return $this->attributes['lat'] ?? null;
+    }
+
+    public function getLongitudeAttribute()
+    {
+        return $this->attributes['lon'] ?? null;
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }
+

@@ -98,4 +98,13 @@ class User extends Authenticatable
             ->latest()
             ->first();
     }
+
+    /**
+     * Get the avatar URL for the user.
+     */
+    public function getAvatarAttribute()
+    {
+        return get_user_avatar($this);
+    }
 }
+

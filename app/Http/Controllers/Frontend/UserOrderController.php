@@ -95,13 +95,13 @@ class UserOrderController extends Controller
                 $orderData['address_id'] = $request->address_id;
                 $user_address = UserAddress::findOrFail($request->address_id);
                 $orderData = array_merge($orderData, [
-                    'name' => $user_address->name,
-                    'email' => $user_address->email,
-                    'phone' => $user_address->phone,
+                    'name' => $user_address->name ?? auth()->user()->name,
+                    'email' => $user_address->email ?? auth()->user()->email,
+                    'phone' => $user_address->phone ?? auth()->user()->phone,
                     'address' => $user_address->address,
                     'delivery_type' => $user_address->delivery_type,
-                    'lat' => $user_address->latitude,
-                    'lon' => $user_address->longitude,
+                    'lat' => $user_address->lat ?? $user_address->latitude,
+                    'lon' => $user_address->lon ?? $user_address->longitude,
                 ]);
             } else {
                 $deliveryCharge = $this->getDeliveryChargeForGuestUser($request->latitude, $request->longitude);
@@ -155,8 +155,10 @@ class UserOrderController extends Controller
     {
         $subtotal = 0;
 
-        foreach ($carts as $item) {
-            $subtotal += $item['total'];
+        if (is_array($carts)) {
+            foreach ($carts as $item) {
+                $subtotal += $item['total'] ?? 0;
+            }
         }
 
         return $subtotal;
@@ -164,29 +166,46 @@ class UserOrderController extends Controller
 
     private function getDeliveryChargeForAuthenticatedUser($addressId): float|int
     {
-        $carts = session('cart');
+        $carts = session('cart', []);
+        if (empty($carts)) return 0;
+        $first_cart = reset($carts);
+        $product = Product::with('restaurant')->find($first_cart['product_id'] ?? null);
+        $restaurantLat = $product?->restaurant?->latitude ?? 0;
+        $restaurantLon = $product?->restaurant?->longitude ?? 0;
+
         $userAddress = UserAddress::find($addressId);
-        $restaurantLat = Product::find($carts[0]['product_id'])->restaurant->latitude;
-        $restaurantLon = Product::find($carts[0]['product_id'])->restaurant->longitude;
-        $userLat = $userAddress->lat;
-        $userLon = $userAddress->lon;
+        $userLat = $userAddress?->lat ?? $userAddress?->latitude ?? 0;
+        $userLon = $userAddress?->lon ?? $userAddress?->longitude ?? 0;
+
+        if (!$userLat || !$userLon || !$restaurantLat || !$restaurantLon) {
+            return 0;
+        }
 
         $distance = $this->calculateDistance($userLat, $userLon, $restaurantLat, $restaurantLon);
-        $chargePerKm = GlobalSetting::where('key', 'delivery_charge')->first()->value;
+        $chargeSetting = GlobalSetting::where('key', 'delivery_charge')->first();
+        $chargePerKm = $chargeSetting ? (float)$chargeSetting->value : 0;
 
-        return $distance * $chargePerKm;
+        return round($distance * $chargePerKm, 2);
     }
 
     private function getDeliveryChargeForGuestUser($guestLat, $guestLon): float|int
     {
-        $carts = session('cart');
-        $restaurantLat = Product::find($carts[0]['product_id'])->restaurant->latitude;
-        $restaurantLon = Product::find($carts[0]['product_id'])->restaurant->longitude;
+        $carts = session('cart', []);
+        if (empty($carts)) return 0;
+        $first_cart = reset($carts);
+        $product = Product::with('restaurant')->find($first_cart['product_id'] ?? null);
+        $restaurantLat = $product?->restaurant?->latitude ?? 0;
+        $restaurantLon = $product?->restaurant?->longitude ?? 0;
+
+        if (!$guestLat || !$guestLon || !$restaurantLat || !$restaurantLon) {
+            return 0;
+        }
 
         $distance = $this->calculateDistance($guestLat, $guestLon, $restaurantLat, $restaurantLon);
-        $chargePerKm = GlobalSetting::where('key', 'delivery_charge')->first()->value;
+        $chargeSetting = GlobalSetting::where('key', 'delivery_charge')->first();
+        $chargePerKm = $chargeSetting ? (float)$chargeSetting->value : 0;
 
-        return $distance * $chargePerKm;
+        return round($distance * $chargePerKm, 2);
     }
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2): float|int

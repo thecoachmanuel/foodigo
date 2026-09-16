@@ -42,6 +42,7 @@ php artisan storage:link --force 2>/dev/null || true
 php artisan foodigo:init-db --force-if-empty || true
 php artisan migrate --force || true
 php artisan module:migrate --force || true
+php artisan foodigo:seed-nigerian-data || true
 php artisan optimize:clear || true
 php artisan cache:clear || true
 php artisan view:clear || true

@@ -2,7 +2,7 @@
     <div class="dashboard_profile">
         <div class="dashboard_profile_thumb_main">
             <div class="dashboard_profile_thumb">
-                <img src="{{ asset($user->image) }}" alt="thumb">
+                <img src="{{ get_user_avatar($user) }}" onerror="this.onerror=null;this.src='{{ default_avatar_url() }}';" alt="thumb">
             </div>
         </div>
 

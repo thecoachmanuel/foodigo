@@ -500,18 +500,18 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `slug`, `status`, `created_at`, `updated_at`, `icon`) VALUES
-(1, 'cookie', 'enable', '2025-03-12 03:35:22', '2025-04-29 03:16:11', 'uploads/custom-images/category--2025-04-29-09-16-11-3680.svg'),
-(2, 'burger', 'enable', '2025-03-12 03:36:34', '2025-04-29 03:16:00', 'uploads/custom-images/category--2025-04-29-09-16-00-5917.svg'),
-(3, 'pizza', 'enable', '2025-03-12 03:38:38', '2025-04-29 03:15:47', 'uploads/custom-images/category--2025-04-29-09-15-47-3506.svg'),
-(4, 'donut', 'enable', '2025-03-12 03:39:35', '2025-04-29 03:15:35', 'uploads/custom-images/category--2025-04-29-09-15-35-8304.svg'),
-(5, 'skewer', 'enable', '2025-03-12 03:41:11', '2025-04-29 03:15:25', 'uploads/custom-images/category--2025-04-29-09-15-25-4834.svg'),
-(6, 'hot-dog', 'enable', '2025-03-12 03:48:56', '2025-04-29 03:15:07', 'uploads/custom-images/category--2025-04-29-09-15-07-2258.svg'),
-(7, 'drings', 'enable', '2025-03-12 03:50:22', '2025-04-29 03:20:22', 'uploads/custom-images/category--2025-04-29-09-20-22-3167.svg'),
-(8, 'cake', 'enable', '2025-04-29 03:17:22', '2025-04-29 03:17:22', 'uploads/custom-images/category--2025-04-29-09-17-22-7450.svg'),
-(9, 'chicken', 'enable', '2025-04-29 03:17:56', '2025-04-29 03:18:05', 'uploads/custom-images/category--2025-04-29-09-18-05-6262.svg'),
-(10, 'cutlery', 'enable', '2025-04-29 03:18:42', '2025-04-29 03:18:42', 'uploads/custom-images/category--2025-04-29-09-18-42-6436.svg'),
-(11, 'rice', 'enable', '2025-04-29 03:19:04', '2025-04-29 03:19:18', 'uploads/custom-images/category--2025-04-29-09-19-04-7084.svg'),
-(12, 'noodles', 'enable', '2025-04-29 03:19:42', '2025-04-29 03:19:42', 'uploads/custom-images/category--2025-04-29-09-19-42-4606.svg');
+(1, 'pastries-small-chops', 'enable', '2025-03-12 03:35:22', '2025-04-29 03:16:11', 'uploads/custom-images/category--2025-04-29-09-16-11-3680.svg'),
+(2, 'burgers-shawarma', 'enable', '2025-03-12 03:36:34', '2025-04-29 03:16:00', 'uploads/custom-images/category--2025-04-29-09-16-00-5917.svg'),
+(3, 'meat-pies-pizza', 'enable', '2025-03-12 03:38:38', '2025-04-29 03:15:47', 'uploads/custom-images/category--2025-04-29-09-15-47-3506.svg'),
+(4, 'puff-puff-treats', 'enable', '2025-03-12 03:39:35', '2025-04-29 03:15:35', 'uploads/custom-images/category--2025-04-29-09-15-35-8304.svg'),
+(5, 'suya-grills', 'enable', '2025-03-12 03:41:11', '2025-04-29 03:15:25', 'uploads/custom-images/category--2025-04-29-09-15-25-4834.svg'),
+(6, 'street-bites', 'enable', '2025-03-12 03:48:56', '2025-04-29 03:15:07', 'uploads/custom-images/category--2025-04-29-09-15-07-2258.svg'),
+(7, 'drinks-refreshments', 'enable', '2025-03-12 03:50:22', '2025-04-29 03:20:22', 'uploads/custom-images/category--2025-04-29-09-20-22-3167.svg'),
+(8, 'cakes-desserts', 'enable', '2025-04-29 03:17:22', '2025-04-29 03:17:22', 'uploads/custom-images/category--2025-04-29-09-17-22-7450.svg'),
+(9, 'peppered-chicken-turkey', 'enable', '2025-04-29 03:17:56', '2025-04-29 03:18:05', 'uploads/custom-images/category--2025-04-29-09-18-05-6262.svg'),
+(10, 'soups-swallows', 'enable', '2025-04-29 03:18:42', '2025-04-29 03:18:42', 'uploads/custom-images/category--2025-04-29-09-18-42-6436.svg'),
+(11, 'rice-jollof-specials', 'enable', '2025-04-29 03:19:04', '2025-04-29 03:19:18', 'uploads/custom-images/category--2025-04-29-09-19-04-7084.svg'),
+(12, 'noodles-pasta', 'enable', '2025-04-29 03:19:42', '2025-04-29 03:19:42', 'uploads/custom-images/category--2025-04-29-09-19-42-4606.svg');
 
 -- --------------------------------------------------------
 
@@ -533,30 +533,30 @@ CREATE TABLE `category_translations` (
 --
 
 INSERT INTO `category_translations` (`id`, `lang_code`, `name`, `created_at`, `updated_at`, `category_id`) VALUES
-(1, 'en', 'Cookie', '2025-03-12 03:35:22', '2025-03-12 03:35:22', 1),
-(2, 'en', 'Burger', '2025-03-12 03:36:34', '2025-03-12 03:36:34', 2),
-(3, 'en', 'Pizza', '2025-03-12 03:38:38', '2025-03-12 03:38:38', 3),
-(4, 'en', 'Donut', '2025-03-12 03:39:35', '2025-03-12 03:39:35', 4),
-(5, 'en', 'Skewer', '2025-03-12 03:41:11', '2025-03-12 03:41:11', 5),
-(6, 'en', 'Hot Dog', '2025-03-12 03:48:56', '2025-03-13 02:41:10', 6),
-(7, 'en', 'Drings', '2025-03-12 03:50:22', '2025-04-29 03:20:22', 7),
-(43, 'en', 'Cake', '2025-04-29 03:17:22', '2025-04-29 03:17:22', 8),
-(45, 'en', 'Chicken', '2025-04-29 03:17:56', '2025-04-29 03:17:56', 9),
-(47, 'en', 'Cutlery', '2025-04-29 03:18:42', '2025-04-29 03:18:42', 10),
-(49, 'en', 'Rice', '2025-04-29 03:19:04', '2025-04-29 03:19:18', 11),
-(51, 'en', 'Noodles', '2025-04-29 03:19:42', '2025-04-29 03:19:42', 12),
-(53, 'bn', 'Cookie', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 1),
-(54, 'bn', 'Burger', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 2),
-(55, 'bn', 'Pizza', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 3),
-(56, 'bn', 'Donut', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 4),
-(57, 'bn', 'Skewer', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 5),
-(58, 'bn', 'Hot Dog', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 6),
-(59, 'bn', 'Drings', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 7),
-(60, 'bn', 'Cake', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 8),
-(61, 'bn', 'Chicken', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 9),
-(62, 'bn', 'Cutlery', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 10),
-(63, 'bn', 'Rice', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 11),
-(64, 'bn', 'নুডলস', '2025-04-29 03:55:32', '2025-12-08 23:46:56', 12);
+(1, 'en', 'Pastries & Small Chops', '2025-03-12 03:35:22', '2025-03-12 03:35:22', 1),
+(2, 'en', 'Burgers & Shawarma', '2025-03-12 03:36:34', '2025-03-12 03:36:34', 2),
+(3, 'en', 'Meat Pies & Pizza', '2025-03-12 03:38:38', '2025-03-12 03:38:38', 3),
+(4, 'en', 'Puff-Puff & Sweet Treats', '2025-03-12 03:39:35', '2025-03-12 03:39:35', 4),
+(5, 'en', 'Suya & Grills', '2025-03-12 03:41:11', '2025-03-12 03:41:11', 5),
+(6, 'en', 'Street Bites & Finger Foods', '2025-03-12 03:48:56', '2025-03-13 02:41:10', 6),
+(7, 'en', 'Drinks & Refreshments', '2025-03-12 03:50:22', '2025-04-29 03:20:22', 7),
+(43, 'en', 'Cakes & Desserts', '2025-04-29 03:17:22', '2025-04-29 03:17:22', 8),
+(45, 'en', 'Peppered Chicken & Turkey', '2025-04-29 03:17:56', '2025-04-29 03:17:56', 9),
+(47, 'en', 'Soups & Swallows', '2025-04-29 03:18:42', '2025-04-29 03:18:42', 10),
+(49, 'en', 'Rice & Jollof Specials', '2025-04-29 03:19:04', '2025-04-29 03:19:18', 11),
+(51, 'en', 'Noodles & Pasta', '2025-04-29 03:19:42', '2025-04-29 03:19:42', 12),
+(53, 'bn', 'Pastries & Small Chops', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 1),
+(54, 'bn', 'Burgers & Shawarma', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 2),
+(55, 'bn', 'Meat Pies & Pizza', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 3),
+(56, 'bn', 'Puff-Puff & Sweet Treats', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 4),
+(57, 'bn', 'Suya & Grills', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 5),
+(58, 'bn', 'Street Bites & Finger Foods', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 6),
+(59, 'bn', 'Drinks & Refreshments', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 7),
+(60, 'bn', 'Cakes & Desserts', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 8),
+(61, 'bn', 'Peppered Chicken & Turkey', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 9),
+(62, 'bn', 'Soups & Swallows', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 10),
+(63, 'bn', 'Rice & Jollof Specials', '2025-04-29 03:55:32', '2025-04-29 03:55:32', 11),
+(64, 'bn', 'Noodles & Pasta', '2025-04-29 03:55:32', '2025-12-08 23:46:56', 12);
 
 -- --------------------------------------------------------
 
@@ -720,11 +720,11 @@ CREATE TABLE `cuisines` (
 --
 
 INSERT INTO `cuisines` (`id`, `slug`, `icon`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'bengali', 'uploads/custom-images/cuisine--2025-03-12-10-04-56-3732.webp', 'enable', '2025-03-12 04:04:56', '2025-03-12 04:04:56'),
-(2, 'chinese', 'uploads/custom-images/cuisine--2025-03-12-10-05-19-2599.webp', 'enable', '2025-03-12 04:05:19', '2025-03-12 04:05:19'),
-(3, 'japanese', 'uploads/custom-images/cuisine--2025-03-12-10-05-43-5887.webp', 'enable', '2025-03-12 04:05:43', '2025-03-12 04:05:43'),
-(4, 'italian', 'uploads/custom-images/cuisine--2025-03-12-10-06-12-9188.webp', 'enable', '2025-03-12 04:06:12', '2025-03-12 04:06:12'),
-(5, 'spanish', 'uploads/custom-images/cuisine--2025-03-12-10-06-34-5378.webp', 'enable', '2025-03-12 04:06:34', '2025-03-12 04:06:34');
+(1, 'nigerian-traditional', 'uploads/custom-images/cuisine--2025-03-12-10-04-56-3732.webp', 'enable', '2025-03-12 04:04:56', '2025-03-12 04:04:56'),
+(2, 'afro-fusion', 'uploads/custom-images/cuisine--2025-03-12-10-05-19-2599.webp', 'enable', '2025-03-12 04:05:19', '2025-03-12 04:05:19'),
+(3, 'suya-grills', 'uploads/custom-images/cuisine--2025-03-12-10-05-43-5887.webp', 'enable', '2025-03-12 04:05:43', '2025-03-12 04:05:43'),
+(4, 'bukka-delicacies', 'uploads/custom-images/cuisine--2025-03-12-10-06-12-9188.webp', 'enable', '2025-03-12 04:06:12', '2025-03-12 04:06:12'),
+(5, 'seafood-soups', 'uploads/custom-images/cuisine--2025-03-12-10-06-34-5378.webp', 'enable', '2025-03-12 04:06:34', '2025-03-12 04:06:34');
 
 -- --------------------------------------------------------
 
@@ -746,16 +746,16 @@ CREATE TABLE `cuisine_translations` (
 --
 
 INSERT INTO `cuisine_translations` (`id`, `cuisine_id`, `lang_code`, `name`, `created_at`, `updated_at`) VALUES
-(1, 1, 'en', 'Bengali', '2025-03-12 04:04:56', '2025-03-12 04:04:56'),
-(2, 2, 'en', 'Chinese', '2025-03-12 04:05:19', '2025-03-12 04:05:19'),
-(3, 3, 'en', 'Japanese', '2025-03-12 04:05:43', '2025-03-12 04:05:43'),
-(4, 4, 'en', 'Italian', '2025-03-12 04:06:12', '2025-03-12 04:06:12'),
-(5, 5, 'en', 'Spanish', '2025-03-12 04:06:34', '2025-03-12 04:06:34'),
-(31, 1, 'bn', 'বাংলা', '2025-04-29 03:55:32', '2025-12-08 23:48:44'),
-(32, 2, 'bn', 'Chinese', '2025-04-29 03:55:32', '2025-04-29 03:55:32'),
-(33, 3, 'bn', 'Japanese', '2025-04-29 03:55:32', '2025-04-29 03:55:32'),
-(34, 4, 'bn', 'Italian', '2025-04-29 03:55:32', '2025-04-29 03:55:32'),
-(35, 5, 'bn', 'Spanish', '2025-04-29 03:55:32', '2025-04-29 03:55:32');
+(1, 1, 'en', 'Nigerian Traditional', '2025-03-12 04:04:56', '2025-03-12 04:04:56'),
+(2, 2, 'en', 'Afro-Fusion & Continental', '2025-03-12 04:05:19', '2025-03-12 04:05:19'),
+(3, 3, 'en', 'Suya, Grills & BBQ', '2025-03-12 04:05:43', '2025-03-12 04:05:43'),
+(4, 4, 'en', 'Bukka Delicacies', '2025-03-12 04:06:12', '2025-03-12 04:06:12'),
+(5, 5, 'en', 'Seafood & Peppersoups', '2025-03-12 04:06:34', '2025-03-12 04:06:34'),
+(31, 1, 'bn', 'Nigerian Traditional', '2025-04-29 03:55:32', '2025-12-08 23:48:44'),
+(32, 2, 'bn', 'Afro-Fusion & Continental', '2025-04-29 03:55:32', '2025-04-29 03:55:32'),
+(33, 3, 'bn', 'Suya, Grills & BBQ', '2025-04-29 03:55:32', '2025-04-29 03:55:32'),
+(34, 4, 'bn', 'Bukka Delicacies', '2025-04-29 03:55:32', '2025-04-29 03:55:32'),
+(35, 5, 'bn', 'Seafood & Peppersoups', '2025-04-29 03:55:32', '2025-04-29 03:55:32');
 
 -- --------------------------------------------------------
 
@@ -1277,15 +1277,16 @@ CREATE TABLE `homepages` (
   `blog_banner_one_status` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `blog_banner_two` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `blog_banner_two_link` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `blog_banner_two_status` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `blog_banner_two_status` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `show_working_step_on_mobile` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'disable'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `homepages`
 --
 
-INSERT INTO `homepages` (`id`, `intro_banner_one`, `intro_banner_two`, `join_restaurant_image`, `mobile_app_image`, `working_step_icon1`, `working_step_icon2`, `working_step_icon3`, `working_step_icon4`, `created_at`, `updated_at`, `mobile_playstore`, `mobile_appstore`, `footer_img_one`, `footer_img_two`, `footer_img_three`, `footer_img_four`, `footer_img_one_link`, `footer_img_two_link`, `footer_img_three_link`, `footer_img_four_link`, `footer_img_five`, `footer_img_five_link`, `footer_img_six`, `footer_img_six_link`, `promotional_banner_one`, `promotional_banner_one_status`, `promotional_banner_one_url`, `promotional_banner_two`, `promotional_banner_two_status`, `promotional_banner_two_url`, `promotional_banner_restaurant`, `promotional_banner_restaurant_status`, `promotional_banner_restaurant_url`, `blog_banner_one`, `blog_banner_one_link`, `blog_banner_one_status`, `blog_banner_two`, `blog_banner_two_link`, `blog_banner_two_status`) VALUES
-(1, 'uploads/custom-images/intro-one--2025-03-12-09-54-08-1066.webp', 'uploads/custom-images/intro-two--2025-03-12-09-55-13-9441.webp', 'uploads/custom-images/working-step--2025-03-13-04-24-57-3207.webp', 'uploads/custom-images/working-step--2025-03-13-04-26-01-4923.webp', 'uploads/custom-images/working-step--2025-03-12-09-57-57-5214.webp', 'uploads/custom-images/working-step--2025-03-12-09-57-57-7737.webp', 'uploads/custom-images/working-step--2025-03-12-09-57-57-7531.webp', 'uploads/custom-images/working-step--2025-03-12-09-57-57-7223.webp', NULL, '2025-04-29 02:56:05', 'https://play.google.com/store/apps', 'https://www.apple.com/store', 'uploads/custom-images/intro-one--2025-03-13-04-28-15-5904.webp', 'uploads/custom-images/intro-two--2025-03-13-04-28-15-8800.webp', 'uploads/custom-images/intro-two--2025-03-13-04-28-16-5978.webp', 'uploads/custom-images/intro-two--2025-04-29-08-52-44-9192.webp', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'uploads/custom-images/intro-two--2025-04-29-08-56-05-7201.webp', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'uploads/custom-images/intro-two--2025-04-29-08-52-44-7955.webp', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'uploads/custom-images/-2025-03-13-05-08-27-9921.webp', '1', 'https://codecanyon.net/user/quomodotheme/portfolio', 'uploads/custom-images/-2025-03-13-05-08-28-9322.webp', '1', 'https://codecanyon.net/user/quomodotheme/portfolio', 'uploads/custom-images/-2025-04-21-06-43-57-9361.webp', '1', 'https://codecanyon.net/user/quomodotheme/portfolio', 'uploads/custom-images/blog-banner-one-2025-03-13-05-15-46-8390.webp', 'https://codecanyon.net/user/quomodotheme/portfolio', '1', 'uploads/custom-images/blog-banner-two-2025-03-13-05-15-46-2332.webp', 'https://codecanyon.net/user/quomodotheme/portfolio', '1');
+INSERT INTO `homepages` (`id`, `intro_banner_one`, `intro_banner_two`, `join_restaurant_image`, `mobile_app_image`, `working_step_icon1`, `working_step_icon2`, `working_step_icon3`, `working_step_icon4`, `created_at`, `updated_at`, `mobile_playstore`, `mobile_appstore`, `footer_img_one`, `footer_img_two`, `footer_img_three`, `footer_img_four`, `footer_img_one_link`, `footer_img_two_link`, `footer_img_three_link`, `footer_img_four_link`, `footer_img_five`, `footer_img_five_link`, `footer_img_six`, `footer_img_six_link`, `promotional_banner_one`, `promotional_banner_one_status`, `promotional_banner_one_url`, `promotional_banner_two`, `promotional_banner_two_status`, `promotional_banner_two_url`, `promotional_banner_restaurant`, `promotional_banner_restaurant_status`, `promotional_banner_restaurant_url`, `blog_banner_one`, `blog_banner_one_link`, `blog_banner_one_status`, `blog_banner_two`, `blog_banner_two_link`, `blog_banner_two_status`, `show_working_step_on_mobile`) VALUES
+(1, 'uploads/custom-images/intro-one--2025-03-12-09-54-08-1066.webp', 'uploads/custom-images/intro-two--2025-03-12-09-55-13-9441.webp', 'uploads/custom-images/working-step--2025-03-13-04-24-57-3207.webp', 'uploads/custom-images/working-step--2025-03-13-04-26-01-4923.webp', 'uploads/custom-images/working-step--2025-03-12-09-57-57-5214.webp', 'uploads/custom-images/working-step--2025-03-12-09-57-57-7737.webp', 'uploads/custom-images/working-step--2025-03-12-09-57-57-7531.webp', 'uploads/custom-images/working-step--2025-03-12-09-57-57-7223.webp', NULL, '2025-04-29 02:56:05', 'https://play.google.com/store/apps', 'https://www.apple.com/store', 'uploads/custom-images/intro-one--2025-03-13-04-28-15-5904.webp', 'uploads/custom-images/intro-two--2025-03-13-04-28-15-8800.webp', 'uploads/custom-images/intro-two--2025-03-13-04-28-16-5978.webp', 'uploads/custom-images/intro-two--2025-04-29-08-52-44-9192.webp', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'uploads/custom-images/intro-two--2025-04-29-08-56-05-7201.webp', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'uploads/custom-images/intro-two--2025-04-29-08-52-44-7955.webp', 'https://codecanyon.net/user/quomodotheme/portfolio?page=2', 'uploads/custom-images/-2025-03-13-05-08-27-9921.webp', '1', 'https://codecanyon.net/user/quomodotheme/portfolio', 'uploads/custom-images/-2025-03-13-05-08-28-9322.webp', '1', 'https://codecanyon.net/user/quomodotheme/portfolio', 'uploads/custom-images/-2025-04-21-06-43-57-9361.webp', '1', 'https://codecanyon.net/user/quomodotheme/portfolio', 'uploads/custom-images/blog-banner-one-2025-03-13-05-15-46-8390.webp', 'https://codecanyon.net/user/quomodotheme/portfolio', '1', 'uploads/custom-images/blog-banner-two-2025-03-13-05-15-46-2332.webp', 'https://codecanyon.net/user/quomodotheme/portfolio', '1', 'disable');
 
 -- --------------------------------------------------------
 
@@ -4367,17 +4368,14 @@ CREATE TABLE `restaurants` (
 -- Dumping data for table `restaurants`
 --
 
-INSERT INTO `restaurants` (`id`, `logo`, `cover_image`, `restaurant_name`, `slug`, `city_id`, `cuisines`, `whatsapp`, `address`, `latitude`, `longitude`, `max_delivery_distance`, `owner_name`, `owner_email`, `owner_phone`, `name`, `email`, `password`, `opening_hour`, `closing_hour`, `min_processing_time`, `max_processing_time`, `time_slot_separate`, `tags`, `is_featured`, `is_pickup_order`, `is_delivery_order`, `admin_approval`, `is_banned`, `forget_password_token`, `created_at`, `updated_at`, `is_trusted`) VALUES
-(1, 'uploads/custom-images/restaurant-logo--2025-10-08-09-42-54-6098.webp', 'uploads/custom-images/restaurant-cover--2025-10-08-09-42-54-2547.webp', 'Chefs Place', 'chefs-place', 4, '[4, 5]', '01798562848', 'Dhaka,  Bangladesh', 24.730669018631982, 90.51754262298346, 444.00, 'Ibrahim Khalil', 'restaurant@gmail.com', '01798562838', 'Abdur Rahman', 'restaurant@gmail.com', '$2y$10$BAGzoJ7bjffMlKCvrgqrJ.hEUNZsfHpMGoWWG2nhV8sZKqvfFZitW', '01:00', '23:00', '20', '60', '20', NULL, 'enable', 'enable', 'enable', 'enable', 'disable', NULL, '2025-03-12 22:18:33', '2025-12-10 02:17:56', 1),
-(2, 'uploads/custom-images/restaurant-logo--2025-10-01-04-56-20-8048.webp', 'uploads/custom-images/restaurant-cover--2025-10-01-04-56-21-1994.webp', 'Retro Chef', 'retro-chef', 3, '[\"1\"]', '01798562822', '83XF+HM, Gohail Bari, Bangladesh', 24.349703387649335, 90.07461503148079, 2000.00, 'Rashedul Islam', 'restaurant1@gmail.com', '01798562555', 'Rashed', 'restaurant1@gmail.com', '$2y$10$0U7rBPAxOhDFogoIv8O72u2nlEMBHN0hxNVDLy2bWzbDcXtfBz7Bi', '01:00', '23:00', '30', '60', '10', NULL, 'enable', 'enable', 'enable', 'enable', 'disable', NULL, '2025-03-13 00:35:29', '2025-10-05 23:57:12', 1),
-(3, 'uploads/custom-images/restaurant-logo--2025-10-08-10-09-24-6710.webp', 'uploads/custom-images/restaurant-cover--2025-10-08-10-09-24-4567.webp', 'chefs-place', 'antonio', 1, '[1, 2, 3]', '01798562848', 'RC85+9FF, Dhaka, Bangladesh', 23.815971981313, 90.408725738525, 444.00, 'Ibrahim Khalil', 'restaurant@gmail.com', '01798562838', 'Abdur Rahman', 'admin1@gmail.com', '$2y$10$zju3pdkNRocf4Q0eMspFxuGnC2vsphx9uoYlKFTbnA3Z7OSIPw3t6', '01:00', '23:00', '20', '60', '20', NULL, 'enable', 'enable', 'enable', 'enable', 'disable', NULL, '2025-03-13 02:25:40', '2025-10-08 04:10:52', 1),
-(4, 'uploads/custom-images/restaurant-logo--2025-03-13-09-04-28-6700.webp', 'uploads/custom-images/restaurant-cover--2025-03-13-09-04-28-8557.webp', 'Brazil Food', 'brazil-food', 3, '[2, 3, 4]', '01798562111', '734 West Kazia Para, Dhaka, Bangladesh', 23.796674696031058, 90.36969926208258, 2000.00, 'Suhail Hosain', 'husain@gmail.com', '01798562818', 'Husain', 'husain@gmail.com', '$2y$10$g2zotcoV.yvaw43YmPZ.uOsm0qay7PfQaWIe2XCN6/RavUANc5./m', '01:00', '23:00', '30', '120', '30', NULL, 'enable', 'enable', 'enable', 'enable', 'disable', NULL, '2025-03-13 03:04:29', '2025-10-13 03:05:45', 1),
-(5, 'uploads/custom-images/restaurant-logo--2025-03-13-09-56-16-1031.webp', 'uploads/custom-images/restaurant-cover--2025-03-13-09-56-16-6826.webp', 'Bogers', 'bogers', 2, '[\"1\",\"4\",\"5\"]', '01798562899', 'Mymensingh', 23.829477055695303, 90.40271759033203, 2000.00, 'Ibrahim Khalil', 'restaurant03@gmail.com', '01798563434', 'Abdur Rahman', 'abc@gmail.com', '$2y$10$kqm0c5d/03UkOL6PrcYfzutueTJIL7N5EmAvii.GDbk.b4D/kYCoq', '01:00', '23:00', '20', '60', '27', '[{\"value\":\"foodigo\"}]', 'enable', 'enable', 'enable', 'enable', 'disable', NULL, '2025-03-13 03:56:16', '2025-03-13 04:10:19', 1),
-(6, 'uploads/custom-images/restaurant-logo--2025-03-13-10-14-52-6034.webp', 'uploads/custom-images/restaurant-cover--2025-03-13-10-14-52-9079.webp', 'Burger Xpress', 'burger-xpress', 1, '[\"1\",\"3\",\"4\"]', '01798563333', 'Sylhet', 23.81597198131313, 90.40872573852539, 2000.00, 'Suhail', 'rana@gmail.com', '01798562222', 'Suhail Husain', 'user1@gmail.com', '$2y$10$58Dkiz1VSdGMyWPFqbd5lOa/W81beM7l7gtRQcQhEdMLEFbKJ/eii', '01:00', '23:00', '20', '60', '20', '[{\"value\":\"foodigo\"}]', 'enable', 'enable', 'enable', 'enable', 'disable', NULL, '2025-03-13 04:14:52', '2025-03-14 22:43:10', 1),
-(7, 'uploads/custom-images/restaurant-logo--2025-03-15-04-48-22-5280.webp', 'uploads/custom-images/restaurant-cover--2025-03-15-04-48-22-1558.webp', 'Piggas', 'pigga', 3, '[2, 3, 4]', '01798562666', 'Q9HX+Q7R, Dhaka, Bangladesh', 23.779741006356762, 90.3975023701787, 2000.00, 'Suhail Husain', 'husain@gmail.com', '01798562855', 'Rashedul Islam', 'reshed@gmail.com', '$2y$10$cAwZRwaVICWbtESCTqFUaePxqokDi.7okoheT9QX13HytO5fqGTAO', '01:00', '23:00', '30', '60', '30', NULL, 'enable', 'enable', 'enable', 'enable', 'disable', NULL, '2025-03-14 22:48:22', '2025-10-18 21:23:01', 1),
-(8, 'uploads/custom-images/restaurant-logo--2025-03-15-04-58-28-9673.webp', 'uploads/custom-images/restaurant-cover--2025-03-15-04-58-28-4644.webp', 'Kombucha', 'kombucha', 4, '[\"1\",\"2\",\"3\"]', '01798562777', 'Comilla', 23.449948621115897, 91.18255519215775, 2000.00, 'Milon', 'milon@gmail.com', '01798562867', 'Abdur Rahman', 'rahman@mail.com', '$2y$10$iZRYlGSE.59xB9gDhUr0fuJHLM.WJkWWURQPHn1rT.NvVlMBdLLZG', '01:00', '23:00', '30', '60', '30', '[{\"value\":\"foodigo\"}]', 'enable', 'enable', 'enable', 'enable', 'disable', NULL, '2025-03-14 22:58:28', '2025-03-15 00:46:45', 1),
-(10, 'uploads/custom-images/restaurant-logo--2025-10-08-09-41-17-2746.webp', 'uploads/custom-images/restaurant-cover--2025-10-08-09-41-17-7684.webp', 'chefs-place', 'barisal-food', 1, '[\"1\",\"2\"]', '01798562848', 'Dhaka', 23.815971981313, 90.408725738525, 444.00, 'Ibrahim Khalil', 'restaurant@gmail.com', '01798562838', 'Abdur Rahman', 'ibrahim@gmail.com', '$2y$10$mRU346EvDnxj1.VqHPSHbueb62gEEVAGWf5MvKZkrUnmJgibv7L.i', '01:00', '23:00', '20', '60', '20', NULL, 'enable', 'enable', 'enable', 'enable', 'disable', NULL, '2025-03-14 23:46:07', '2025-10-08 03:41:17', 1),
-(11, 'uploads/custom-images/restaurant-logo--2025-05-10-07-49-12-7006.webp', 'uploads/custom-images/restaurant-cover--2025-05-10-07-49-12-2717.webp', 'test', 'tes', 1, '[\"2\",\"3\"]', '0124563', 'Mirpur-10, ঢাকা, Bangladesh', 23.8028556, 90.3748344, 2000.00, 'Owner name', 'owneremai3l@gmail.com', '123654', 'Blue Cheese', 'khalil@gmail.com', '$2y$10$0oWgYzyze8EJrD6/nmx5BO1zkp1Oo23AOCnLPl3v2.b34ffdV3ncm', '11:00', '21:00', '2', '4', '20', '[{&quot;value&quot;:&quot;tst&quot;},{&quot;value&quot;:&quot;tag3&quot;},{&quot;value&quot;:&quot;tag4&quot;}]', 'disable', 'disable', 'enable', 'disable', 'disable', NULL, '2025-05-10 01:49:12', '2025-05-10 01:49:12', 0);
+INSERT INTO `restaurants` (`id`, `logo`, `cover_image`, `restaurant_name`, `slug`, `city_id`, `cuisines`, `phone`, `address`, `latitude`, `longitude`, `max_delivery_distance`, `contact_person_name`, `contact_person_email`, `contact_person_phone`, `owner_name`, `email`, `password`, `open_time`, `close_time`, `min_delivery_time`, `max_delivery_time`, `tax`, `seo_title`, `seo_description`, `status`, `is_approved`, `is_featured`, `is_trusted`, `created_at`, `updated_at`, `has_pos`) VALUES
+(4, 'uploads/custom-images/restaurant-logo--2025-03-13-09-31-02-1262.webp', 'uploads/custom-images/restaurant-cover--2025-03-13-09-31-02-3112.webp', 'Yellow Chilli Restaurant & Bar', 'yellow-chilli-restaurant', 1, '["1","3","4"]', '08031234567', '27 Oju Olobun Close, Off Bishop Oluwole St, Victoria Island, Lagos', 6.4281, 3.4219, 2000.00, 'Chef Emeka', 'yellowchilli@gmail.com', '08031234567', 'Emeka Okonkwo', 'yellowchilli@gmail.com', '$2y$10$f6b4i/2B7bW3.c8E92dD2O88tY7o7/g2dM4rW1eL9/c8E92dD2O88', '08:00', '23:00', '30', '60', '7.5', '[{"value":"nigerian food"}]', 'Authentic Nigerian & Afro-Fusion Cuisine in Victoria Island Lagos', 'enable', 'enable', 'enable', 'enable', '2025-03-13 03:31:02', '2025-03-14 22:42:38', 1),
+(5, 'uploads/custom-images/restaurant-logo--2025-03-13-10-02-09-7775.webp', 'uploads/custom-images/restaurant-cover--2025-03-13-10-02-09-3990.webp', 'The Place Restaurant', 'the-place-restaurant', 1, '["1","2","3"]', '08039876543', '4 Adeola Odeku St, Victoria Island, Lagos', 6.4312, 3.4184, 2000.00, 'Tunde Bakare', 'theplace@gmail.com', '08039876543', 'Tunde Bakare', 'theplace@gmail.com', '$2y$10$f6b4i/2B7bW3.c8E92dD2O88tY7o7/g2dM4rW1eL9/c8E92dD2O88', '08:00', '23:00', '25', '45', '7.5', '[{"value":"nigerian food"}]', 'Delicious everyday Nigerian meals, grills, and drinks', 'enable', 'enable', 'enable', 'enable', '2025-03-13 04:02:09', '2025-03-14 22:42:52', 1),
+(6, 'uploads/custom-images/restaurant-logo--2025-03-13-10-14-52-6034.webp', 'uploads/custom-images/restaurant-cover--2025-03-13-10-14-52-9079.webp', 'Mega Chicken & Grills', 'mega-chicken-grills', 1, '["1","2","5"]', '08023456789', 'Plot 1, Commercial Block, Lekki - Epe Expy, Ikota, Lagos', 6.4474, 3.5284, 2000.00, 'Bola Ahmed', 'megachicken@gmail.com', '08023456789', 'Bola Ahmed', 'megachicken@gmail.com', '$2y$10$f6b4i/2B7bW3.c8E92dD2O88tY7o7/g2dM4rW1eL9/c8E92dD2O88', '07:30', '23:00', '20', '50', '7.5', '[{"value":"chicken, grills"}]', 'First class fast food, pastries, and authentic Nigerian dishes', 'enable', 'enable', 'enable', 'enable', '2025-03-13 04:14:52', '2025-03-14 22:43:10', 1),
+(7, 'uploads/custom-images/restaurant-logo--2025-03-15-04-48-22-5280.webp', 'uploads/custom-images/restaurant-cover--2025-03-15-04-48-22-1558.webp', 'Kilimanjaro Eatery', 'kilimanjaro-eatery', 1, '["1","3","4"]', '08034567890', '138 Admiralty Way, Lekki Phase 1, Lagos', 6.4498, 3.4723, 2000.00, 'Nnamdi Kanu', 'kilimanjaro@gmail.com', '08034567890', 'Nnamdi Kanu', 'kilimanjaro@gmail.com', '$2y$10$f6b4i/2B7bW3.c8E92dD2O88tY7o7/g2dM4rW1eL9/c8E92dD2O88', '08:00', '22:30', '30', '55', '7.5', '[{"value":"kilimanjaro"}]', 'Fresh and delicious Nigerian meals made with love', 'enable', 'enable', 'enable', 'enable', '2025-03-14 22:48:22', '2025-10-18 21:23:01', 1),
+(8, 'uploads/custom-images/restaurant-logo--2025-03-15-04-58-28-9673.webp', 'uploads/custom-images/restaurant-cover--2025-03-15-04-58-28-4644.webp', 'Bukka Hut Lounge', 'bukka-hut-lounge', 1, '["1","4","5"]', '08056789012', 'Block 69A, Plot 8 Admiralty Way, Lekki Phase 1, Lagos', 6.4485, 3.4682, 2000.00, 'Rasheed Bello', 'bukkahut@gmail.com', '08056789012', 'Rasheed Bello', 'bukkahut@gmail.com', '$2y$10$f6b4i/2B7bW3.c8E92dD2O88tY7o7/g2dM4rW1eL9/c8E92dD2O88', '08:00', '23:00', '25', '50', '7.5', '[{"value":"bukka hut"}]', 'Authentic traditional Nigerian buka style cooking', 'enable', 'enable', 'enable', 'enable', '2025-03-14 22:58:28', '2025-03-15 00:46:45', 1),
+(10, 'uploads/custom-images/restaurant-logo--2025-10-08-09-41-17-2746.webp', 'uploads/custom-images/restaurant-cover--2025-10-08-09-41-17-7684.webp', 'Chicken Republic Express', 'chicken-republic-express', 1, '["2","3"]', '08078901234', '23 Glover Road, Ikoyi, Lagos', 6.4520, 3.4350, 2000.00, 'Ibrahim Musa', 'chickenrepublic@gmail.com', '08078901234', 'Ibrahim Musa', 'chickenrepublic@gmail.com', '$2y$10$f6b4i/2B7bW3.c8E92dD2O88tY7o7/g2dM4rW1eL9/c8E92dD2O88', '08:00', '22:00', '20', '40', '7.5', '[{"value":"chicken republic"}]', 'Taste the extraordinary soul-filling chicken and meals', 'enable', 'enable', 'enable', 'enable', '2025-03-14 23:46:07', '2025-10-08 03:41:17', 1),
+(11, 'uploads/custom-images/restaurant-logo--2025-05-10-07-49-12-7006.webp', 'uploads/custom-images/restaurant-cover--2025-05-10-07-49-12-2717.webp', 'Terra Kulture Food Lounge', 'terra-kulture-lounge', 1, '["1","4"]', '08089012345', 'Plot 1376 Tiamiyu Savage St, Victoria Island, Lagos', 6.4315, 3.4241, 2000.00, 'Bolanle Austen', 'terrakulture@gmail.com', '08089012345', 'Bolanle Austen', 'terrakulture@gmail.com', '$2y$10$f6b4i/2B7bW3.c8E92dD2O88tY7o7/g2dM4rW1eL9/c8E92dD2O88', '09:00', '23:00', '30', '60', '7.5', '[{"value":"terra kulture"}]', 'Celebrate Nigerian art, culture, and rich culinary heritage', 'enable', 'enable', 'enable', 'enable', '2025-05-10 01:49:12', '2025-05-10 01:49:12', 1);value&quot;:&quot;tst&quot;},{&quot;value&quot;:&quot;tag3&quot;},{&quot;value&quot;:&quot;tag4&quot;}]', 'disable', 'disable', 'enable', 'disable', 'disable', NULL, '2025-05-10 01:49:12', '2025-05-10 01:49:12', 0);
 
 -- --------------------------------------------------------
 

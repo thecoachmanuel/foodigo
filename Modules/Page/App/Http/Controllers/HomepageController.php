@@ -161,6 +161,11 @@ class HomepageController extends Controller
             }
         }
 
+        if($request->lang_code == admin_lang()){
+            $homepage->show_working_step_on_mobile = $request->show_working_step_on_mobile ? 'enable' : 'disable';
+            $homepage->save();
+        }
+
         $notify_message = trans('translate.Update successfully');
         $notify_message = array('message' => $notify_message, 'alert-type' => 'success');
         return redirect()->back()->with($notify_message);

@@ -1,6 +1,9 @@
 <?php
  return array (
   '404' => '404',
+  'Show on Mobile Screen' => 'Show on Mobile Screen',
+  'Mobile Display Setting' => 'Mobile Display Setting',
+  'Toggle whether the working steps section is visible on mobile screens' => 'Toggle whether the working steps section is visible on mobile screens',
   'Ads Banner' => 'Ads Banner',
   'Enter full name' => 'Enter full name',
   'Enter email address' => 'Enter email address',

@@ -47,9 +47,16 @@
                                 @method('PUT')
                                 <div class="edit_profile_form_item">
                                     <div class="edit_profile_form_inner">
-                                        <label for="exampleFormControlInput1" class="form-label">{{__('translate.Profile Photo')}}</label>
-                                        <input type="file" class="form-control" id="exampleFormControlInput1"
-                                               name="image">
+                                        <label for="profile_image_input" class="form-label">{{__('translate.Profile Photo')}}</label>
+                                        <div class="d-flex align-items-center gap-3 mb-2">
+                                            <div class="profile-preview-wrapper" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 2px solid #FE5200; box-shadow: 0 4px 10px rgba(0,0,0,0.08); background: #f8f9fa;">
+                                                <img id="user_profile_preview" src="{{ get_user_avatar($user) }}" onerror="this.onerror=null;this.src='{{ default_avatar_url() }}';" alt="avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <input type="file" class="form-control" id="profile_image_input" name="image" accept="image/*" onchange="previewUserProfile(event)">
+                                                <small class="text-muted">{{ __('translate.Allowed formats: JPG, JPEG, PNG, WEBP') }}</small>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -103,3 +110,22 @@
 
     </main>
 @endsection
+
+@push('js_section')
+<script>
+    "use strict";
+    function previewUserProfile(event) {
+        var reader = new FileReader();
+        reader.onload = function(){
+            var output = document.getElementById('user_profile_preview');
+            if (output) {
+                output.src = reader.result;
+            }
+        };
+        if (event.target.files && event.target.files[0]) {
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    }
+</script>
+@endpush
+

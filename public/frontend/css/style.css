@@ -3831,8 +3831,11 @@ a {
     padding: 12px 0 0 0;
     background-color: #ff6648;
     position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     z-index: 999;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .header .nav-bg {
@@ -5850,9 +5853,13 @@ a {
 
 .mobile-header {
     display: none;
-    position: relative;
-    z-index: 111;
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
     background-color: var(--color-white);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .mobile-header__container {
@@ -5874,14 +5881,14 @@ a {
 
 #offcanvas-nav {
     background: transparent;
-    position: absolute;
+    position: fixed;
     left: -300px;
     top: 0px;
-    z-index: 99;
     width: 300px;
     height: 100vh;
     z-index: 999999;
     transition: 0.5s ease;
+    overflow-y: auto;
 }
 
 #offcanvas-nav::before {

@@ -48,8 +48,11 @@ class CheckoutController extends Controller
             $addresses = UserAddress::where('user_id', $user->id)->get();
         }
 
-        $payment_data = PaymentGateway::all();
+        $first_cart = reset($carts);
+        $first_product = !empty($first_cart['product_id']) ? \Modules\Product\App\Models\Product::with('restaurant')->find($first_cart['product_id']) : null;
+        $restaurant = $first_product?->restaurant;
 
+        $payment_data = PaymentGateway::all();
 
         $payment_setting = array();
 
@@ -60,9 +63,9 @@ class CheckoutController extends Controller
         $payment_setting = (object) $payment_setting;
 
         if (Auth::check()){
-            return view('frontend.checkout.checkout_view', compact('carts', 'slots', 'addresses', 'areas', 'payment_setting'));
+            return view('frontend.checkout.checkout_view', compact('carts', 'slots', 'addresses', 'areas', 'payment_setting', 'restaurant', 'first_product'));
         }
-        return view('frontend.checkout.guest_checkout', compact('carts', 'slots', 'addresses', 'areas', 'payment_setting'));
+        return view('frontend.checkout.guest_checkout', compact('carts', 'slots', 'addresses', 'areas', 'payment_setting', 'restaurant', 'first_product'));
 
     }
 
@@ -88,7 +91,7 @@ class CheckoutController extends Controller
             $lon = $orderData['lon'] ?? null;
             $order_type = $orderData['order_type'] ?? 'delivery';
 
-            if($order_type == 'delivery'){
+            if($order_type == 'delivery' && !empty($lat) && !empty($lon)){
                 $restaurant = Restaurant::where('id', $restaurantId)
                             ->where('is_banned', 'disable')
                             ->where('admin_approval', 'enable')
@@ -124,9 +127,14 @@ class CheckoutController extends Controller
 
         $carts = session()->get('cart', []);
 
-        $razorpay_currency = Currency::findOrFail($this->payment_setting->razorpay_currency_id);
-        $flutterwave_currency = Currency::findOrFail($this->payment_setting->flutterwave_currency_id);
-        $paystack_currency = Currency::findOrFail($this->payment_setting->paystack_currency_id);
+        $default_currency = Currency::where('is_default', 'yes')->where('status', 'active')->first()
+            ?? Currency::where('currency_code', 'NGN')->first()
+            ?? Currency::where('status', 'active')->first()
+            ?? Currency::first();
+
+        $razorpay_currency = (!empty($this->payment_setting->razorpay_currency_id) ? Currency::find($this->payment_setting->razorpay_currency_id) : null) ?? $default_currency;
+        $flutterwave_currency = (!empty($this->payment_setting->flutterwave_currency_id) ? Currency::find($this->payment_setting->flutterwave_currency_id) : null) ?? $default_currency;
+        $paystack_currency = (!empty($this->payment_setting->paystack_currency_id) ? Currency::find($this->payment_setting->paystack_currency_id) : null) ?? $default_currency;
 
         return view('frontend.payment.index', compact('payment_setting', 'carts', 'razorpay_currency', 'flutterwave_currency', 'paystack_currency'));
     }

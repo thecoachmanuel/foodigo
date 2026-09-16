@@ -368,7 +368,7 @@
                                         <div class="login_profile_main">
                                             <div class="login_profile">
                                                 <div class="login_profile_thumb">
-                                                    <img src="{{ asset($user->image) }}" alt="thumb">
+                                                    <img src="{{ get_user_avatar($user) }}" onerror="this.onerror=null;this.src='{{ default_avatar_url() }}';" alt="thumb">
                                                 </div>
                                                 <div class="login_profile_txt">
                                                     <a href="{{ route('user.dashboard') }}">

@@ -177,11 +177,7 @@
                     <div class="overview-profile">
                         <div class="overview-profile-thumb-main">
                             <div class="overview-profile-thumb">
-                                @if ($user->image)
-                                <img src="{{ asset($user->image) }}" alt="thumb">
-                                @else
-                                <img src="{{ asset($general_setting->default_avatar) }}" alt="thumb">
-                                @endif
+                                <img src="{{ get_user_avatar($user) }}" onerror="this.onerror=null;this.src='{{ default_avatar_url() }}';" alt="thumb">
 
                             </div>
                             <div class="overview-profile-txt">

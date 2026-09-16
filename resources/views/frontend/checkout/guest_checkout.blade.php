@@ -546,47 +546,47 @@
         var default_lat = 0;
         var default_lang = 0;
         var googleMapsLoaded = false;
+        var guestMap = null;
+        var guestMarker = null;
 
-        let restaurantLat = {{ $product->restaurant->latitude }};
-        let restaurantLng = {{ $product->restaurant->longitude }};
+        let restaurantLat = {{ (float)($restaurant->latitude ?? $product->restaurant->latitude ?? 0) }};
+        let restaurantLng = {{ (float)($restaurant->longitude ?? $product->restaurant->longitude ?? 0) }};
 
 
         function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                alert("{{ __('translate.Geolocation is not supported by this browser.') }}");
             }
         }
 
         function showError(error) {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    alert("{{ __('translate.Please enable to Geolocation in yor browser ') }}");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("{{ __('translate.Location information is unavailable.') }}");
-                    break;
-                case error.TIMEOUT:
-                    alert("{{ __('translate.The request to get user location timed out.') }}");
-                    break;
-                default:
-                    alert("{{ __('translate.An unknown error occurred.') }}");
-                    break;
-            }
+            console.log("Geolocation error:", error.message);
         }
 
         function showPosition(position) {
             default_lat = position.coords.latitude;
             default_lang = position.coords.longitude;
 
-            if (googleMapsLoaded) {
-                initMap();
+            if (googleMapsLoaded && guestMap) {
+                if (!$("#latitude").val()) {
+                    $("#latitude").val(default_lat);
+                    $("#longitude").val(default_lang);
+                    guestMap.setCenter({ lat: default_lat, lng: default_lang });
+                    if (guestMarker) {
+                        guestMarker.setPosition({ lat: default_lat, lng: default_lang });
+                    }
+                    calculateDeliveryCharge(default_lat, default_lang);
+                }
             }
         }
 
 
         function loadGoogleMapsAPI(callback) {
+            if (window.google && window.google.maps) {
+                googleMapsLoaded = true;
+                callback();
+                return;
+            }
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API') }}&libraries=places`;
             script.async = true;
@@ -599,78 +599,72 @@
         }
 
         window.initMap = function(){
+            var mapElement = document.getElementById('google_map_area');
+            if (!mapElement) return;
 
-            var defaultLocation = { lat: default_lat, lng: default_lang };
+            var sessLat = parseFloat("{{ session('latitude') }}");
+            var sessLng = parseFloat("{{ session('longitude') }}");
 
+            var initialLat = sessLat || default_lat || restaurantLat || 6.4281;
+            var initialLng = sessLng || default_lang || restaurantLng || 3.4219;
 
             var initialLocation = {
-                lat: parseFloat("{{ session('latitude') }}") || defaultLocation.lat,
-                lng: parseFloat("{{ session('longitude') }}") || defaultLocation.lng
+                lat: initialLat,
+                lng: initialLng
             };
 
-            var map = new google.maps.Map(document.getElementById('google_map_area'), {
+            guestMap = new google.maps.Map(mapElement, {
                 center: initialLocation,
                 zoom: 13
             });
 
-            var marker = new google.maps.Marker({
+            guestMarker = new google.maps.Marker({
                 position: initialLocation,
-                map: map,
+                map: guestMap,
                 draggable: true
             });
 
             var input = document.getElementById('searchMapInput');
 
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+            if (input) {
+                guestMap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
-            var autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
+                var autocomplete = new google.maps.places.Autocomplete(input);
+                autocomplete.bindTo('bounds', guestMap);
 
-            var infowindow = new google.maps.InfoWindow();
+                var infowindow = new google.maps.InfoWindow();
 
-            autocomplete.addListener('place_changed', function() {
+                autocomplete.addListener('place_changed', function() {
+                    infowindow.close();
+                    guestMarker.setVisible(false);
+                    var place = autocomplete.getPlace();
 
-                infowindow.close();
-                marker.setVisible(false);
-                var place = autocomplete.getPlace();
+                    if (!place.geometry || !place.geometry.location) return;
 
-                /* If the place has a geometry, then present it on a map. */
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17);
-                }
+                    if (place.geometry.viewport) {
+                        guestMap.fitBounds(place.geometry.viewport);
+                    } else {
+                        guestMap.setCenter(place.geometry.location);
+                        guestMap.setZoom(17);
+                    }
 
-                marker.setPosition(place.geometry.location);
-                marker.setVisible(true);
+                    guestMarker.setPosition(place.geometry.location);
+                    guestMarker.setVisible(true);
 
-                var address = '';
-                if (place.address_components) {
-                    address = [
-                        (place.address_components[0] && place.address_components[0].short_name || ''),
-                        (place.address_components[1] && place.address_components[1].short_name || ''),
-                        (place.address_components[2] && place.address_components[2].short_name || '')
-                    ].join(' ');
-                }
+                    $("#new_plain_address").val(place.formatted_address || place.name);
+                    $("#latitude").val(place.geometry.location.lat());
+                    $("#longitude").val(place.geometry.location.lng());
 
-                infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-                infowindow.open(map, marker);
-
-                $("#new_plain_address").val(place.formatted_address);
-
-                $("#latitude").val(place.geometry.location.lat());
-                $("#longitude").val(place.geometry.location.lng());
-
-                calculateDeliveryCharge(place.geometry.location.lat(), place.geometry.location.lng());
-            });
+                    calculateDeliveryCharge(place.geometry.location.lat(), place.geometry.location.lng());
+                });
+            }
 
             // Listener for map clicks
-            map.addListener('click', function(event) {
+            guestMap.addListener('click', function(event) {
                 var clickedLocation = event.latLng;
 
-                marker.setPosition(clickedLocation);
-                marker.setVisible(true);
+                guestMarker.setPosition(clickedLocation);
+                guestMarker.setVisible(true);
 
                 $("#latitude").val(clickedLocation.lat());
                 $("#longitude").val(clickedLocation.lng());
@@ -679,34 +673,32 @@
                 reverseGeocode(clickedLocation);
             });
 
-            marker.addListener('dragend', function(event) {
+            guestMarker.addListener('dragend', function(event) {
                 var clickedLocation = event.latLng;
 
                 $("#latitude").val(clickedLocation.lat());
                 $("#longitude").val(clickedLocation.lng());
                 calculateDeliveryCharge(clickedLocation.lat(), clickedLocation.lng());
                 reverseGeocode(clickedLocation);
-
-
             });
-
-
-
         }
 
         window.initPickupMap = function(){
-            const pickupMap = new google.maps.Map(document.getElementById("restaurant_pickup_address"), {
+            const pickupElement = document.getElementById("restaurant_pickup_address");
+            if (!pickupElement) return;
+
+            const pickupMap = new google.maps.Map(pickupElement, {
                 center: {
-                    lat: restaurantLat,
-                    lng: restaurantLng
+                    lat: parseFloat(restaurantLat) || 6.4281,
+                    lng: parseFloat(restaurantLng) || 3.4219
                 },
                 zoom: 13,
             });
 
-            const marker = new google.maps.Marker({
+            new google.maps.Marker({
                 position: {
-                    lat: restaurantLat,
-                    lng: restaurantLng
+                    lat: parseFloat(restaurantLat) || 6.4281,
+                    lng: parseFloat(restaurantLng) || 3.4219
                 },
                 map: pickupMap,
             });
@@ -723,15 +715,12 @@
             });
         }
 
-
-
         loadGoogleMapsAPI(function () {
             initMap();
             initPickupMap();
         });
 
-
-        getLocation()
+        getLocation();
 
     </script>
 
@@ -764,14 +753,14 @@
                                 currencyIcon: symbol
                             }));
                             let newTotal = parseFloat(response.new_total) || 0;
-                            let totalAmounts = parseFloat(newTotal) + parseFloat(deliveryCharge)
+                            let totalAmounts = parseFloat(newTotal) + parseFloat(deliveryCharge);
 
                             $('#newTotalAmount').text(formatCurrency(totalAmounts, {
                                 currencyIcon: symbol
                             }));
 
                             $('.promo_code').hide();
-                            $("#total_amount_item").addClass('total_amount_border')
+                            $("#total_amount_item").addClass('total_amount_border');
                             toastr.success('Coupon applied successfully!');
 
                             recalculateTotalAmount();
@@ -800,7 +789,7 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            window.location = "{{ route('view.checkout') }}"
+                            window.location = "{{ route('view.checkout') }}";
                         } else {
                             toastr.error(response.message);
                         }
@@ -824,10 +813,15 @@
             $('#pills-tab a').on('click', function () {
                 var selectedType = $(this).data('type');
                 $('#order-type').val(selectedType);
+                if (selectedType === 'pickup') {
+                    $('#delivery_charge').val(0);
+                    $('.delivery_charges').text(formatCurrency(0));
+                    $('.delivery_charged').val(0);
+                    recalculateTotalAmount();
+                } else {
+                    calculateDeliveryCharge($("#latitude").val(), $("#longitude").val());
+                }
             });
-
-
-
 
         });
     </script>
@@ -841,11 +835,11 @@
             const {
                 currencyIcon = "{{ session::get('currency_icon') }}",
                     currencyCode = "{{ session::get('currency_code') }}",
-                    currencyRate = "{{ session::get('currency_rate') }}",
-                    currencyPosition = "{{ session::get('currency_position') }}",
+                    currencyRate = "{{ session::get('currency_rate') ?? 1 }}",
+                    currencyPosition = "{{ session::get('currency_position') ?? 'before_price' }}",
             } = options;
 
-            amount = amount * currencyRate;
+            amount = parseFloat(amount) * parseFloat(currencyRate || 1);
             amount = amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
             switch (currencyPosition) {
                 case 'before_price':
@@ -880,28 +874,32 @@
 
         // Unified function to calculate the delivery charge based on location
         function calculateDeliveryCharge(userLat, userLon) {
-            const restaurantLat = "{{ $product->restaurant->latitude }}";
-            const restaurantLon = "{{ $product->restaurant->longitude }}";
+            if ($('#order-type').val() === 'pickup') {
+                $('#delivery_charge').val(0);
+                $('.delivery_charges').text(formatCurrency(0));
+                $('.delivery_charged').val(0);
+                recalculateTotalAmount();
+                return;
+            }
 
-            // Calculate the distance
-            const distance = calculateDistance(userLat, userLon, restaurantLat, restaurantLon);
+            const rLat = parseFloat(restaurantLat) || 0;
+            const rLon = parseFloat(restaurantLng) || 0;
+            const uLat = parseFloat(userLat) || 0;
+            const uLon = parseFloat(userLon) || 0;
 
-            const chargePerKm = "{{ $general_setting->delivery_charge }}";
+            const chargePerKm = parseFloat("{{ $general_setting->delivery_charge ?? 0 }}") || 0;
 
             let deliveryCharge = 0;
 
-            // Calculate the delivery charge
-            if (userLat === undefined || userLat === null || userLat === '' || userLon === undefined || userLon === null ||
-                userLon === '') {
-                deliveryCharge = 0;
-            } else {
+            if (uLat && uLon && rLat && rLon) {
+                const distance = calculateDistance(uLat, uLon, rLat, rLon);
                 deliveryCharge = distance * chargePerKm;
             }
 
             // Update the delivery charge input and display
             $('#delivery_charge').val(deliveryCharge.toFixed(2));
-            $('.delivery_charges').text(formatCurrency(deliveryCharge));
-
+            $('.delivery_charges').text('(+) ' + formatCurrency(deliveryCharge));
+            $('.delivery_charged').val(deliveryCharge.toFixed(2));
 
             // Recalculate total amount
             recalculateTotalAmount();
@@ -914,17 +912,15 @@
             let deliveryCharge = parseFloat($('#delivery_charge').val()) || 0;
 
             let newTotalAmount = subtotal - discount + deliveryCharge;
+            if (newTotalAmount < 0) newTotalAmount = 0;
             $('#newTotalAmount').text(formatCurrency(newTotalAmount));
-            $('.delivery_charged').val(deliveryCharge);
         }
 
         function getInitialDeliveryCharge(){
             calculateDeliveryCharge($("#latitude").val(), $("#longitude").val());
-
         }
 
-        getInitialDeliveryCharge()
-
+        getInitialDeliveryCharge();
 
     </script>
 @endpush

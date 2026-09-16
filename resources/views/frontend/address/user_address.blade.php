@@ -153,6 +153,7 @@
                                 <div class="address_form_inner">
                                     <label for="name" class="form-label">{{__('translate.Name')}}</label>
                                     <input type="text" class="form-control" id="name" name="name"
+                                           value="{{ auth()->user()?->name }}"
                                            placeholder="{{__('translate.Name')}}">
                                 </div>
                             </div>
@@ -161,11 +162,13 @@
                                 <div class="address_form_inner">
                                     <label for="email" class="form-label">{{__('translate.Email Address')}}</label>
                                     <input type="email" class="form-control" id="email" name="email"
+                                           value="{{ auth()->user()?->email }}"
                                            placeholder="{{__('translate.Email Address')}}">
                                 </div>
                                 <div class="address_form_inner">
                                     <label for="phone" class="form-label">{{__('translate.Phone Number')}}</label>
                                     <input type="text" class="form-control" id="phone" name="phone"
+                                           value="{{ auth()->user()?->phone }}"
                                            placeholder="{{__('translate.Phone Number')}}">
                                 </div>
                             </div>
@@ -315,41 +318,36 @@
         let my_location_lat = 0;
         let my_location_long = 0;
         var googleMapsLoaded = false;
+        var userAddressMap = null;
+        var userAddressMarker = null;
 
         function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                alert("{{ __('translate.Geolocation is not supported by this browser.') }}");
             }
         }
 
         function showError(error) {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    alert("{{ __('translate.Please enable to Geolocation in yor browser ') }}");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("{{ __('translate.Location information is unavailable.') }}");
-                    break;
-                case error.TIMEOUT:
-                    alert("{{ __('translate.The request to get user location timed out.') }}");
-                    break;
-                default:
-                    alert("{{ __('translate.An unknown error occurred.') }}");
-                    break;
-            }
+            console.log("Geolocation error:", error.message);
         }
 
         function showPosition(position) {
             my_location_lat = position.coords.latitude;
             my_location_long = position.coords.longitude;
-            if (googleMapsLoaded) {
-                initMap();
+            if (googleMapsLoaded && userAddressMap) {
+                userAddressMap.setCenter({ lat: my_location_lat, lng: my_location_long });
+                if (userAddressMarker) {
+                    userAddressMarker.setPosition({ lat: my_location_lat, lng: my_location_long });
+                }
             }
         }
 
         function loadGoogleMapsAPI(callback) {
+            if (window.google && window.google.maps) {
+                googleMapsLoaded = true;
+                callback();
+                return;
+            }
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API') }}&libraries=places`;
             script.async = true;
@@ -361,70 +359,106 @@
             document.head.appendChild(script);
         }
 
-        loadGoogleMapsAPI(function () {
-            initMap();
-        });
-
+        function reverseGeocode(location) {
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({
+                location: location
+            }, function(results, status) {
+                if (status === "OK" && results[0]) {
+                    $("#plain_address").val(results[0].formatted_address);
+                }
+            });
+        }
 
         window.initMap = function(){
-            var map = new google.maps.Map(document.getElementById('google_map_area'), {
+            var mapElement = document.getElementById('google_map_area');
+            if (!mapElement) return;
+
+            var defaultLat = my_location_lat || 6.4281;
+            var defaultLng = my_location_long || 3.4219;
+
+            userAddressMap = new google.maps.Map(mapElement, {
                 center: {
-                    lat: my_location_lat,
-                    lng: my_location_long
+                    lat: parseFloat(defaultLat),
+                    lng: parseFloat(defaultLng)
                 },
                 zoom: 13
             });
             var input = document.getElementById('searchMapInput');
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+            if (input) {
+                userAddressMap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
-            var autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
+                var autocomplete = new google.maps.places.Autocomplete(input);
+                autocomplete.bindTo('bounds', userAddressMap);
 
-            var infowindow = new google.maps.InfoWindow();
-            var marker = new google.maps.Marker({
-                position: { lat: parseFloat(my_location_lat), lng: parseFloat(my_location_long) },
-                map: map,
+                var infowindow = new google.maps.InfoWindow();
+
+                autocomplete.addListener('place_changed', function () {
+                    infowindow.close();
+                    userAddressMarker.setVisible(false);
+                    var place = autocomplete.getPlace();
+
+                    if (!place.geometry || !place.geometry.location) return;
+
+                    if (place.geometry.viewport) {
+                        userAddressMap.fitBounds(place.geometry.viewport);
+                    } else {
+                        userAddressMap.setCenter(place.geometry.location);
+                        userAddressMap.setZoom(17);
+                    }
+
+                    userAddressMarker.setPosition(place.geometry.location);
+                    userAddressMarker.setVisible(true);
+
+                    $("#plain_address").val(place.formatted_address || place.name);
+                    $(".latitude").val(place.geometry.location.lat());
+                    $(".longitude").val(place.geometry.location.lng());
+                });
+            }
+
+            userAddressMarker = new google.maps.Marker({
+                position: { lat: parseFloat(defaultLat), lng: parseFloat(defaultLng) },
+                map: userAddressMap,
                 draggable: true
             });
 
-            autocomplete.addListener('place_changed', function () {
-                infowindow.close();
-                marker.setVisible(false);
-                var place = autocomplete.getPlace();
+            // Map click listener
+            userAddressMap.addListener('click', function(event) {
+                var clickedLocation = event.latLng;
+                userAddressMarker.setPosition(clickedLocation);
+                userAddressMarker.setVisible(true);
+                $(".latitude").val(clickedLocation.lat());
+                $(".longitude").val(clickedLocation.lng());
+                reverseGeocode(clickedLocation);
+            });
 
-                /* If the place has a geometry, then present it on a map. */
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17);
-                }
-
-                marker.setPosition(place.geometry.location);
-                marker.setVisible(true);
-
-                var address = '';
-                if (place.address_components) {
-                    address = [
-                        (place.address_components[0] && place.address_components[0].short_name || ''),
-                        (place.address_components[1] && place.address_components[1].short_name || ''),
-                        (place.address_components[2] && place.address_components[2].short_name || '')
-                    ].join(' ');
-                }
-
-                infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-                infowindow.open(map, marker);
-
-
-                $("#plain_address").val(place.formatted_address);
-                $(".latitude").val(place.geometry.location.lat());
-                $(".longitude").val(place.geometry.location.lng());
-
+            // Marker dragend listener
+            userAddressMarker.addListener('dragend', function(event) {
+                var clickedLocation = event.latLng;
+                $(".latitude").val(clickedLocation.lat());
+                $(".longitude").val(clickedLocation.lng());
+                reverseGeocode(clickedLocation);
             });
         }
 
-        getLocation()
-    </script>
+        loadGoogleMapsAPI(function () {
+            initMap();
+        });
 
+        getLocation();
+
+        // Handle bootstrap modal shown to properly render map tiles
+        $('#exampleModal7').on('shown.bs.modal', function () {
+            if (userAddressMap) {
+                google.maps.event.trigger(userAddressMap, 'resize');
+                var curLat = parseFloat($(".latitude").val()) || my_location_lat || 6.4281;
+                var curLng = parseFloat($(".longitude").val()) || my_location_long || 3.4219;
+                userAddressMap.setCenter({ lat: curLat, lng: curLng });
+                if (userAddressMarker) {
+                    userAddressMarker.setPosition({ lat: curLat, lng: curLng });
+                }
+            }
+        });
+    </script>
 
 @endpush

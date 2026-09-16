@@ -81,7 +81,8 @@
                                         <div class="dashboard_review_inner_btm">
                                             <div class="dashboard_review_inner_item">
                                                 <div class="dashboard_review_inner_thumb">
-                                                    <img src="{{asset($review?->user?->image)}}"
+                                                    <img src="{{ get_user_avatar($review?->user) }}"
+                                                        onerror="this.onerror=null;this.src='{{ default_avatar_url() }}';"
                                                         alt="thumb">
                                                 </div>
 

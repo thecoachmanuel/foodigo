@@ -52,16 +52,16 @@ class PaymentController extends Controller
             return redirect()->back()->with($notification);
         }
 
-        $stripe_currency_id =  PaymentGateway::where('key', 'stripe_currency_id')->first()->value;
-        $stripe_secret =  PaymentGateway::where('key', 'stripe_secret')->first()->value;
-        $currency = Currency::where('id', $stripe_currency_id)->first();
-        $currency_rate = $currency->currency_rate;
+        $stripe_currency_id = PaymentGateway::where('key', 'stripe_currency_id')->first()?->value;
+        $stripe_secret = PaymentGateway::where('key', 'stripe_secret')->first()?->value;
+        $currency = ($stripe_currency_id ? Currency::find($stripe_currency_id) : null) ?? Currency::where('is_default', 'yes')->first() ?? Currency::first();
+        $currency_rate = $currency ? (float)$currency->currency_rate : 1.0;
         $payableAmount = round(session('order_data.new_total') * $currency_rate,2);
         Stripe\Stripe::setApiKey($stripe_secret);
 
         $result = Stripe\Charge::create ([
             "amount" => $payableAmount * 100,
-            "currency" => $currency->currency_code,
+            "currency" => $currency ? $currency->currency_code : 'USD',
             "source" => $request->stripeToken,
             "description" => env('APP_NAME')
         ]);
@@ -176,8 +176,8 @@ class PaymentController extends Controller
             return redirect()->back()->with($notification);
         }
 
-        $paypal_currency = Currency::findOrFail($this->payment_setting->paypal_currency_id);
-        $payable_amount = round($amount * $paypal_currency->currency_rate);
+        $paypal_currency = (!empty($this->payment_setting->paypal_currency_id) ? Currency::find($this->payment_setting->paypal_currency_id) : null) ?? Currency::where('is_default', 'yes')->first() ?? Currency::first();
+        $payable_amount = round($amount * ($paypal_currency ? (float)$paypal_currency->currency_rate : 1.0));
         Session::put('payable_amount', $payable_amount);
         config(['paypal.mode' => $this->payment_setting->paypal_account_mode]);
         if($this->payment_setting->paypal_account_mode == 'sandbox'){
@@ -201,7 +201,7 @@ class PaymentController extends Controller
             "purchase_units" => [
                 0 => [
                     "amount" => [
-                        "currency_code" => $paypal_currency->currency_code,
+                        "currency_code" => $paypal_currency ? $paypal_currency->currency_code : 'USD',
                         "value" => $payable_amount
                     ]
                 ]
@@ -231,7 +231,7 @@ class PaymentController extends Controller
     public function paypal_success_payment(Request $request){
 
         $txt_info = $request->PayerID;
-        $paypal_currency = Currency::findOrFail($this->payment_setting->paypal_currency_id);
+        $paypal_currency = (!empty($this->payment_setting->paypal_currency_id) ? Currency::find($this->payment_setting->paypal_currency_id) : null) ?? Currency::where('is_default', 'yes')->first() ?? Currency::first();
 
         config(['paypal.mode' => $this->payment_setting->paypal_account_mode]);
 
@@ -553,14 +553,14 @@ class PaymentController extends Controller
         $package_main_price = $amount;
 
         try{
-            $mollie_currency = Currency::findOrFail($this->payment_setting->mollie_currency_id);
+            $mollie_currency = (!empty($this->payment_setting->mollie_currency_id) ? Currency::find($this->payment_setting->mollie_currency_id) : null) ?? Currency::where('is_default', 'yes')->first() ?? Currency::first();
 
-            $price = $package_main_price * $mollie_currency->currency_rate;
+            $price = $package_main_price * ($mollie_currency ? (float)$mollie_currency->currency_rate : 1.0);
             $price = sprintf('%0.2f', $price);
 
             $mollie_api_key = $this->payment_setting->mollie_key;
 
-            $currency = strtoupper($mollie_currency->currency_code);
+            $currency = strtoupper($mollie_currency ? $mollie_currency->currency_code : 'USD');
 
             Mollie::api()->setApiKey($mollie_api_key);
 
@@ -655,9 +655,9 @@ class PaymentController extends Controller
 
         $user = Auth::guard('web')->user();
 
-        $instamojo_currency = Currency::findOrFail($this->payment_setting->instamojo_currency_id);
+        $instamojo_currency = (!empty($this->payment_setting->instamojo_currency_id) ? Currency::find($this->payment_setting->instamojo_currency_id) : null) ?? Currency::where('is_default', 'yes')->first() ?? Currency::first();
 
-        $price = $price * $instamojo_currency->currency_rate;
+        $price = $price * ($instamojo_currency ? (float)$instamojo_currency->currency_rate : 1.0);
         $price = round($price,2);
 
         $environment = $this->payment_setting->instamojo_account_mode;
@@ -845,9 +845,14 @@ class PaymentController extends Controller
 
         EmailHelper::mail_setup();
 
-        $template = EmailTemplate::find(5);
-        $message = $template->description;
-        $subject = $template->subject;
+        $template = EmailTemplate::find(5) ?? EmailTemplate::where('name', 'like', '%order%')->first();
+        if ($template) {
+            $message = $template->description;
+            $subject = $template->subject;
+        } else {
+            $message = 'Thank you for your order #{{order_id}}, {{user_name}}!';
+            $subject = 'Order Confirmation';
+        }
 
         $message = str_replace('{{order_id}}',$order->id,$message);
 

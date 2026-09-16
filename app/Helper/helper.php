@@ -93,6 +93,45 @@ function spinner_icon(){
     return asset('frontend/assets/images/icon/Button.png');
 }
 
+function default_avatar_url(){
+    try {
+        $general_setting = cache()->get('setting');
+        if (!empty($general_setting?->default_avatar) && file_exists(public_path($general_setting->default_avatar))) {
+            return asset($general_setting->default_avatar);
+        }
+        if (file_exists(public_path('uploads/website-images/avatar-image-2025-05-10-03-46-26-6233.png'))) {
+            return asset('uploads/website-images/avatar-image-2025-05-10-03-46-26-6233.png');
+        }
+        if (file_exists(public_path('uploads/website-images/default-avatar.png'))) {
+            return asset('uploads/website-images/default-avatar.png');
+        }
+    } catch (\Throwable $e) {}
+    return 'https://ui-avatars.com/api/?name=User&background=FE5200&color=fff&size=200';
+}
+
+function get_user_avatar($user = null){
+    if (!$user) {
+        $user = auth()->user();
+    }
+    if ($user) {
+        if (!empty($user->image)) {
+            if (str_starts_with($user->image, 'http://') || str_starts_with($user->image, 'https://')) {
+                return $user->image;
+            }
+            if (file_exists(public_path($user->image))) {
+                return asset($user->image);
+            }
+        }
+        $name = !empty($user->name) ? urlencode($user->name) : 'User';
+        $default = default_avatar_url();
+        if ($default && !str_contains($default, 'ui-avatars.com')) {
+            return $default;
+        }
+        return "https://ui-avatars.com/api/?name={$name}&background=FE5200&color=fff&size=200";
+    }
+    return default_avatar_url();
+}
+
 function getAllResourceFiles($dir, &$results = array()) {
     $files = scandir($dir);
     foreach ($files as $key => $value) {

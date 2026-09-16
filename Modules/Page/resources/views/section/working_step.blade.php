@@ -90,6 +90,26 @@
                                         <!-- Product Card -->
                                         <div class="crancy-product-card">
                                             <div class="row">
+                                                @if (admin_lang() == request()->get('lang_code'))
+                                                    <div class="col-12 pb-3 mb-2" style="border-bottom: 1px solid #edf2f9;">
+                                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                            <div>
+                                                                <h4 class="crancy-product-card__title m-0" style="font-size: 16px;">{{ __('translate.Mobile Display Setting') }}</h4>
+                                                                <p class="text-muted small m-0">{{ __('translate.Toggle whether the working steps section is visible on mobile screens') }}</p>
+                                                            </div>
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <label class="crancy__item-label m-0 fw-semibold">{{ __('translate.Show on Mobile Screen') }}</label>
+                                                                <div class="crancy-ptabs__notify-switch crancy-ptabs__notify-switch--two m-0">
+                                                                    <label class="crancy__item-switch m-0">
+                                                                        <input {{ ($homepage->show_working_step_on_mobile ?? 'disable') == 'enable' ? 'checked' : '' }} name="show_working_step_on_mobile" type="checkbox">
+                                                                        <span class="crancy__item-switch--slide crancy__item-switch--round"></span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
                                                 <div class="col-md-6 mg-top-form-20">
                                                     @if (admin_lang() == request()->get('lang_code'))
                                                         <div class="row">

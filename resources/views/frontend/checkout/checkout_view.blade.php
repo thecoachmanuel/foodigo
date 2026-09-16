@@ -242,14 +242,14 @@
                                                         <label for=""
                                                             class="form-label">{{ __('translate.Contact person name') }}</label>
                                                         <input type="text" class="form-control delivery-info delivery-info2"
-                                                            id="" name="contact_name"
+                                                            id="" name="contact_name" value="{{ auth()->user()?->name }}"
                                                             placeholder="{{ __('translate.Name') }}">
                                                     </div>
                                                     <div class="delivery_time_box_form_inner">
                                                         <label for=""
                                                             class="form-label">{{ __('translate.Contact person phone') }}</label>
                                                         <input type="text" class="form-control delivery-info delivery-info2"
-                                                            id="" name="contact_phone"
+                                                            id="" name="contact_phone" value="{{ auth()->user()?->phone }}"
                                                             placeholder="{{ __('translate.Phone') }}">
                                                     </div>
 
@@ -257,7 +257,7 @@
                                                         <label for=""
                                                             class="form-label">{{ __('translate.Contact person email') }}</label>
                                                         <input type="email" class="form-control delivery-info delivery-info2"
-                                                            id="" name="contact_email"
+                                                            id="" name="contact_email" value="{{ auth()->user()?->email }}"
                                                             placeholder="{{ __('translate.Email') }}">
                                                     </div>
                                                 </div>
@@ -448,6 +448,7 @@
                                         <label for="exampleFormControlInput1"
                                             class="form-label">{{ __('translate.Name') }}</label>
                                         <input type="text" class="form-control" id="" name="name"
+                                            value="{{ auth()->user()?->name }}"
                                             placeholder="{{ __('translate.Name') }}">
                                     </div>
                                 </div>
@@ -457,12 +458,14 @@
                                         <label for="exampleFormControlInput1"
                                             class="form-label">{{ __('translate.Email Address') }}</label>
                                         <input type="email" class="form-control" id="" name="email"
+                                            value="{{ auth()->user()?->email }}"
                                             placeholder="{{ __('translate.Email Address') }}">
                                     </div>
                                     <div class="address_form_inner">
                                         <label for="exampleFormControlInput1"
                                             class="form-label">{{ __('translate.Phone Number') }}</label>
                                         <input type="text" class="form-control" id="" name="phone"
+                                            value="{{ auth()->user()?->phone }}"
                                             placeholder="{{ __('translate.Phone Number') }}">
                                     </div>
                                 </div>
@@ -516,7 +519,7 @@
                                 </div>
 
                                 <div class="address_form_item_btn">
-                                    <button type="submit" class="thm-btn">{{ __('translate.Update') }}</button>
+                                    <button type="submit" class="thm-btn">{{ __('translate.Save Address') }}</button>
                                 </div>
 
                             </form>
@@ -595,6 +598,7 @@
 
         .dashboard_address_item.selected {
             border-color: #28a745;
+            background-color: rgba(40, 167, 69, 0.05);
         }
 
         .delivery-info2{
@@ -611,45 +615,40 @@
         let my_location_lat = 0;
         let my_location_long = 0;
         var googleMapsLoaded = false;
+        var modalMap = null;
+        var modalMarker = null;
 
-        let restaurantLat = {{ $product->restaurant->latitude }};
-        let restaurantLng = {{ $product->restaurant->longitude }};
+        let restaurantLat = {{ (float)($restaurant->latitude ?? $product->restaurant->latitude ?? 0) }};
+        let restaurantLng = {{ (float)($restaurant->longitude ?? $product->restaurant->longitude ?? 0) }};
 
 
         function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                alert("{{ __('translate.Geolocation is not supported by this browser.') }}");
             }
         }
 
         function showError(error) {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    alert("{{ __('translate.Please enable to Geolocation in yor browser ') }}");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("{{ __('translate.Location information is unavailable.') }}");
-                    break;
-                case error.TIMEOUT:
-                    alert("{{ __('translate.The request to get user location timed out.') }}");
-                    break;
-                default:
-                    alert("{{ __('translate.An unknown error occurred.') }}");
-                    break;
-            }
+            console.log("Geolocation info:", error.message);
         }
 
         function showPosition(position) {
             my_location_lat = position.coords.latitude;
             my_location_long = position.coords.longitude;
-            if (googleMapsLoaded) {
-                initMap();
+            if (googleMapsLoaded && modalMap) {
+                modalMap.setCenter({ lat: my_location_lat, lng: my_location_long });
+                if (modalMarker) {
+                    modalMarker.setPosition({ lat: my_location_lat, lng: my_location_long });
+                }
             }
         }
 
         function loadGoogleMapsAPI(callback) {
+            if (window.google && window.google.maps) {
+                googleMapsLoaded = true;
+                callback();
+                return;
+            }
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API') }}&libraries=places`;
             script.async = true;
@@ -663,75 +662,66 @@
 
 
         window.initMap = function(){
-            var map = new google.maps.Map(document.getElementById('google_map_area'), {
+            var mapElement = document.getElementById('google_map_area');
+            if (!mapElement) return;
+
+            var defaultLat = my_location_lat || restaurantLat || 6.4281;
+            var defaultLng = my_location_long || restaurantLng || 3.4219;
+
+            modalMap = new google.maps.Map(mapElement, {
                 center: {
-                    lat: my_location_lat,
-                    lng: my_location_long
+                    lat: parseFloat(defaultLat),
+                    lng: parseFloat(defaultLng)
                 },
-                zoom: 13
+                zoom: 14
             });
 
 
-            var marker = new google.maps.Marker({
+            modalMarker = new google.maps.Marker({
                 position: {
-                    lat: parseFloat(my_location_lat),
-                    lng: parseFloat(my_location_long)
+                    lat: parseFloat(defaultLat),
+                    lng: parseFloat(defaultLng)
                 },
-                map: map,
+                map: modalMap,
                 draggable: true
             });
 
             var input = document.getElementById('searchMapInput');
+            if (input) {
+                modalMap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+                var autocomplete = new google.maps.places.Autocomplete(input);
+                autocomplete.bindTo('bounds', modalMap);
 
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+                var infowindow = new google.maps.InfoWindow();
 
-            var autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
+                autocomplete.addListener('place_changed', function() {
+                    infowindow.close();
+                    modalMarker.setVisible(false);
+                    var place = autocomplete.getPlace();
 
+                    if (!place.geometry || !place.geometry.location) return;
 
-            var infowindow = new google.maps.InfoWindow();
+                    if (place.geometry.viewport) {
+                        modalMap.fitBounds(place.geometry.viewport);
+                    } else {
+                        modalMap.setCenter(place.geometry.location);
+                        modalMap.setZoom(17);
+                    }
 
-            autocomplete.addListener('place_changed', function() {
+                    modalMarker.setPosition(place.geometry.location);
+                    modalMarker.setVisible(true);
 
-                infowindow.close();
-                marker.setVisible(false);
-                var place = autocomplete.getPlace();
-
-                /* If the place has a geometry, then present it on a map. */
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17);
-                }
-
-                marker.setPosition(place.geometry.location);
-                marker.setVisible(true);
-
-                var address = '';
-                if (place.address_components) {
-                    address = [
-                        (place.address_components[0] && place.address_components[0].short_name || ''),
-                        (place.address_components[1] && place.address_components[1].short_name || ''),
-                        (place.address_components[2] && place.address_components[2].short_name || '')
-                    ].join(' ');
-                }
-
-                infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-                infowindow.open(map, marker);
-
-                $("#new_plain_address").val(place.formatted_address);
-                $("#new_latitude").val(place.geometry.location.lat());
-                $("#new_longitude").val(place.geometry.location.lng());
-
-            });
+                    $("#new_plain_address").val(place.formatted_address || place.name);
+                    $("#new_latitude").val(place.geometry.location.lat());
+                    $("#new_longitude").val(place.geometry.location.lng());
+                });
+            }
 
             // Listener for map clicks
-            map.addListener('click', function(event) {
+            modalMap.addListener('click', function(event) {
                 var clickedLocation = event.latLng;
-
-                marker.setPosition(clickedLocation);
-                marker.setVisible(true);
+                modalMarker.setPosition(clickedLocation);
+                modalMarker.setVisible(true);
 
                 $("#new_latitude").val(clickedLocation.lat());
                 $("#new_longitude").val(clickedLocation.lng());
@@ -739,32 +729,30 @@
                 reverseGeocode(clickedLocation);
             });
 
-            marker.addListener('dragend', function(event) {
+            modalMarker.addListener('dragend', function(event) {
                 var clickedLocation = event.latLng;
-
                 $("#new_latitude").val(clickedLocation.lat());
                 $("#new_longitude").val(clickedLocation.lng());
                 reverseGeocode(clickedLocation);
-
-
             });
-
-
         }
 
         window.initPickupMap = function(){
-            const pickupMap = new google.maps.Map(document.getElementById("restaurant_pickup_address"), {
+            const pickupElement = document.getElementById("restaurant_pickup_address");
+            if (!pickupElement) return;
+
+            const pickupMap = new google.maps.Map(pickupElement, {
                 center: {
-                    lat: restaurantLat,
-                    lng: restaurantLng
+                    lat: parseFloat(restaurantLat) || 6.4281,
+                    lng: parseFloat(restaurantLng) || 3.4219
                 },
-                zoom: 13,
+                zoom: 14,
             });
 
-            const marker = new google.maps.Marker({
+            new google.maps.Marker({
                 position: {
-                    lat: restaurantLat,
-                    lng: restaurantLng
+                    lat: parseFloat(restaurantLat) || 6.4281,
+                    lng: parseFloat(restaurantLng) || 3.4219
                 },
                 map: pickupMap,
             });
@@ -786,8 +774,20 @@
             initPickupMap();
         });
 
-        getLocation()
+        getLocation();
 
+        // Handle bootstrap modal shown to properly render map tiles
+        $('#exampleModal7').on('shown.bs.modal', function () {
+            if (modalMap) {
+                google.maps.event.trigger(modalMap, 'resize');
+                var curLat = parseFloat($("#new_latitude").val()) || my_location_lat || restaurantLat || 6.4281;
+                var curLng = parseFloat($("#new_longitude").val()) || my_location_long || restaurantLng || 3.4219;
+                modalMap.setCenter({ lat: curLat, lng: curLng });
+                if (modalMarker) {
+                    modalMarker.setPosition({ lat: curLat, lng: curLng });
+                }
+            }
+        });
 
     </script>
 
@@ -879,29 +879,38 @@
 
             $(".single_address").on("click", function(e) {
                 $(".dashboard_address_item").removeClass('selected');
-
                 $(this).addClass('selected');
-
 
                 const addressLat = $(this).data('lat');
                 const addressLon = $(this).data('lon');
                 const addressId = $(this).data('address');
-                $("#addresss").val(addressId)
-
-                const restaurantLat = {{ $product->restaurant->latitude }};
-                const restaurantLon = {{ $product->restaurant->longitude }};
-
-                const distance = calculateDistance(addressLat, addressLon, restaurantLat, restaurantLon);
+                $("#addresss").val(addressId);
+                $("#latitude").val(addressLat);
+                $("#longitude").val(addressLon);
 
                 calculateDeliveryCharge(addressLat, addressLon);
-            })
+            });
 
             $('#pills-tab a').on('click', function () {
                 var selectedType = $(this).data('type');
                 $('#order-type').val(selectedType);
-
-
+                if (selectedType === 'pickup') {
+                    $('#delivery_charge').val(0);
+                    $('.delivery_charges').text(formatCurrency(0));
+                    $('.delivery_charged').val(0);
+                    recalculateTotalAmount();
+                } else {
+                    var selectedAddress = $('.single_address.selected');
+                    if (selectedAddress.length > 0) {
+                        calculateDeliveryCharge(selectedAddress.data('lat'), selectedAddress.data('lon'));
+                    }
+                }
             });
+
+            // Auto-select first address on page load
+            if ($(".single_address").length > 0) {
+                $(".single_address").first().trigger('click');
+            }
 
         });
     </script>
@@ -915,11 +924,11 @@
             const {
                 currencyIcon = "{{ session::get('currency_icon') }}",
                     currencyCode = "{{ session::get('currency_code') }}",
-                    currencyRate = "{{ session::get('currency_rate') }}",
-                    currencyPosition = "{{ session::get('currency_position') }}",
+                    currencyRate = "{{ session::get('currency_rate') ?? 1 }}",
+                    currencyPosition = "{{ session::get('currency_position') ?? 'before_price' }}",
             } = options;
 
-            amount = amount * currencyRate;
+            amount = parseFloat(amount) * parseFloat(currencyRate || 1);
             amount = amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
             switch (currencyPosition) {
                 case 'before_price':
@@ -954,28 +963,32 @@
 
         // Unified function to calculate the delivery charge based on location
         function calculateDeliveryCharge(userLat, userLon) {
-            const restaurantLat = "{{ $product->restaurant->latitude }}";
-            const restaurantLon = "{{ $product->restaurant->longitude }}";
+            if ($('#order-type').val() === 'pickup') {
+                $('#delivery_charge').val(0);
+                $('.delivery_charges').text(formatCurrency(0));
+                $('.delivery_charged').val(0);
+                recalculateTotalAmount();
+                return;
+            }
 
-            // Calculate the distance
-            const distance = calculateDistance(userLat, userLon, restaurantLat, restaurantLon);
+            const rLat = parseFloat(restaurantLat) || 0;
+            const rLon = parseFloat(restaurantLng) || 0;
+            const uLat = parseFloat(userLat) || 0;
+            const uLon = parseFloat(userLon) || 0;
 
-            const chargePerKm = "{{ $general_setting->delivery_charge }}";
+            const chargePerKm = parseFloat("{{ $general_setting->delivery_charge ?? 0 }}") || 0;
 
             let deliveryCharge = 0;
 
-            // Calculate the delivery charge
-            if (userLat === undefined || userLat === null || userLat === '' || userLon === undefined || userLon === null ||
-                userLon === '') {
-                deliveryCharge = 0;
-            } else {
+            if (uLat && uLon && rLat && rLon) {
+                const distance = calculateDistance(uLat, uLon, rLat, rLon);
                 deliveryCharge = distance * chargePerKm;
             }
 
             // Update the delivery charge input and display
             $('#delivery_charge').val(deliveryCharge.toFixed(2));
-            $('.delivery_charges').text('(+) '+formatCurrency(deliveryCharge));
-
+            $('.delivery_charges').text('(+) ' + formatCurrency(deliveryCharge));
+            $('.delivery_charged').val(deliveryCharge.toFixed(2));
 
             // Recalculate total amount
             recalculateTotalAmount();
@@ -988,9 +1001,10 @@
             let deliveryCharge = parseFloat($('#delivery_charge').val()) || 0;
 
             let newTotalAmount = subtotal - discount + deliveryCharge;
+            if (newTotalAmount < 0) newTotalAmount = 0;
             $('#newTotalAmount').text(formatCurrency(newTotalAmount));
-            $('.delivery_charged').val(deliveryCharge);
         }
 
     </script>
 @endpush
+
