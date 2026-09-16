@@ -228,7 +228,7 @@
                 <div class="sign-up-from-item">
                     <div class="sign-up-from-inner">
                         <label for="exampleFormControlInput1" class="form-label">{{__('translate.Full name')}}</label>
-                        <input type="text" class="form-control" id="one" name="name" placeholder="{{ __('translate.Enter full name') }}">
+                        <input type="text" class="form-control" id="one" name="name" placeholder="Enter full name">
                     </div>
                     <div class="sign-up-from-inner">
                         <label for="exampleFormControlInput1" class="form-label">{{__('translate.Email address')}}</label>

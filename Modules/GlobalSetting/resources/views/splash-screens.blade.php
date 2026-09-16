@@ -46,7 +46,7 @@
                                                                     <label class="crancy-image-video-upload__label"
                                                                         for="input-img1">
                                                                         <img id="splash_one"
-                                                                            src="{{ asset($data['one']['image']) }}">
+                                                                            src="{{ !empty($data['one']['image']) ? asset($data['one']['image']) : asset('uploads/website-images/splash-1.png') }}">
                                                                         <h4 class="crancy-image-video-upload__title">
                                                                             {{ __('translate.Click here to') }}
                                                                             <span
@@ -96,7 +96,7 @@
                                                                     <label class="crancy-image-video-upload__label"
                                                                         for="input-img2">
                                                                         <img id="splash_two"
-                                                                            src="{{ asset($data['two']['image']) }}">
+                                                                            src="{{ !empty($data['two']['image']) ? asset($data['two']['image']) : asset('uploads/website-images/splash-2.png') }}">
                                                                         <h4 class="crancy-image-video-upload__title">
                                                                             {{ __('translate.Click here to') }}
                                                                             <span
@@ -145,7 +145,7 @@
                                                                     <label class="crancy-image-video-upload__label"
                                                                         for="input-img3">
                                                                         <img id="splash_three"
-                                                                            src="{{ asset($data['three']['image']) }}">
+                                                                            src="{{ !empty($data['three']['image']) ? asset($data['three']['image']) : asset('uploads/website-images/splash-3.png') }}">
                                                                         <h4 class="crancy-image-video-upload__title">
                                                                             {{ __('translate.Click here to') }}
                                                                             <span

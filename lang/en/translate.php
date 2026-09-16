@@ -1,6 +1,8 @@
 <?php
  return array (
   'Ads Banner' => 'Ads Banner',
+  'Enter full name' => 'Enter full name',
+  'Enter email address' => 'Enter email address',
   'Dashboard' => 'Dashboard',
   'Click here to' => 'Click here to',
   'Choose File' => 'Choose File',

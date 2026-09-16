@@ -786,7 +786,25 @@ class GlobalSettingController extends Controller
     public function getSplashScreens()
     {
         $screens = GlobalSetting::where('key', 'splash_screens')->first();
-        $data = json_decode($screens->value, true);
+        $data = ($screens && !empty($screens->value)) ? json_decode($screens->value, true) : [];
+        $data = is_array($data) ? $data : [];
+
+        $data['one'] = [
+            'heading' => $data['one']['heading'] ?? 'Delicious Food Delivered Fast',
+            'subheading' => $data['one']['subheading'] ?? 'Explore top restaurants and order your favorite dishes directly to your doorstep.',
+            'image' => !empty($data['one']['image']) ? $data['one']['image'] : 'uploads/website-images/splash-1.png'
+        ];
+        $data['two'] = [
+            'heading' => $data['two']['heading'] ?? 'Live Order Tracking',
+            'subheading' => $data['two']['subheading'] ?? 'Real-time GPS tracking so you always know when your fresh meal is arriving.',
+            'image' => !empty($data['two']['image']) ? $data['two']['image'] : 'uploads/website-images/splash-2.png'
+        ];
+        $data['three'] = [
+            'heading' => $data['three']['heading'] ?? 'Seamless & Secure Payments',
+            'subheading' => $data['three']['subheading'] ?? 'Pay securely with multiple payment options and enjoy exclusive rewards.',
+            'image' => !empty($data['three']['image']) ? $data['three']['image'] : 'uploads/website-images/splash-3.png'
+        ];
+
         return view('globalsetting::splash-screens', compact('data'));
     }
 
@@ -890,11 +908,11 @@ class GlobalSettingController extends Controller
     public function getDeliveryManSplashScreen()
     {
         $screens = GlobalSetting::where('key', 'deliveryman_splash_screen')->first();
-        $data = $screens ? json_decode($screens->value, true) : [
-            'heading' => '',
-            'subheading' => '',
-            'image' => ''
-        ];
+        $data = ($screens && !empty($screens->value)) ? json_decode($screens->value, true) : [];
+        $data = is_array($data) ? $data : [];
+        $data['heading'] = $data['heading'] ?? 'Deliver & Earn with Nectar';
+        $data['subheading'] = $data['subheading'] ?? 'Join our delivery partner network and earn on your own schedule with fast payouts.';
+        $data['image'] = !empty($data['image']) ? $data['image'] : 'uploads/website-images/default.png';
         return view('globalsetting::deliveryman-splash-screen', compact('data'));
     }
 

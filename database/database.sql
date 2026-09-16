@@ -1183,7 +1183,7 @@ INSERT INTO `global_settings` (`id`, `key`, `value`, `created_at`, `updated_at`)
 (15, 'pixel_status', '0', NULL, '2024-05-07 11:05:22'),
 (16, 'placeholder_image', 'uploads/website-images/placeholder-image.png', NULL, '2024-05-07 11:05:22'),
 (17, 'cookie_consent_status', '1', NULL, '2025-05-06 23:16:08'),
-(18, 'cookie_consent_message', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the when an unknown printer took.', NULL, '2025-05-06 23:16:08'),
+(18, 'cookie_consent_message', 'We use cookies to personalize content, enhance your browsing experience, and analyze our traffic to deliver delicious meals faster. By clicking \"Accept\", you consent to our use of cookies in accordance with our Privacy Policy.', NULL, '2025-05-06 23:16:08'),
 (19, 'error_image', 'uploads/website-images/error-image-2025-04-29-09-40-11-2315.png', NULL, '2025-04-29 03:40:11'),
 (20, 'login_page_bg', 'uploads/website-images/login-bg-image-2024-05-09-06-25-25-7589.png', NULL, '2024-05-09 00:25:25'),
 (21, 'admin_login', 'uploads/website-images/admin-bg-image-2025-04-29-09-31-16-4771.png', NULL, '2025-04-29 03:31:16'),

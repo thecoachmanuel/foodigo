@@ -379,8 +379,38 @@ Route::get('/migrate', function(){
 
     Artisan::call('optimize:clear');
 
-    GlobalSetting::updateOrCreate(['key' => 'splash_screens'], ['value' => '']);
+    $defaultSplash = [
+        'one' => [
+            'heading' => 'Delicious Food Delivered Fast',
+            'subheading' => 'Explore top restaurants and order your favorite dishes directly to your doorstep.',
+            'image' => 'uploads/website-images/splash-1.png'
+        ],
+        'two' => [
+            'heading' => 'Live Order Tracking',
+            'subheading' => 'Real-time GPS tracking so you always know when your fresh meal is arriving.',
+            'image' => 'uploads/website-images/splash-2.png'
+        ],
+        'three' => [
+            'heading' => 'Seamless & Secure Payments',
+            'subheading' => 'Pay securely with multiple payment options and enjoy exclusive rewards.',
+            'image' => 'uploads/website-images/splash-3.png'
+        ]
+    ];
+
+    $splashScreen = GlobalSetting::where('key', 'splash_screens')->first();
+    if (!$splashScreen || empty($splashScreen->value) || $splashScreen->value === '""') {
+        GlobalSetting::updateOrCreate(['key' => 'splash_screens'], ['value' => json_encode($defaultSplash, JSON_UNESCAPED_UNICODE)]);
+    }
+
     GlobalSetting::where('key', 'app_name')->update(['value' => 'Nectar']);
+
+    $cookieMsg = GlobalSetting::where('key', 'cookie_consent_message')->first();
+    if (!$cookieMsg || empty($cookieMsg->value) || str_contains($cookieMsg->value, 'Lorem Ipsum')) {
+        GlobalSetting::updateOrCreate(
+            ['key' => 'cookie_consent_message'],
+            ['value' => 'We use cookies to personalize content, enhance your browsing experience, and analyze our traffic to deliver delicious meals faster. By clicking "Accept", you consent to our use of cookies in accordance with our Privacy Policy.']
+        );
+    }
 
     $notification = trans('translate.Version updated successful');
     $notification = array('message' => $notification, 'alert-type' => 'success');
