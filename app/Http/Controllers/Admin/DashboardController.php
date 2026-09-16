@@ -54,6 +54,12 @@ class DashboardController extends Controller
 
         $admin_income = $total_earning - $total_withdraw;
 
+        $defaultCurrency = \Modules\Currency\App\Models\Currency::where('is_default', 'yes')->first()
+            ?? \Modules\Currency\App\Models\Currency::where('currency_code', 'NGN')->first()
+            ?? \Modules\Currency\App\Models\Currency::first();
+        $currencyRate = (float) (session()->get('currency_rate') ?? ($defaultCurrency ? $defaultCurrency->currency_rate : 1));
+        if ($currencyRate <= 0) $currencyRate = 1;
+
         $lable = array();
         $data = array();
 
@@ -65,7 +71,7 @@ class DashboardController extends Controller
             $currentDate = (clone $startDate)->addDays($i);
             $dateStr = $currentDate->format('Y-m-d');
             $sum = Order::whereDate('created_at', $dateStr)->sum('grand_total');
-            $data[] = round((float) $sum, 2);
+            $data[] = round(((float) $sum) * $currencyRate, 2);
             $lable[] = $currentDate->format('M j');
         }
 

@@ -46,7 +46,8 @@
                                                                     <label class="crancy-image-video-upload__label"
                                                                         for="input-img1">
                                                                         <img id="splash_one"
-                                                                            src="{{ !empty($data['one']['image']) ? asset($data['one']['image']) : asset('uploads/website-images/splash-1.png') }}">
+                                                                            src="{{ !empty($data['one']['image']) ? asset($data['one']['image']) : asset('uploads/website-images/splash-1.png') }}"
+                                                                            style="max-height: 140px; width: auto; object-fit: contain; margin: 0 auto 10px auto; display: block;">
                                                                         <h4 class="crancy-image-video-upload__title">
                                                                             {{ __('translate.Click here to') }}
                                                                             <span
@@ -96,7 +97,8 @@
                                                                     <label class="crancy-image-video-upload__label"
                                                                         for="input-img2">
                                                                         <img id="splash_two"
-                                                                            src="{{ !empty($data['two']['image']) ? asset($data['two']['image']) : asset('uploads/website-images/splash-2.png') }}">
+                                                                            src="{{ !empty($data['two']['image']) ? asset($data['two']['image']) : asset('uploads/website-images/splash-2.png') }}"
+                                                                            style="max-height: 140px; width: auto; object-fit: contain; margin: 0 auto 10px auto; display: block;">
                                                                         <h4 class="crancy-image-video-upload__title">
                                                                             {{ __('translate.Click here to') }}
                                                                             <span
@@ -145,7 +147,8 @@
                                                                     <label class="crancy-image-video-upload__label"
                                                                         for="input-img3">
                                                                         <img id="splash_three"
-                                                                            src="{{ !empty($data['three']['image']) ? asset($data['three']['image']) : asset('uploads/website-images/splash-3.png') }}">
+                                                                            src="{{ !empty($data['three']['image']) ? asset($data['three']['image']) : asset('uploads/website-images/splash-3.png') }}"
+                                                                            style="max-height: 140px; width: auto; object-fit: contain; margin: 0 auto 10px auto; display: block;">
                                                                         <h4 class="crancy-image-video-upload__title">
                                                                             {{ __('translate.Click here to') }}
                                                                             <span

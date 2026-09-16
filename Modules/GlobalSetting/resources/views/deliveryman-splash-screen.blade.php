@@ -33,7 +33,7 @@
                                                         <div class="crancy-product-card__upload crancy-product-card__upload--border">
                                                             <input type="file" class="btn-check" name="splash_image" id="input-img" autocomplete="off" onchange="previewSplashImage(event)">
                                                             <label class="crancy-image-video-upload__label" for="input-img">
-                                                                <img id="splash_preview" src="{{ asset($data['image'] ?? 'uploads/website-images/default.png') }}" style="max-width: 100%; height: auto;">
+                                                                <img id="splash_preview" src="{{ asset($data['image'] ?? 'uploads/website-images/deliveryman-splash.png') }}" style="max-height: 180px; width: auto; object-fit: contain; margin: 0 auto 10px auto; display: block;">
                                                                 <h4 class="crancy-image-video-upload__title">
                                                                     {{ __('translate.Click here to') }}
                                                                     <span class="crancy-primary-color">{{ __('translate.Choose File') }}</span>

@@ -351,7 +351,7 @@
                                         <div class="charts-main__one">
                                             <div class="tab-content" id="nav-tabContent">
                                                 <div class="tab-pane fade show active" id="crancy-chart__s1" role="tabpanel" aria-labelledby="crancy-chart__s1">
-                                                    <div class="crancy-chart__inside crancy-chart__three">
+                                                    <div class="crancy-chart__inside crancy-chart__three" style="position: relative; height: 350px; width: 100%;">
                                                         <!-- Chart One -->
                                                         <canvas id="myChart_recent_statics"></canvas>
                                                     </div>
@@ -563,20 +563,25 @@
     <script>
         "use strict";
 
+        @php
+            $currency_icon = session()->get('currency_icon') ?? \Modules\Currency\App\Models\Currency::where('is_default', 'yes')->value('currency_icon') ?? '₦';
+        @endphp
+
         let purchase_data = @json($data);
 		purchase_data = JSON.parse(purchase_data);
 
         let date_lable = @json($lable);
 		date_lable = JSON.parse(date_lable);
 
-        const currencyIcon = @json(session()->get('currency_icon', '₦'));
+        const currencyIcon = @json($currency_icon);
 
         // Chart Three
-        const ctx_myChart_recent_statics = document.getElementById('myChart_recent_statics').getContext('2d');
-        const gradientBgs = ctx_myChart_recent_statics.createLinearGradient(400, 100, 100, 400);
+        const canvas_myChart = document.getElementById('myChart_recent_statics');
+        const ctx_myChart_recent_statics = canvas_myChart.getContext('2d');
+        const gradientBgs = ctx_myChart_recent_statics.createLinearGradient(0, 0, 0, 320);
 
-        gradientBgs.addColorStop(0, 'rgba(253, 73, 23, 0.15)');
-        gradientBgs.addColorStop(1, 'rgba(253, 73, 23, 0.45)');
+        gradientBgs.addColorStop(0, 'rgba(255, 107, 53, 0.25)');
+        gradientBgs.addColorStop(1, 'rgba(255, 107, 53, 0.01)');
 
         const myChart_recent_statics = new Chart(ctx_myChart_recent_statics, {
             type: 'line',
@@ -584,41 +589,57 @@
             data: {
                 labels: date_lable,
                 datasets: [{
-                    label: "{{ __('translate.Sales') }}",
+                    label: "{{ __('translate.Order Amount') }}",
                     data: purchase_data,
                     backgroundColor: gradientBgs,
-                    borderColor: 'rgb(253, 73, 23)',
-                    borderWidth: 3,
+                    borderColor: '#ff6b35',
+                    borderWidth: 2.5,
                     fill: true,
-                    tension: 0.4,
-                    fillColor: '#fff',
-                    fill: 'start',
-                    pointRadius: 3,
-                    pointHoverRadius: 6,
+                    tension: 0.35,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#ff6b35',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: '#ff6b35',
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 2,
                 }]
             },
 
             options: {
                 maintainAspectRatio: false,
                 responsive: true,
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
                 scales: {
                     x: {
                         ticks: {
-                            color: '#6b7280',
+                            color: '#64748b',
                             font: {
-                                size: 12
-                            }
+                                size: 12,
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            },
+                            maxRotation: 45,
+                            minRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 14
                         },
                         grid: {
                             display: false,
                             drawBorder: false,
-                            color: '#E6F3FF',
                         }
                     },
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            color: '#6b7280',
+                            color: '#64748b',
+                            font: {
+                                size: 12,
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            },
                             callback: function(value) {
                                 if (value >= 1000000) {
                                     return currencyIcon + (value / 1000000).toFixed(1) + 'M';
@@ -630,7 +651,7 @@
                         },
                         grid: {
                             drawBorder: false,
-                            color: '#E5E7EB',
+                            color: '#f1f5f9',
                             borderDash: [4, 4]
                         },
                     },
@@ -638,22 +659,26 @@
                 plugins: {
                     tooltip: {
                         padding: 12,
-                        displayColors: true,
-                        yAlign: 'bottom',
-                        backgroundColor: '#1f2937',
-                        titleColor: '#fff',
+                        displayColors: false,
+                        backgroundColor: '#0f172a',
+                        titleColor: '#f8fafc',
                         titleFont: {
                             weight: '600',
-                            size: 13
+                            size: 13,
+                            family: "'Plus Jakarta Sans', sans-serif"
                         },
-                        bodyColor: '#f3f4f6',
+                        bodyColor: '#ffffff',
+                        bodyFont: {
+                            weight: '700',
+                            size: 14,
+                            family: "'Plus Jakarta Sans', sans-serif"
+                        },
                         cornerRadius: 8,
                         boxPadding: 4,
-                        usePointStyle: true,
                         callbacks: {
                             label: function(context) {
                                 const val = context.raw || 0;
-                                return ' ' + context.dataset.label + ': ' + currencyIcon + Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                return 'Total Orders: ' + currencyIcon + Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                             }
                         }
                     },
@@ -662,7 +687,6 @@
                     },
                     title: {
                         display: false,
-                        text: "{{ __('translate.Order Statistics') }}"
                     }
                 }
             }
