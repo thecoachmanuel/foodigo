@@ -1321,7 +1321,7 @@ CREATE TABLE `homepage_translations` (
 --
 
 INSERT INTO `homepage_translations` (`id`, `homepage_id`, `lang_code`, `intro_title`, `intro_tags`, `working_step_title1`, `working_step_title2`, `working_step_title3`, `working_step_title4`, `join_restaurant_title`, `join_restaurant_des`, `mobile_app_title`, `mobile_app_des`, `created_at`, `updated_at`, `working_step_des1`, `working_step_des2`, `working_step_des3`, `working_step_des4`) VALUES
-(1, 1, 'en', 'Buy or Sell your Delicious Food Effortlessly!', '[{\"value\":\"pizza\"},{\"value\":\"chicken\"},{\"value\":\"chocolate\"}]', 'Search Product', 'Add to Cart', 'Enjoy Food', 'Flexible Payment', 'Join Our Restaurant <span> Food Delivery</span> Service Today!', 'We’ve 15m+ Global and Local Happy Customers, Let’s make the world Happening together.', 'Get a Mobile Application Enjoy Food Experiences', 'We\'ve done it carefully and simply. Combined with the ingredients makes for beautiful landings.', NULL, '2025-05-08 02:14:13', 'Unlocking you effect product searching', 'Add to Cart for Instant Retail Gratification', 'A Journey to Enjoying Food’s Delights', 'Pay online with Multiple credit Cards or Cash!'),
+(1, 1, 'en', 'Bringing Your Favorite Restaurants to Your Door Step!', '[{\"value\":\"pizza\"},{\"value\":\"chicken\"},{\"value\":\"chocolate\"}]', 'Search Product', 'Add to Cart', 'Enjoy Food', 'Flexible Payment', 'Join Our Restaurant <span> Food Delivery</span> Service Today!', 'We’ve 15m+ Global and Local Happy Customers, Let’s make the world Happening together.', 'Get a Mobile Application Enjoy Food Experiences', 'We\'ve done it carefully and simply. Combined with the ingredients makes for beautiful landings.', NULL, '2025-05-08 02:14:13', 'Unlocking you effect product searching', 'Add to Cart for Instant Retail Gratification', 'A Journey to Enjoying Food’s Delights', 'Pay online with Multiple credit Cards or Cash!'),
 (4, 1, 'bn', 'আপনার সুস্বাদু খাবার কিনুন বা বিক্রি করুন অনায়াসে!', '[{\"value\":\"pizza\"},{\"value\":\"sandwitch\"},{\"value\":\"lacchi\"}]', 'পণ্য অনুসন্ধান করুন', 'কার্টে যোগ করুন', 'খাবার উপভোগ করুন', 'নমনীয় পেমেন্ট', 'আজই আমাদের রেস্তোরাঁর <span>খাবার ডেলিভারি</span> পরিষেবায় যোগদান করুন!', 'আমাদের ১ কোটি ৫০ লক্ষেরও বেশি বিশ্বব্যাপী এবং স্থানীয় সুখী গ্রাহক রয়েছে, আসুন একসাথে বিশ্বকে সফল করি।', 'একটি মোবাইল অ্যাপ্লিকেশন পান খাবারের অভিজ্ঞতা উপভোগ করুন', 'আমরা এটি খুব যত্ন সহকারে এবং সহজভাবে করেছি। উপকরণগুলির সাথে মিশ্রিত করলে সুন্দর অবতরণ তৈরি হয়।', '2025-04-29 03:55:33', '2025-05-08 02:18:11', 'আপনার প্রভাব পণ্য অনুসন্ধান আনলক করা হচ্ছে', 'তাৎক্ষণিক খুচরা সন্তুষ্টির জন্য কার্টে যোগ করুন', 'খাবারের স্বাদ উপভোগ করার যাত্রা', 'একাধিক ক্রেডিট কার্ড বা নগদ অর্থ দিয়ে অনলাইনে অর্থ প্রদান করুন!');
 
 -- --------------------------------------------------------
@@ -4482,18 +4482,18 @@ CREATE TABLE `seo_settings` (
 --
 
 INSERT INTO `seo_settings` (`id`, `page_name`, `seo_title`, `seo_description`, `created_at`, `updated_at`) VALUES
-(1, 'Home', 'Foodigo || Buy or Sell your Delicious Food Effortlessly', '<p>Foodigo || Buy or Sell your Delicious Food Effortlessly</p>', NULL, '2025-04-21 04:01:01'),
-(2, 'Blogs', 'Foodigo || Buy or Sell your Delicious Food Effortlessly', '<p>Foodigo || Buy or Sell your Delicious Food Effortlessly</p>', NULL, '2024-11-12 21:48:43'),
+(1, 'Home', 'Foodigo || Bringing Your Favorite Restaurants to Your Door Step!', '<p>Foodigo || Bringing Your Favorite Restaurants to Your Door Step!</p>', NULL, '2025-04-21 04:01:01'),
+(2, 'Blogs', 'Foodigo || Bringing Your Favorite Restaurants to Your Door Step!', '<p>Foodigo || Bringing Your Favorite Restaurants to Your Door Step!</p>', NULL, '2024-11-12 21:48:43'),
 (3, 'About Us', 'About Us', 'About Us', NULL, NULL),
 (4, 'Contact Us', 'Contact Us', '<p>Contact Us</p>', NULL, '2024-05-09 04:12:54'),
 (5, 'FAQ', 'FAQ', 'FAQ', NULL, NULL),
 (6, 'Terms & Conditions', 'Terms & Conditions', 'Terms & Conditions', NULL, NULL),
-(7, 'Category', 'Category || Buy or Sell your Delicious Food Effortlessly', '<p>Category || Buy or Sell your Delicious Food Effortlessly</p>', NULL, '2024-11-12 21:48:43'),
-(8, 'Cuisine', 'Cuisine || Buy or Sell your Delicious Food Effortlessly', '<p>Category || Buy or Sell your Delicious Food Effortlessly</p>', NULL, '2024-11-12 21:48:43'),
-(9, 'Offer', 'Offer || Buy or Sell your Delicious Food Effortlessly', '<p>Offer || Buy or Sell your Delicious Food Effortlessly</p>', NULL, '2024-11-12 21:48:43'),
+(7, 'Category', 'Category || Bringing Your Favorite Restaurants to Your Door Step!', '<p>Category || Bringing Your Favorite Restaurants to Your Door Step!</p>', NULL, '2024-11-12 21:48:43'),
+(8, 'Cuisine', 'Cuisine || Bringing Your Favorite Restaurants to Your Door Step!', '<p>Category || Bringing Your Favorite Restaurants to Your Door Step!</p>', NULL, '2024-11-12 21:48:43'),
+(9, 'Offer', 'Offer || Bringing Your Favorite Restaurants to Your Door Step!', '<p>Offer || Bringing Your Favorite Restaurants to Your Door Step!</p>', NULL, '2024-11-12 21:48:43'),
 (10, 'Privacy Policy', 'Privacy Policy', 'Privacy Policy', NULL, NULL),
-(11, 'Restaurant', 'Restaurant || Buy or Sell your Delicious Food Effortlessly', '<p>Restaurant || Buy or Sell your Delicious Food Effortlessly</p>', NULL, '2024-11-12 21:48:43'),
-(12, 'Search Page', 'Search Page || Buy or Sell your Delicious Food Effortlessly', '<p>Search Page || Buy or Sell your Delicious Food Effortlessly</p>', NULL, '2024-11-12 21:48:43');
+(11, 'Restaurant', 'Restaurant || Bringing Your Favorite Restaurants to Your Door Step!', '<p>Restaurant || Bringing Your Favorite Restaurants to Your Door Step!</p>', NULL, '2024-11-12 21:48:43'),
+(12, 'Search Page', 'Search Page || Bringing Your Favorite Restaurants to Your Door Step!', '<p>Search Page || Bringing Your Favorite Restaurants to Your Door Step!</p>', NULL, '2024-11-12 21:48:43');
 
 -- --------------------------------------------------------
 
