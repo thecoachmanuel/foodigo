@@ -533,9 +533,9 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
         }
         .profile_informetion_bg {
-            height: 240px !important;
-            max-height: 240px !important;
-            min-height: 240px !important;
+            height: 300px !important;
+            max-height: 300px !important;
+            min-height: 300px !important;
             width: 100% !important;
             overflow: hidden !important;
             position: relative !important;
@@ -584,9 +584,9 @@
                 padding: 110px 0 15px 0 !important;
             }
             .profile_informetion_bg {
-                height: 175px !important;
-                max-height: 175px !important;
-                min-height: 175px !important;
+                height: 210px !important;
+                max-height: 210px !important;
+                min-height: 210px !important;
             }
             .profile_informetion_main {
                 padding: 0 16px 18px 16px !important;
