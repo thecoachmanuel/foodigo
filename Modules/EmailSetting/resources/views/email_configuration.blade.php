@@ -93,18 +93,18 @@
                                 <div class="col-lg-4 col-12 mg-top-30">
                                     <!-- Test Email Card -->
                                     <div class="crancy-product-card mb-4">
-                                        <h4 class="crancy-product-card__title">{{ __('translate.Test Email Delivery') }}</h4>
+                                        <h4 class="crancy-product-card__title">Test Email Delivery</h4>
                                         <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">Send a test email to verify that your SMTP credentials and mail server connection are working properly.</p>
 
                                         <form action="{{ route('admin.send-test-email') }}" method="POST">
                                             @csrf
                                             <div class="crancy__item-form--group mg-top-form-10">
-                                                <label class="crancy__item-label">{{ __('translate.Recipient Email') }}</label>
+                                                <label class="crancy__item-label">Recipient Email</label>
                                                 <input class="crancy__item-input" type="email" name="test_email" required placeholder="your.email@example.com">
                                             </div>
 
                                             <button class="crancy-btn mg-top-20 w-100" type="submit" style="background-color: #ff6b35; border-color: #ff6b35;">
-                                                <i class="fa-solid fa-paper-plane me-2"></i> {{ __('translate.Send Test Email') }}
+                                                <i class="fa-solid fa-paper-plane me-2"></i> Send Test Email
                                             </button>
                                         </form>
                                     </div>

@@ -3,6 +3,12 @@
   'Ads Banner' => 'Ads Banner',
   'Enter full name' => 'Enter full name',
   'Enter email address' => 'Enter email address',
+  'Send Test Email' => 'Send Test Email',
+  'Test Email Delivery' => 'Test Email Delivery',
+  'Recipient Email' => 'Recipient Email',
+  'Test email sent successfully to' => 'Test email sent successfully to',
+  'Failed to send test email: ' => 'Failed to send test email: ',
+  'Please enter a valid email address' => 'Please enter a valid email address',
   'Dashboard' => 'Dashboard',
   'Click here to' => 'Click here to',
   'Choose File' => 'Choose File',
@@ -1225,4 +1231,14 @@
   'Splash Screens One' => 'Splash Screens One',
   'Splash Screens Two' => 'Splash Screens Two',
   'Splash Screens Three' => 'Splash Screens Three',
+
+  'Send Test Email' => 'Send Test Email',
+  'Test Email Delivery' => 'Test Email Delivery',
+  'Recipient Email' => 'Recipient Email',
+  'Google SMTP Guide' => 'Google SMTP Guide',
+  'Test email sent successfully to' => 'Test email sent successfully to',
+  'Failed to send test email: ' => 'Failed to send test email: ',
+  'Please enter a valid email address' => 'Please enter a valid email address',
+  'Email is required' => 'Email is required',
 );
+

@@ -61,6 +61,7 @@ class EmailHelper{
                 'password' => $password,
                 'timeout' => 15,
                 'local_domain' => env('MAIL_EHLO_DOMAIN'),
+                'source_ip' => '0.0.0.0',
             ];
 
             config(['mail.default' => 'smtp']);

@@ -130,7 +130,20 @@ class EmailSettingController extends Controller
         } catch (\Throwable $e) {
             $errorMessage = $e->getMessage();
             \Illuminate\Support\Facades\Log::error('SMTP Test email sending failed: ' . $errorMessage);
-            $notify_message = trans('translate.Failed to send test email: ') . $errorMessage;
+
+            $setting_data = EmailSetting::pluck('value', 'key');
+            $host = $setting_data['mail_host'] ?? 'smtp.gmail.com';
+            $port = $setting_data['mail_port'] ?? '587';
+
+            if (str_contains($errorMessage, 'Connection timed out') || str_contains($errorMessage, 'stream_socket_client')) {
+                $userFriendlyMsg = "Unable to connect to {$host}:{$port} (Connection timed out). This usually means outbound SMTP ports are blocked by your cloud container host firewall (e.g. Railway standard network policy).";
+            } elseif (str_contains($errorMessage, 'Username and Password not accepted') || str_contains($errorMessage, '535-5.7.8') || str_contains($errorMessage, '535 5.7.8')) {
+                $userFriendlyMsg = "Authentication failed. For Gmail, make sure 2-Step Verification is ON and you are using a 16-character Google App Password (not your personal account login password).";
+            } else {
+                $userFriendlyMsg = $errorMessage;
+            }
+
+            $notify_message = trans('translate.Failed to send test email: ') . $userFriendlyMsg;
             return redirect()->back()->with(['message' => $notify_message, 'alert-type' => 'error']);
         }
     }
