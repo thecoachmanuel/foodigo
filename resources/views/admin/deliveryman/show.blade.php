@@ -266,7 +266,7 @@
                         </div>
 
                         <div class="overview-researcher">
-                            <p>{{ html_decode($deliveryman->designation) }} </p>
+                            <p>{{ html_decode($deliveryman->designation ?? $deliveryman->man_type ?? 'Delivery Man') }} </p>
                         </div>
 
                         <div class="overview-profile-item">
@@ -400,7 +400,7 @@
 
                                                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                                                     <h4 class="crancy-table__product-title">
-                                                                        {{ $order->user->name }}
+                                                                        {{ $order->user?->name ?? 'Guest' }}
                                                                     </h4>
                                                                 </td>
 
@@ -410,12 +410,12 @@
 
                                                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                                                     <h4 class="crancy-table__product-title">
-                                                                        {{ $order->created_at->format('d F, Y') }}
+                                                                        {{ $order->created_at?->format('d F, Y') ?? '' }}
                                                                     </h4>
                                                                 </td>
 
                                                                 <td class="crancy-table__column-2 crancy-table__data-2">
-                                                                    {{ round($order->total) }}
+                                                                    {{ currency($order->grand_total ?? $order->total ?? 0) }}
                                                                 </td>
 
 

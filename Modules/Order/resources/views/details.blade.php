@@ -26,7 +26,7 @@
                             <div class="zum_icvoice_item_main">
 
                                 @php
-                                    $address = json_decode($order->delivery_address);
+                                    $address = is_string($order->delivery_address) ? json_decode($order->delivery_address) : (object) ($order->delivery_address ?? []);
                                 @endphp
 
                                 @if($order->order_type == 'delivery')
@@ -35,19 +35,19 @@
                                     </div>
                                     <div class="zum_icvoice_item">
                                         <ul class="zum_invoice_lixt  d-flex flex-column gap-3">
-                                            <li>{{__('translate.Full Name')}} : <span>{{$address->contact_person_name ?? ''}}</span></li>
+                                            <li>{{__('translate.Full Name')}} : <span>{{$address?->contact_person_name ?? $order->user?->name ?? ''}}</span></li>
                                             <li>
-                                                <a href="mailto:{{$address->contact_person_email ?? ''}} ">
-                                                    {{__('translate.Email')}} : <span> {{$address->contact_person_email ?? ''}} </span>
+                                                <a href="mailto:{{$address?->contact_person_email ?? $order->user?->email ?? ''}} ">
+                                                    {{__('translate.Email')}} : <span> {{$address?->contact_person_email ?? $order->user?->email ?? ''}} </span>
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="tel:{{$address->contact_person_number ?? ''}}">
-                                                    {{__('translate.Phone')}} : <span> {{$address->contact_person_number ?? ''}}</span>
+                                                <a href="tel:{{$address?->contact_person_number ?? $order->user?->phone ?? ''}}">
+                                                    {{__('translate.Phone')}} : <span> {{$address?->contact_person_number ?? $order->user?->phone ?? ''}}</span>
                                                 </a>
                                             </li>
                                             <li>
-                                                {{__('translate.Address')}} : <span> {{$address->address ?? ''}} </span>
+                                                {{__('translate.Address')}} : <span> {{$address?->address ?? ''}} </span>
                                             </li>
                                         </ul>
                                     </div>
@@ -69,7 +69,7 @@
                                             @endif
                                         </li>
                                         <li>
-                                            {{__('translate.Transaction')}} :<span> {!! clean(nl2br($order->tnx_info)) !!}</span>
+                                            {{__('translate.Transaction')}} :<span> {!! clean(nl2br($order->tnx_info ?? '')) !!}</span>
                                         </li>
 
                                     </ul>
@@ -78,9 +78,9 @@
                             </div>
 
                             @if($order->order_type == 'pickup')
-                                <p><strong>{{__('translate.Contact person name')}} : </strong> {{$address->contact_person_name ?? ''}}</p>
-                                <p><strong>{{__('translate.Contact person phone')}} : </strong> {{$address->contact_person_number ?? ''}}</p>
-                                <p><strong>{{__('translate.Contact person email')}} : </strong> {{$address->contact_person_email ?? ''}}</p>
+                                <p><strong>{{__('translate.Contact person name')}} : </strong> {{$address?->contact_person_name ?? $order->user?->name ?? ''}}</p>
+                                <p><strong>{{__('translate.Contact person phone')}} : </strong> {{$address?->contact_person_number ?? $order->user?->phone ?? ''}}</p>
+                                <p><strong>{{__('translate.Contact person email')}} : </strong> {{$address?->contact_person_email ?? $order->user?->email ?? ''}}</p>
                             @endif
 
 
@@ -91,7 +91,7 @@
                                         <address class="zum_icvoice_item_main p-3">
                                             <strong>{{__('translate.Delivery Man Information')}}:</strong><br>
                                             <div class="zum_invoice_lixt">
-                                                {{__('translate.Name')}}: {{ $order->deliveryman->fname }} {{ $order->deliveryman->lname }}<br>
+                                                {{__('translate.Name')}}: {{ $order->deliveryman?->fname }} {{ $order->deliveryman?->lname }}<br>
                                                 {{__('translate.Status')}} :
                                                 <span class="tag {{ $order->order_request == 1 ? 'success' : ($order->order_request == 2 ? 'warning' : 'danger') }}">
                                                     {{ $order->order_request == 1 ? __('Accepted') : ($order->order_request == 2 ? __('Ignored') : __('No response')) }}
@@ -113,19 +113,19 @@
                                     </div>
                                     <div class="zum_icvoice_item  d-flex flex-column gap-3">
                                         <ul class="zum_invoice_lixt  d-flex flex-column gap-3">
-                                            <li>{{__('translate.Full Name')}} : <span>{{$address->contact_person_name ?? ''}}</span></li>
+                                            <li>{{__('translate.Full Name')}} : <span>{{$address?->contact_person_name ?? $order->user?->name ?? ''}}</span></li>
                                             <li>
-                                                <a href="mailto:{{$address->contact_person_email ?? ''}}">
-                                                    {{__('translate.Email')}} : <span> {{$address->contact_person_email ?? ''}}</span>
+                                                <a href="mailto:{{$address?->contact_person_email ?? $order->user?->email ?? ''}}">
+                                                    {{__('translate.Email')}} : <span> {{$address?->contact_person_email ?? $order->user?->email ?? ''}}</span>
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="tel:{{$address->contact_person_number ?? ''}}">
-                                                    {{__('translate.Phone')}} : <span> {{$address->contact_person_number ?? ''}} </span>
+                                                <a href="tel:{{$address?->contact_person_number ?? $order->user?->phone ?? ''}}">
+                                                    {{__('translate.Phone')}} : <span> {{$address?->contact_person_number ?? $order->user?->phone ?? ''}} </span>
                                                 </a>
                                             </li>
                                             <li>
-                                                {{__('translate.Address')}} : <span>{{$address->address ?? ''}}</span>
+                                                {{__('translate.Address')}} : <span>{{$address?->address ?? ''}}</span>
                                             </li>
                                         </ul>
                                     </div>
@@ -250,18 +250,34 @@
                                     @endphp
                                     @foreach($order->items ?? [] as $key => $order_item)
                                         @php
-                                            $product = Modules\Product\App\Models\Product::where('status', 'enable')->whereIn('id', [$order_item['product_id']])->first();
-                                            $total += $order_item->total;
+                                            $product = Modules\Product\App\Models\Product::find($order_item->product_id ?? $order_item['product_id']);
+                                            $total += (float) ($order_item->total ?? 0);
+                                            $sizes = [];
+                                            if (!empty($order_item['size'])) {
+                                                $decodedSize = json_decode($order_item['size'], true);
+                                                $sizes = is_array($decodedSize) ? $decodedSize : [];
+                                            }
+                                            $addonsList = [];
+                                            if (!empty($order_item['addons'])) {
+                                                $decodedAddons = json_decode($order_item['addons'], true);
+                                                $addonsList = is_array($decodedAddons) ? $decodedAddons : [];
+                                            }
                                         @endphp
                                         <tr>
                                             <td>{{$key + 1}}</td>
-                                            <td><a target="_blank" href="{{ route('admin.product.edit', ['product' => $product->id, 'lang_code' => admin_lang()] ) }}">{{$product->name}}</a></td>
+                                            <td>
+                                                @if($product)
+                                                    <a target="_blank" href="{{ route('admin.product.edit', ['product' => $product->id, 'lang_code' => admin_lang()] ) }}">{{$product->name}}</a>
+                                                @else
+                                                    <span>{{ $order_item->product_name ?? 'Product #' . ($order_item->product_id ?? '') }}</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div class="tabel_modal_main">
-                                                    @foreach (json_decode($order_item['size']) as $size => $price)
+                                                    @foreach ($sizes as $size => $price)
                                                         {{__('translate.Size')}} : {{ $size }}
                                                     @endforeach
-                                                    @if(json_decode($order_item['addons']))
+                                                    @if(!empty($addonsList))
                                                     <span data-bs-toggle="modal" data-bs-target="#exampleModal{{$key}}">
                                                         {{__('translate.See more')}}
                                                     </span>
@@ -269,17 +285,22 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                {{$order?->restaurant?->restaurant_name}}
+                                                {{$order?->restaurant?->restaurant_name ?? ''}}
                                             </td>
                                             <td>
-                                                @foreach (json_decode($order_item['size']) as $size => $price)
-                                                  {{(currency($price))}}
-                                                @endforeach
+                                                @if(!empty($sizes))
+                                                    @foreach ($sizes as $size => $price)
+                                                        {{(currency($price))}}
+                                                    @endforeach
+                                                @else
+                                                    {{ currency($order_item->unit_price ?? $order_item->price ?? 0) }}
+                                                @endif
                                             </td>
                                             <td>{{$order_item->qty}}</td>
                                             <td>{{currency($order_item->total)}}</td>
                                         </tr>
 
+                                        @if(!empty($addonsList))
                                         <!-- Modal 2 -->
                                         <div class="modal adon_modal_main fade" id="exampleModal{{$key}}" tabindex="-1" aria-labelledby="exampleModalLabel"
                                              aria-hidden="true">
@@ -291,14 +312,16 @@
                                                     </div>
                                                     <div class="modal-body">
                                                         <ul class="modal_adon">
-                                                            @foreach (json_decode($order_item['addons']) as $addonId => $quantity)
+                                                            @foreach ($addonsList as $addonId => $quantity)
                                                                 @php
-                                                                    $addonsDb = Modules\Addon\App\Models\Addon::whereIn('id', [$addonId])->get();
-                                                                    $calculate += ($addonsDb->first()->price * $quantity);
+                                                                    $addon = Modules\Addon\App\Models\Addon::find($addonId);
+                                                                    if ($addon) {
+                                                                        $calculate += ($addon->price * (int)$quantity);
+                                                                    }
                                                                 @endphp
-                                                                @if ($addonsDb->isNotEmpty())
-                                                                    <li> {{ $addonsDb->first()->name }}
-                                                                        ({{ currency($addonsDb->first()->price) }}
+                                                                @if ($addon)
+                                                                    <li> {{ $addon->name }}
+                                                                        ({{ currency($addon->price) }}
                                                                         * {{ $quantity }})</li>
                                                                 @endif
 
@@ -311,6 +334,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        @endif
                                     @endforeach
                                     </tbody>
                                 </table>

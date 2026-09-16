@@ -27,12 +27,12 @@ class DeliveryManController extends Controller
         $withdraw_list = DeliverymanWithdraw::where('deliveryman_id', $id)->get();
         $withdraw_without_reject_list = DeliverymanWithdraw::where('deliveryman_id', $id)->where('status', '!=','rejected')->get();
 
-        $complete = Order::where('delivery_man_id', $id)->where('payment_status', 'success')->where('order_request', 3)->sum('delivery_charge');
-        $cancel = Order::where('delivery_man_id', $id)->where('payment_status', 'success')->where('order_request', 4)->sum('delivery_charge');
+        $complete = (float) Order::where('delivery_man_id', $id)->where('payment_status', 'success')->where('order_request', 3)->sum('delivery_charge');
+        $cancel = (float) Order::where('delivery_man_id', $id)->where('payment_status', 'success')->where('order_request', 4)->sum('delivery_charge');
 
         $total_income = $complete + $cancel;
         $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
-        $Commission_per_delivery = GlobalSetting::where('key', 'Commission_per_delivery')->value('value');
+        $Commission_per_delivery = (float) (GlobalSetting::where('key', 'Commission_per_delivery')->value('value') ?? 0);
         $total_commission = 0.00;
         $net_income = $total_income;
         if($commission_type == 'commission'){
@@ -40,11 +40,11 @@ class DeliveryManController extends Controller
             $net_income = $total_income - $total_commission;
         }
 
-        $total_withdraw_amount = $withdraw_without_reject_list->sum('total_amount');
+        $total_withdraw_amount = (float) $withdraw_without_reject_list->sum('total_amount');
 
         $current_balance = $net_income - $total_withdraw_amount;
 
-        $pending_withdraw = DeliverymanWithdraw::where('deliveryman_id', $id)->where('status', 'pending')->sum('total_amount');
+        $pending_withdraw = (float) DeliverymanWithdraw::where('deliveryman_id', $id)->where('status', 'pending')->sum('total_amount');
 
         $orders=Order::where('delivery_man_id', $id)->get();
 
@@ -124,7 +124,6 @@ class DeliveryManController extends Controller
 
     public function deliveryman_update(Request $request, $id)
     {
-        dd(1);
         $deliveryman = Deliveryman::findOrFail($id);
 
         $deliveryman->fname = $request->fname;
@@ -172,7 +171,7 @@ class DeliveryManController extends Controller
     }
 
     public function deliveryman_pending(){
-        $deliverymans = DeliveryMan::where('status','!==', 1)->get();
+        $deliverymans = DeliveryMan::where('status', '!=', 1)->orWhereNull('status')->get();
         return view('admin.deliveryman.pending', compact('deliverymans'));
     }
 
