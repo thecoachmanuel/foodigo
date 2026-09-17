@@ -172,9 +172,11 @@ class UserOrderController extends Controller
         $userLon = $userAddress->lon;
 
         $distance = $this->calculateDistance($userLat, $userLon, $restaurantLat, $restaurantLon);
-        $chargePerKm = GlobalSetting::where('key', 'delivery_charge')->first()->value;
+        $chargeSetting = GlobalSetting::where('key', 'delivery_charge')->first();
+        $chargePerKm = $chargeSetting ? (float)$chargeSetting->value : 0;
+        $billableDistance = max(1.0, (float)$distance);
 
-        return $distance * $chargePerKm;
+        return round($billableDistance * $chargePerKm, 2);
     }
 
     private function getDeliveryChargeForGuestUser($guestLat, $guestLon): float|int
@@ -184,9 +186,11 @@ class UserOrderController extends Controller
         $restaurantLon = Product::find($carts[0]['product_id'])->restaurant->longitude;
 
         $distance = $this->calculateDistance($guestLat, $guestLon, $restaurantLat, $restaurantLon);
-        $chargePerKm = GlobalSetting::where('key', 'delivery_charge')->first()->value;
+        $chargeSetting = GlobalSetting::where('key', 'delivery_charge')->first();
+        $chargePerKm = $chargeSetting ? (float)$chargeSetting->value : 0;
+        $billableDistance = max(1.0, (float)$distance);
 
-        return $distance * $chargePerKm;
+        return round($billableDistance * $chargePerKm, 2);
     }
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2): float|int

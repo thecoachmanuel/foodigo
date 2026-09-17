@@ -48,165 +48,86 @@
                                             <thead>
                                             <tr>
                                                 <th>
-                                                    <div class="th_item">
-                                                        <p>{{__('translate.Order ID')}}</p>
-
+                                                    <a href="{{ route('user.order', ['sort_by' => 'id', 'order' => ($sortBy == 'id' && $sortOrder == 'desc') ? 'asc' : 'desc']) }}" class="th_item text-decoration-none text-dark d-flex align-items-center justify-content-between">
+                                                        <p class="m-0 font-weight-bold">{{__('translate.Order ID')}}</p>
                                                         <div class="th_item_icon">
-                                                                <span class="arrow_top">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M1.16602 4L3.66602 1.5M3.66602 1.5L6.16602 4M3.66602 1.5L3.66602 11.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-                                                                </span>
-                                                            <span class="arrow_bottom">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M5.83398 9L3.33398 11.5M3.33398 11.5L0.833984 9M3.33398 11.5L3.33398 1.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-
-                                                                </span>
+                                                            <span class="arrow_top {{ $sortBy == 'id' && $sortOrder == 'asc' ? 'text-primary' : '' }}">
+                                                                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M1.16602 4L3.66602 1.5M3.66602 1.5L6.16602 4M3.66602 1.5L3.66602 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                </svg>
+                                                            </span>
+                                                            <span class="arrow_bottom {{ $sortBy == 'id' && $sortOrder == 'desc' ? 'text-primary' : '' }}">
+                                                                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M5.83398 9L3.33398 11.5M3.33398 11.5L0.833984 9M3.33398 11.5L3.33398 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                </svg>
+                                                            </span>
                                                         </div>
+                                                    </a>
+                                                </th>
 
-
+                                                <th>
+                                                    <div class="th_item d-flex align-items-center justify-content-between">
+                                                        <p class="m-0 font-weight-bold">{{__('translate.Restaurant')}}</p>
                                                     </div>
                                                 </th>
 
                                                 <th>
-                                                    <div class="th_item">
-                                                        <p>{{__('translate.Restaurant')}}</p>
-
+                                                    <a href="{{ route('user.order', ['sort_by' => 'created_at', 'order' => ($sortBy == 'created_at' && $sortOrder == 'desc') ? 'asc' : 'desc']) }}" class="th_item text-decoration-none text-dark d-flex align-items-center justify-content-between">
+                                                        <p class="m-0 font-weight-bold">{{__('translate.Date')}}</p>
                                                         <div class="th_item_icon">
-                                                                <span class="arrow_top">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M1.16602 4L3.66602 1.5M3.66602 1.5L6.16602 4M3.66602 1.5L3.66602 11.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-                                                                </span>
-                                                            <span class="arrow_bottom">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M5.83398 9L3.33398 11.5M3.33398 11.5L0.833984 9M3.33398 11.5L3.33398 1.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-
-                                                                </span>
+                                                            <span class="arrow_top {{ $sortBy == 'created_at' && $sortOrder == 'asc' ? 'text-primary' : '' }}">
+                                                                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M1.16602 4L3.66602 1.5M3.66602 1.5L6.16602 4M3.66602 1.5L3.66602 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                </svg>
+                                                            </span>
+                                                            <span class="arrow_bottom {{ $sortBy == 'created_at' && $sortOrder == 'desc' ? 'text-primary' : '' }}">
+                                                                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M5.83398 9L3.33398 11.5M3.33398 11.5L0.833984 9M3.33398 11.5L3.33398 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                </svg>
+                                                            </span>
                                                         </div>
+                                                    </a>
+                                                </th>
 
+                                                <th>
+                                                    <a href="{{ route('user.order', ['sort_by' => 'grand_total', 'order' => ($sortBy == 'grand_total' && $sortOrder == 'desc') ? 'asc' : 'desc']) }}" class="th_item text-decoration-none text-dark d-flex align-items-center justify-content-between">
+                                                        <p class="m-0 font-weight-bold">{{__('translate.Amount')}}</p>
+                                                        <div class="th_item_icon">
+                                                            <span class="arrow_top {{ $sortBy == 'grand_total' && $sortOrder == 'asc' ? 'text-primary' : '' }}">
+                                                                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M1.16602 4L3.66602 1.5M3.66602 1.5L6.16602 4M3.66602 1.5L3.66602 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                </svg>
+                                                            </span>
+                                                            <span class="arrow_bottom {{ $sortBy == 'grand_total' && $sortOrder == 'desc' ? 'text-primary' : '' }}">
+                                                                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M5.83398 9L3.33398 11.5M3.33398 11.5L0.833984 9M3.33398 11.5L3.33398 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                </svg>
+                                                            </span>
+                                                        </div>
+                                                    </a>
+                                                </th>
 
-                                                    </div>
+                                                <th>
+                                                    <a href="{{ route('user.order', ['sort_by' => 'order_status', 'order' => ($sortBy == 'order_status' && $sortOrder == 'desc') ? 'asc' : 'desc']) }}" class="th_item text-decoration-none text-dark d-flex align-items-center justify-content-between">
+                                                        <p class="m-0 font-weight-bold">{{__('translate.Status')}}</p>
+                                                        <div class="th_item_icon">
+                                                            <span class="arrow_top {{ $sortBy == 'order_status' && $sortOrder == 'asc' ? 'text-primary' : '' }}">
+                                                                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M1.16602 4L3.66602 1.5M3.66602 1.5L6.16602 4M3.66602 1.5L3.66602 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                </svg>
+                                                            </span>
+                                                            <span class="arrow_bottom {{ $sortBy == 'order_status' && $sortOrder == 'desc' ? 'text-primary' : '' }}">
+                                                                <svg width="7" height="13" viewBox="0 0 7 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M5.83398 9L3.33398 11.5M3.33398 11.5L0.833984 9M3.33398 11.5L3.33398 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                </svg>
+                                                            </span>
+                                                        </div>
+                                                    </a>
                                                 </th>
 
                                                 <th>
                                                     <div class="th_item">
-                                                        <p>{{__('translate.Date')}}</p>
-
-                                                        <div class="th_item_icon">
-                                                                <span class="arrow_top">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M1.16602 4L3.66602 1.5M3.66602 1.5L6.16602 4M3.66602 1.5L3.66602 11.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-                                                                </span>
-                                                            <span class="arrow_bottom">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M5.83398 9L3.33398 11.5M3.33398 11.5L0.833984 9M3.33398 11.5L3.33398 1.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-
-                                                                </span>
-                                                        </div>
-
-
-                                                    </div>
-                                                </th>
-                                                <th>
-                                                    <div class="th_item">
-                                                        <p>{{__('translate.Amount')}}</p>
-
-                                                        <div class="th_item_icon">
-                                                                <span class="arrow_top">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M1.16602 4L3.66602 1.5M3.66602 1.5L6.16602 4M3.66602 1.5L3.66602 11.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-                                                                </span>
-                                                            <span class="arrow_bottom">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M5.83398 9L3.33398 11.5M3.33398 11.5L0.833984 9M3.33398 11.5L3.33398 1.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-
-                                                                </span>
-                                                        </div>
-
-
-                                                    </div>
-                                                </th>
-                                                <th>
-                                                    <div class="th_item">
-                                                        <p>{{__('translate.Status')}}</p>
-
-                                                        <div class="th_item_icon">
-                                                                <span class="arrow_top">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M1.16602 4L3.66602 1.5M3.66602 1.5L6.16602 4M3.66602 1.5L3.66602 11.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-                                                                </span>
-                                                            <span class="arrow_bottom">
-                                                                    <svg width="7" height="13" viewBox="0 0 7 13"
-                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                                d="M5.83398 9L3.33398 11.5M3.33398 11.5L0.833984 9M3.33398 11.5L3.33398 1.5"
-                                                                                stroke-width="1.5"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"/>
-                                                                    </svg>
-
-                                                                </span>
-                                                        </div>
-
-
-                                                    </div>
-                                                </th>
-                                                <th>
-                                                    <div class="th_item">
-                                                        <p>{{__('translate.Action')}}</p>
+                                                        <p class="m-0 font-weight-bold">{{__('translate.Action')}}</p>
                                                     </div>
                                                 </th>
 

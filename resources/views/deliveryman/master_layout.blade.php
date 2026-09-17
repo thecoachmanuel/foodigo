@@ -233,7 +233,9 @@
                         validation_errors.forEach(error => toastr.error(error));
                     }
 
-                    $('#dataTable').DataTable();
+                    $('#dataTable').DataTable({
+                        "order": []
+                    });
                 });
             })(jQuery);
 

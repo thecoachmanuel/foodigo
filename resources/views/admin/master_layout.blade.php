@@ -248,7 +248,9 @@
                     }
 
 
-                    $('#dataTable').DataTable();
+                    $('#dataTable').DataTable({
+                        "order": []
+                    });
 
                     // Sidebar active menu persistence and scroll memory across refreshes
                     const $adminMenu = $('.admin-menu');

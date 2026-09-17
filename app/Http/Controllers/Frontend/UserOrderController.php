@@ -16,14 +16,27 @@ use Modules\GlobalSetting\App\Models\GlobalSetting;
 
 class UserOrderController extends Controller
 {
-    public function order(): Renderable
+    public function order(Request $request): Renderable
     {
         $user = Auth::user();
+        $sortBy = $request->get('sort_by', 'id');
+        $sortOrder = $request->get('order', $request->get('direction', 'desc'));
+
+        $allowedSorts = ['id', 'created_at', 'grand_total', 'order_status'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'id';
+        }
+        if (!in_array(strtolower($sortOrder), ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
+
         $orders = Order::with(['restaurant', 'items'])
             ->where('user_id', $user->id)
-            ->latest()
-            ->paginate(10);
-        return view('frontend.user.order', compact('user', 'orders'));
+            ->orderBy($sortBy, $sortOrder)
+            ->paginate(10)
+            ->appends($request->query());
+
+        return view('frontend.user.order', compact('user', 'orders', 'sortBy', 'sortOrder'));
     }
 
     public function order_details($id)
@@ -219,8 +232,9 @@ class UserOrderController extends Controller
         $distance = $this->calculateDistance($userLat, $userLon, $restaurantLat, $restaurantLon);
         $chargeSetting = GlobalSetting::where('key', 'delivery_charge')->first();
         $chargePerKm = $chargeSetting ? (float)$chargeSetting->value : 0;
+        $billableDistance = max(1.0, (float)$distance);
 
-        return round($distance * $chargePerKm, 2);
+        return round($billableDistance * $chargePerKm, 2);
     }
 
     private function getDeliveryChargeForGuestUser($guestLat, $guestLon): float|int
@@ -239,8 +253,9 @@ class UserOrderController extends Controller
         $distance = $this->calculateDistance($guestLat, $guestLon, $restaurantLat, $restaurantLon);
         $chargeSetting = GlobalSetting::where('key', 'delivery_charge')->first();
         $chargePerKm = $chargeSetting ? (float)$chargeSetting->value : 0;
+        $billableDistance = max(1.0, (float)$distance);
 
-        return round($distance * $chargePerKm, 2);
+        return round($billableDistance * $chargePerKm, 2);
     }
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2): float|int

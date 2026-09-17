@@ -1022,7 +1022,8 @@
 
             if (uLat && uLon && rLat && rLon) {
                 const distance = calculateDistance(uLat, uLon, rLat, rLon);
-                deliveryCharge = distance * chargePerKm;
+                const billableDistance = Math.max(1, distance);
+                deliveryCharge = billableDistance * chargePerKm;
             }
 
             // Update the delivery charge input and display

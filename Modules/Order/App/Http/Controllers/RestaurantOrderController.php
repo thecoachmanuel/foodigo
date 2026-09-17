@@ -19,6 +19,12 @@ class RestaurantOrderController extends Controller
      */
     public function index(Request $request): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
+        $sortBy = $request->get('sort_by', 'id');
+        $sortOrder = $request->get('order', $request->get('sort_order', 'desc'));
+        if (!in_array(strtolower($sortOrder), ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
+
         $orders = Order::where('restaurant_id', Auth::guard('restaurant')->user()->id)
             ->when($request->has('order_type') && $request->order_type == 'delivery', function($query){
                 $query->where('order_type', 'delivery');
@@ -26,7 +32,8 @@ class RestaurantOrderController extends Controller
             ->when($request->has('order_type') && $request->order_type == 'pickup', function($query){
                 $query->where('order_type', 'pickup');
             })
-            ->latest()->get();
+            ->orderBy($sortBy, $sortOrder)
+            ->get();
         return view('order::restaurant.index', compact('orders'));
     }
 

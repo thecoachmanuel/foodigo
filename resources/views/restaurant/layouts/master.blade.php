@@ -249,7 +249,9 @@
     (function($) {
         "use strict"
         $(document).ready(function () {
-            $('#dataTable').DataTable();
+            $('#dataTable').DataTable({
+                "order": []
+            });
         });
     })(jQuery);
 

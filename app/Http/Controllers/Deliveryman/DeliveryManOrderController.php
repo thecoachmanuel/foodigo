@@ -13,7 +13,7 @@ class DeliveryManOrderController extends Controller
 {
     public function index(){
         $deliveryman_id=Auth::guard('deliveryman')->user()->id;
-        $orders = Order::with('user')->where('delivery_man_id', $deliveryman_id)->where('order_request', 1)->get();
+        $orders = Order::with('user')->where('delivery_man_id', $deliveryman_id)->where('order_request', 1)->orderBy('id', 'desc')->get();
         $title = trans('translate.admin_validation.All Orders');
 
         return view('deliveryman.orders', compact('title','orders'));

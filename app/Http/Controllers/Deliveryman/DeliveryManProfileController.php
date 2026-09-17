@@ -41,7 +41,7 @@ class DeliveryManProfileController extends Controller
 
         $pending_withdraw = DeliveryManWithdraw::where('deliveryman_id', $user->id)->where('status', 'pending')->sum('total_amount');
 
-        $orders=Order::where('delivery_man_id', $user->id)->get();
+        $orders = Order::where('delivery_man_id', $user->id)->orderBy('id', 'desc')->get();
 
         return view('deliveryman.delivery_man_profile', [
             'withdraw_list' => $withdraw_list,

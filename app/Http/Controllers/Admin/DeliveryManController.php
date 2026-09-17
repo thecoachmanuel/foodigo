@@ -46,7 +46,7 @@ class DeliveryManController extends Controller
 
         $pending_withdraw = (float) DeliveryManWithdraw::where('deliveryman_id', $id)->where('status', 'pending')->sum('total_amount');
 
-        $orders=Order::where('delivery_man_id', $id)->get();
+        $orders = Order::where('delivery_man_id', $id)->orderBy('id', 'desc')->get();
 
         return view('admin.deliveryman.show', [
             'withdraw_list' => $withdraw_list,

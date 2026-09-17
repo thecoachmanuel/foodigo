@@ -29,13 +29,22 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
+        $sortBy = $request->get('sort_by', 'id');
+        $sortOrder = $request->get('order', $request->get('sort_order', 'desc'));
+        if (!in_array(strtolower($sortOrder), ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
+
         $orders = Order::when($request->has('order_type') && $request->order_type == 'delivery', function($query){
             $query->where('order_type', 'delivery');
         })
         ->when($request->has('order_type') && $request->order_type == 'pickup', function($query){
             $query->where('order_type', 'pickup');
         })
-        ->orderBy('id', 'desc')->get();
+        ->when($request->has('order_status') && !empty($request->order_status), function($query) use ($request){
+            $query->where('order_status', $request->order_status);
+        })
+        ->orderBy($sortBy, $sortOrder)->get();
 
 
         $products = Product::with('translate_product')->latest()->get();
