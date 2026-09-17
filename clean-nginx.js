@@ -19,20 +19,16 @@ function cleanNginxConfig(filePath) {
     }
 
     // 3. Enforce root /app/public; as the canonical document root
-    // Match ANY root directive whether empty (e.g. "root ;"), relative, or absolute
-    if (/root\s*[^;]*;/g.test(content)) {
-        content = content.replace(/root\s*[^;]*;/g, 'root /app/public;');
+    // Match only standalone 'root' directives anchored to beginning of line (never match $realpath_root)
+    if (/^\s*root\b[^;]*;/m.test(content)) {
+        content = content.replace(/^\s*root\b[^;]*;/gm, '        root /app/public;');
     } else if (content.includes('server {')) {
-        content = content.replace(/server\s*\{/, 'server {\n    root /app/public;\n    index index.php index.html;');
+        content = content.replace(/server\s*\{/, 'server {\n        root /app/public;\n        index index.php index.html;');
     }
 
-    // Safety cleanup: remove any unexpanded environment variable placeholders or empty root directives
+    // Replace any unexpanded environment variable placeholders
     content = content.replace(/\$\{NIXPACKS_PHP_ROOT_DIR\}/g, '/app/public');
     content = content.replace(/\$NIXPACKS_PHP_ROOT_DIR\b/g, '/app/public');
-    content = content.replace(/root\s*;/g, 'root /app/public;');
-
-    // Deduplicate multiple consecutive root /app/public; statements if any
-    content = content.replace(/(root\s+\/app\/public;\s*)+/g, 'root /app/public;\n    ');
 
     // 4. Ensure location / forwards everything through index.php
     if (content.includes('location / {') || content.includes('location / {')) {

@@ -75,7 +75,7 @@ fi
 # Emergency safety net: ensure no empty or unexpanded root directives remain in any nginx config
 for cfg in "/etc/nginx.conf" "/etc/nginx/nginx.conf" "/assets/nginx.template.conf"; do
     if [ -f "$cfg" ]; then
-        sed -i 's|root\s*;|root /app/public;|g' "$cfg" 2>/dev/null || true
+        sed -i -E 's|^[[:space:]]*root[[:space:]]*;[[:space:]]*$|        root /app/public;|g' "$cfg" 2>/dev/null || true
         sed -i 's|\${NIXPACKS_PHP_ROOT_DIR}|/app/public|g' "$cfg" 2>/dev/null || true
         sed -i 's|\$NIXPACKS_PHP_ROOT_DIR|/app/public|g' "$cfg" 2>/dev/null || true
     fi
