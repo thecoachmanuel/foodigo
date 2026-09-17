@@ -27,7 +27,7 @@
     }
 
     .profile_informetion_bg {
-        height: 240px;
+        height: auto;
     }
 
     .profile_informetion_two .profile_informetion_bg {
@@ -1093,7 +1093,7 @@
     }
 
     .profile_informetion_bg {
-        height: 230px !important;
+        height: auto;
     }
 
     .profile_informetion_main .company_logo {
