@@ -540,24 +540,30 @@
                 </div>
             </div>
 
-            <!-- Checkout Address Delete Confirmation Modal -->
-            <div class="modal fade" id="deleteCheckoutAddressModal" tabindex="-1" aria-labelledby="deleteCheckoutAddressModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
+            <!-- Brand-Styled Checkout Address Delete Confirmation Modal -->
+            <div class="modal fade brand_delete_modal" id="deleteCheckoutAddressModal" tabindex="-1" aria-labelledby="deleteCheckoutAddressModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteCheckoutAddressModalLabel">{{ __('translate.Delete Confirmation') }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>{{ __('translate.Are you realy want to delete this item?') }}</p>
-                        </div>
-                        <div class="modal-footer">
-                            <form action="" id="checkout_address_delete_form" method="POST">
+                        <button type="button" class="btn-close brand_modal_close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-body text-center p-4 pt-5">
+                            <div class="delete_icon_wrapper">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#E94222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </div>
+                            <h4 class="brand_modal_title mt-3 mb-2">{{ __('translate.Delete Address') }}</h4>
+                            <p class="brand_modal_text mb-1">{{ __('translate.Do you realy want to delete this item?') }}</p>
+                            <small class="brand_modal_subtext text-muted">{{ __('translate.This action cannot be undone.') }}</small>
+                            <form action="" id="checkout_address_delete_form" method="POST" class="mt-4">
                                 @csrf
                                 @method('DELETE')
-
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
-                                <button type="submit" class="btn btn-primary btn-type-dlt">{{ __('translate.Yes, Delete') }}</button>
+                                <div class="d-flex justify-content-center gap-3">
+                                    <button type="button" class="btn btn_cancel_brand" data-bs-dismiss="modal">{{ __('translate.Cancel') }}</button>
+                                    <button type="submit" class="btn btn_delete_brand">{{ __('translate.Yes, Delete') }}</button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -570,6 +576,90 @@
 
 @push('style_section')
     <style>
+        /* Brand Styled Delete Modal */
+        .brand_delete_modal .modal-content {
+            border: none !important;
+            border-radius: 20px !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18) !important;
+            overflow: hidden !important;
+            background: #ffffff !important;
+            position: relative !important;
+        }
+        .brand_delete_modal .brand_modal_close {
+            position: absolute !important;
+            top: 18px !important;
+            right: 18px !important;
+            z-index: 10 !important;
+            opacity: 0.6 !important;
+            transition: opacity 0.2s ease !important;
+        }
+        .brand_delete_modal .brand_modal_close:hover {
+            opacity: 1 !important;
+        }
+        .brand_delete_modal .delete_icon_wrapper {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #FFF1F0;
+            border: 6px solid #FFE4E1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            transition: transform 0.2s ease;
+        }
+        .brand_delete_modal .delete_icon_wrapper:hover {
+            transform: scale(1.06);
+        }
+        .brand_delete_modal .brand_modal_title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0F172A;
+        }
+        .brand_delete_modal .brand_modal_text {
+            font-size: 15px;
+            color: #475569;
+            line-height: 1.5;
+        }
+        .brand_delete_modal .brand_modal_subtext {
+            font-size: 13px;
+            color: #94A3B8;
+        }
+        .brand_delete_modal .btn_cancel_brand {
+            padding: 11px 24px;
+            border-radius: 10px;
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 600;
+            font-size: 14.5px;
+            border: 1px solid #E2E8F0;
+            transition: all 0.2s ease;
+            min-width: 110px;
+        }
+        .brand_delete_modal .btn_cancel_brand:hover {
+            background: #E2E8F0;
+            color: #1E293B;
+        }
+        .brand_delete_modal .btn_delete_brand {
+            padding: 11px 26px;
+            border-radius: 10px;
+            background: #E94222;
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 14.5px;
+            border: 1px solid #E94222;
+            box-shadow: 0 4px 14px rgba(233, 66, 34, 0.35);
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+        .brand_delete_modal .btn_delete_brand:hover {
+            background: #D83618;
+            border-color: #D83618;
+            color: #FFFFFF;
+            box-shadow: 0 6px 18px rgba(233, 66, 34, 0.45);
+            transform: translateY(-1px);
+        }
+
         .total_amount_border{
             border-top : 1px solid #e5e6eb;
         }
