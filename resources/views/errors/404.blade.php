@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>{{ __('translate.404') }}</title>
     <link rel="shortcut icon" href="{{asset($general_setting->favicon)}}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('frontend/css/bootstrap.min.css')}}">

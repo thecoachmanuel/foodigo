@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     @yield('title')
     @yield('meta')
     <link rel="shortcut icon" href="{{asset($general_setting->favicon)}}" type="image/x-icon">
@@ -239,6 +239,117 @@
             display: block !important;
             text-shadow: none !important;
         }
+
+        /* ==========================================================================
+           Mobile Viewport Ergonomics & Auto-Zoom Prevention
+           ========================================================================== */
+        html {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            -webkit-text-size-adjust: 100% !important;
+            text-size-adjust: 100% !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+
+        body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            position: relative !important;
+            margin: 0 !important;
+            padding-left: env(safe-area-inset-left, 0px) !important;
+            padding-right: env(safe-area-inset-right, 0px) !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        @media (max-width: 991.98px) {
+            .mobile-header {
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 9999 !important;
+                padding-top: max(8px, env(safe-area-inset-top, 0px)) !important;
+                padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+                padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                box-sizing: border-box !important;
+            }
+
+            #offcanvas-nav .m-nav {
+                padding-top: max(20px, env(safe-area-inset-top, 20px)) !important;
+                padding-bottom: max(60px, env(safe-area-inset-bottom, 60px)) !important;
+                padding-left: max(20px, env(safe-area-inset-left, 20px)) !important;
+                padding-right: max(20px, env(safe-area-inset-right, 20px)) !important;
+                max-width: 88vw !important;
+            }
+
+            .container, .container-fluid, .container-full {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .modal-dialog {
+                margin: 12px auto !important;
+                max-width: calc(100vw - 24px) !important;
+                width: calc(100vw - 24px) !important;
+            }
+
+            .modal-content {
+                border-radius: 16px !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+            }
+
+            .table-responsive {
+                -webkit-overflow-scrolling: touch !important;
+                max-width: 100% !important;
+            }
+
+            img, svg, video {
+                max-width: 100% !important;
+            }
+
+            #header_leaflet_map, #map, .leaflet-container {
+                max-width: 100% !important;
+            }
+        }
+
+        /* Prevent Auto-Zoom on Text Fields on Mobile / Touch screens */
+        @media screen and (max-width: 820px), (pointer: coarse) {
+            input[type="text"],
+            input[type="password"],
+            input[type="email"],
+            input[type="number"],
+            input[type="search"],
+            input[type="tel"],
+            input[type="url"],
+            input[type="date"],
+            input[type="datetime-local"],
+            input[type="time"],
+            input[type="month"],
+            input[type="week"],
+            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="file"]):not([type="image"]):not([type="hidden"]),
+            select,
+            textarea,
+            .form-control,
+            .form-select,
+            .form-control-sm,
+            .mapControls,
+            .quantity_input,
+            #searchMapInput,
+            #search_input,
+            #search_input_2,
+            .leaflet-bar input {
+                font-size: 16px !important;
+                line-height: 1.35 !important;
+                touch-action: manipulation !important;
+            }
+
+            a, button, input, select, textarea, .btn, .thm-btn, .thm-btn_two, .form_check_main_item {
+                touch-action: manipulation !important;
+            }
+        }
     </style>
 
     @if ($general_setting->google_analytic_status == 1)
@@ -353,7 +464,7 @@
                         <input id="searchMapInput" class="mapControls form-control" type="text" required 
                                placeholder="{{ __('translate.Search area, street, or estate...') }}" 
                                value="{{ Session::get('address') ?? '' }}"
-                               style="height: 48px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 14.5px; padding-left: 14px; font-weight: 600; color: #000000;">
+                               style="height: 48px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 16px; padding-left: 14px; font-weight: 600; color: #000000;">
                     </div>
 
                     <!-- Quick Location Actions Bar -->

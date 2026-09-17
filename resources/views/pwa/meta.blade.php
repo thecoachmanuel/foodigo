@@ -8,6 +8,9 @@
 <link rel="manifest" href="{{ url('/manifest.json') }}">
 <meta name="theme-color" content="#ff6b35">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-touch-fullscreen" content="yes">
+<meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="{{ $settings->get('app_name')->value ?? 'Nectar' }}">
 <meta name="application-name" content="{{ $settings->get('app_name')->value ?? 'Nectar' }}">

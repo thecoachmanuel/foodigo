@@ -766,7 +766,7 @@
                                                                     <span class="rating-text badge bg-warning text-dark fw-bold px-2 py-1" style="font-size: 12px; min-width: 32px; text-align: center;">5.0</span>
                                                                 </div>
 
-                                                                <input type="text" name="review" class="form-control form-control-sm flex-grow-1" placeholder="{{ __('translate.Share feedback on this item...') }}" required style="height: 38px; border-radius: 8px; font-size: 13px;">
+                                                                <input type="text" name="review" class="form-control form-control-sm flex-grow-1" placeholder="{{ __('translate.Share feedback on this item...') }}" required style="height: 38px; border-radius: 8px; font-size: 16px;">
 
                                                                 <button type="submit" class="btn btn-sm btn-warning text-dark fw-bold px-3" style="height: 38px; border-radius: 8px; white-space: nowrap; background: #ffbe00; border: none; font-size: 13px;">
                                                                     {{ __('translate.Submit') }}
