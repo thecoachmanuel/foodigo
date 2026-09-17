@@ -559,16 +559,16 @@
             background-color: #ffffff !important;
             border-radius: 0 0 16px 16px !important;
         }
-        /* Circle with restaurant logo overlaps halfway (50%) to the bottom edge of the cover container */
+        /* Circle with restaurant logo overlaps from the circle diameter upward onto the banner */
         .profile_informetion_main .company_logo {
-            margin-top: -70px !important;
-            margin-bottom: 14px !important;
+            margin-top: -140px !important;
+            margin-bottom: 24px !important;
             height: 140px !important;
             width: 140px !important;
             min-width: 140px !important;
             border-radius: 50% !important;
             border: 5px solid #ffffff !important;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22), 0 3px 8px rgba(0, 0, 0, 0.1) !important;
             background: #ffffff !important;
             position: relative !important;
             z-index: 10 !important;
@@ -598,7 +598,7 @@
                 padding: 0 16px 18px 16px !important;
             }
             .profile_informetion_main .company_logo {
-                margin: -50px auto 10px auto !important;
+                margin: -100px auto 18px auto !important;
                 height: 100px !important;
                 width: 100px !important;
                 min-width: 100px !important;
@@ -612,7 +612,7 @@
                 min-height: 200px !important;
             }
             .profile_informetion_main .company_logo {
-                margin: -43px auto 8px auto !important;
+                margin: -86px auto 14px auto !important;
                 height: 86px !important;
                 width: 86px !important;
                 min-width: 86px !important;
