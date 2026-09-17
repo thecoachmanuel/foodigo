@@ -19,33 +19,53 @@
 
                     </div>
 
-                    <div class="row mb-5">
-                        <div class="col-lg-4 col-md-6">
-                            <div class="zum_icvoice_item_main">
+                    @php
+                        $addressObj = is_string($order->delivery_address) ? json_decode($order->delivery_address) : (object) ($order->delivery_address ?? []);
+                        $destLat = (float)($order?->address?->latitude ?? ($order?->address?->lat ?? ($addressObj?->latitude ?? ($addressObj?->lat ?? 0))));
+                        $destLng = (float)($order?->address?->longitude ?? ($order?->address?->lon ?? ($addressObj?->longitude ?? ($addressObj?->lon ?? ($addressObj?->lng ?? 0)))));
+                        if ($destLat == 0 && $destLng == 0 && $order->address_id) {
+                            $fallbackAddr = \App\Models\UserAddress::find($order->address_id);
+                            if ($fallbackAddr) {
+                                $destLat = (float)($fallbackAddr->lat ?? 0);
+                                $destLng = (float)($fallbackAddr->lon ?? 0);
+                            }
+                        }
+                        $origLat = (float)($order->restaurant?->latitude ?? 0);
+                        $origLng = (float)($order->restaurant?->longitude ?? 0);
+                        if ($origLat == 0 && $origLng == 0 && $order->restaurant_id) {
+                            $fallbackRest = \Modules\Restaurant\Entities\Restaurant::withoutGlobalScopes()->find($order->restaurant_id);
+                            if ($fallbackRest) {
+                                $origLat = (float)($fallbackRest->latitude ?? 0);
+                                $origLng = (float)($fallbackRest->longitude ?? 0);
+                            }
+                        }
+                        $navUrl = ($origLat != 0 && $destLat != 0) 
+                            ? "https://www.google.com/maps/dir/?api=1&origin={$origLat},{$origLng}&destination={$destLat},{$destLng}"
+                            : ($destLat != 0 ? "https://www.google.com/maps/search/?api=1&query={$destLat},{$destLng}" : "https://www.google.com/maps/search/?api=1&query=" . urlencode($order?->address?->address ?? ($addressObj?->address ?? '')));
+                    @endphp
 
-                                @php
-                                    $address = json_decode($order->delivery_address);
-                                @endphp
-
+                    <div class="row mb-4">
+                        <div class="col-lg-6 col-md-6 mb-4 mb-lg-0">
+                            <div class="zum_icvoice_item_main h-100">
                                 @if($order->order_type == 'delivery')
                                     <div class="zum_invoice_text">
                                         <h2>{{__('translate.Billing Address')}}</h2>
                                     </div>
                                     <div class="zum_icvoice_item">
                                         <ul class="zum_invoice_lixt">
-                                            <li>{{__('translate.Full Name')}} : <span>{{$address->contact_person_name ?? ''}}</span></li>
+                                            <li>{{__('translate.Full Name')}} : <span>{{$addressObj->contact_person_name ?? ($order->user->name ?? '')}}</span></li>
                                             <li>
-                                                <a href="mailto:{{$address->contact_person_email ?? ''}} ">
-                                                    {{__('translate.Email')}} : <span> {{$address->contact_person_email ?? ''}} </span>
+                                                <a href="mailto:{{$addressObj->contact_person_email ?? ''}} ">
+                                                    {{__('translate.Email')}} : <span> {{$addressObj->contact_person_email ?? ''}} </span>
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="tel:{{$address->contact_person_number ?? ''}}">
-                                                    {{__('translate.Phone')}} : <span> {{$address->contact_person_number ?? ''}}</span>
+                                                <a href="tel:{{$addressObj->contact_person_number ?? ''}}">
+                                                    {{__('translate.Phone')}} : <span> {{$addressObj->contact_person_number ?? ''}}</span>
                                                 </a>
                                             </li>
                                             <li>
-                                                {{__('translate.Address')}} : <span> {{$address->address ?? ''}} </span>
+                                                {{__('translate.Address')}} : <span> {{$order?->address?->address ?? ($addressObj->address ?? '')}} </span>
                                             </li>
                                         </ul>
                                     </div>
@@ -69,41 +89,38 @@
                                         <li>
                                             {{__('translate.Transaction')}} <span> {!! clean(nl2br($order->tnx_info)) !!}</span>
                                         </li>
-
                                     </ul>
                                 </div>
-
                             </div>
 
                             @if($order->order_type == 'pickup')
-                                <p><strong>{{__('translate.Contact person name')}} : </strong> {{$address->contact_person_name ?? ''}}</p>
-                                <p><strong>{{__('translate.Contact person phone')}} : </strong> {{$address->contact_person_number ?? ''}}</p>
-                                <p><strong>{{__('translate.Contact person email')}} : </strong> {{$address->contact_person_email ?? ''}}</p>
+                                <p><strong>{{__('translate.Contact person name')}} : </strong> {{$addressObj->contact_person_name ?? ''}}</p>
+                                <p><strong>{{__('translate.Contact person phone')}} : </strong> {{$addressObj->contact_person_number ?? ''}}</p>
+                                <p><strong>{{__('translate.Contact person email')}} : </strong> {{$addressObj->contact_person_email ?? ''}}</p>
                             @endif
                         </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="zum_icvoice_item_main">
+
+                        <div class="col-lg-6 col-md-6">
+                            <div class="zum_icvoice_item_main h-100">
                                 @if($order->order_type == 'delivery')
                                     <div class="zum_invoice_text">
                                         <h2>{{__('translate.Shipping Information')}}</h2>
-
-
                                     </div>
                                     <div class="zum_icvoice_item">
                                         <ul class="zum_invoice_lixt">
-                                            <li>{{__('translate.Full Name')}} : <span>{{$address->contact_person_name ?? ''}}</span></li>
+                                            <li>{{__('translate.Full Name')}} : <span>{{$addressObj->contact_person_name ?? ($order->user->name ?? '')}}</span></li>
                                             <li>
-                                                <a href="mailto:{{$address->contact_person_email ?? ''}}">
-                                                    {{__('translate.Email')}} : <span> {{$address->contact_person_email ?? ''}}</span>
+                                                <a href="mailto:{{$addressObj->contact_person_email ?? ''}}">
+                                                    {{__('translate.Email')}} : <span> {{$addressObj->contact_person_email ?? ''}}</span>
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="tel:{{$address->contact_person_number ?? ''}}">
-                                                    {{__('translate.Phone')}} : <span> {{$address->contact_person_number ?? ''}} </span>
+                                                <a href="tel:{{$addressObj->contact_person_number ?? ''}}">
+                                                    {{__('translate.Phone')}} : <span> {{$addressObj->contact_person_number ?? ''}} </span>
                                                 </a>
                                             </li>
                                             <li>
-                                                {{__('translate.Address')}} : <span>{{$address->address ?? ''}}</span>
+                                                {{__('translate.Address')}} : <span>{{$order?->address?->address ?? ($addressObj->address ?? '')}}</span>
                                             </li>
                                         </ul>
                                     </div>
@@ -112,11 +129,9 @@
                                     <h2>{{__('translate.Order Information')}}:</h2>
                                     <ul class="zum_invoice_lixt">
                                         <li>{{__('translate.Date')}} : <span>{{$order->created_at->format('F j, Y') }}</span></li>
-
                                         <li>
                                             {{__('translate.Shipping')}} : <span> {{__('translate.Fixed Shipping')}}</span>
                                         </li>
-
                                         <li>
                                             <a href="javascript:;">
                                                 @if($order->order_status == 1)
@@ -139,36 +154,31 @@
                                                 @endif
                                             </a>
                                         </li>
-
                                     </ul>
-                                </div>
-
-                        <div class="col-lg-4 col-md-12">
-                            <div class="zum_icvoice_item_main h-100 d-flex flex-column justify-content-between">
-                                <div>
-                                    <div class="zum_invoice_text d-flex align-items-center justify-content-between">
-                                        <h2>{{ __('translate.Delivery Route Map') }}</h2>
-                                        <span class="badge bg-primary text-white"><i class="fa fa-map-marker-alt me-1"></i> Live</span>
-                                    </div>
-                                    <div id="order_delivery_map" style="height: 220px; width: 100%; border-radius: 12px; border: 1.5px solid #cbd5e1; margin-top: 10px; z-index: 1;"></div>
-                                </div>
-                                @php
-                                    $destLat = (float)($address->latitude ?? ($address->lat ?? 0));
-                                    $destLng = (float)($address->longitude ?? ($address->lon ?? ($address->lng ?? 0)));
-                                    $origLat = (float)($order->restaurant?->latitude ?? 0);
-                                    $origLng = (float)($order->restaurant?->longitude ?? 0);
-                                    $navUrl = ($origLat != 0 && $destLat != 0) 
-                                        ? "https://www.google.com/maps/dir/?api=1&origin={$origLat},{$origLng}&destination={$destLat},{$destLng}"
-                                        : ($destLat != 0 ? "https://www.google.com/maps/search/?api=1&query={$destLat},{$destLng}" : "https://www.google.com/maps/search/?api=1&query=" . urlencode($address->address ?? ''));
-                                @endphp
-                                <div class="mt-3">
-                                    <a href="{{ $navUrl }}" target="_blank" class="crancy-btn w-100 text-center d-flex align-items-center justify-content-center gap-2" style="background: #ea580c; color: #fff; text-decoration: none; padding: 10px; border-radius: 8px;">
-                                        <i class="fa fa-location-arrow"></i> {{ __('translate.Open in Navigation') }}
-                                    </a>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="zum_icvoice_item_main">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <h4 class="m-0" style="font-size: 16px; font-weight: 700;">
+                                            <i class="fa fa-map-marked-alt text-primary me-2"></i> {{ __('translate.Live Delivery Route & Location Map') }}
+                                        </h4>
+                                        <span class="badge" id="driverRouteStatsBadge" style="background: #e0f2fe; color: #0284c7; font-weight: 600; font-size: 12px; padding: 5px 10px; border-radius: 6px;">
+                                            <i class="fa fa-route me-1"></i> {{ __('translate.Calculating Route...') }}
+                                        </span>
+                                    </div>
+                                    <a href="{{ $navUrl }}" target="_blank" class="crancy-btn btn-sm d-inline-flex align-items-center gap-1" style="background: #ea580c; color: #fff; text-decoration: none; padding: 6px 14px; font-size: 13px; border-radius: 6px;">
+                                        <i class="fa fa-location-arrow"></i> {{ __('translate.Open in Navigation') }}
+                                    </a>
+                                </div>
+                                <div id="order_delivery_map" style="height: 320px; width: 100%; border-radius: 12px; border: 1.5px solid #cbd5e1; z-index: 1;"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -445,13 +455,14 @@
             const mapEl = document.getElementById('order_delivery_map');
             if (!mapEl) return;
 
-            let destLat = parseFloat("{{ $destLat }}") || 0;
-            let destLng = parseFloat("{{ $destLng }}") || 0;
-            let origLat = parseFloat("{{ $origLat }}") || 0;
-            let origLng = parseFloat("{{ $origLng }}") || 0;
+            const destLat = parseFloat("{{ $destLat }}") || 0;
+            const destLng = parseFloat("{{ $destLng }}") || 0;
+            const origLat = parseFloat("{{ $origLat }}") || 0;
+            const origLng = parseFloat("{{ $origLng }}") || 0;
+            const orderStatus = parseInt("{{ $order->order_status }}") || 1;
 
-            let initialLat = destLat || origLat || 7.4250;
-            let initialLng = destLng || origLng || 3.9050;
+            const initialLat = origLat || destLat || 7.4250;
+            const initialLng = origLng || destLng || 3.9050;
 
             const map = L.map('order_delivery_map', {
                 center: [initialLat, initialLng],
@@ -466,49 +477,94 @@
 
             const destPin = L.divIcon({
                 className: 'foodigo-leaflet-div-icon',
-                html: '<div class="foodigo-map-pin"><i class="fa fa-location-dot"></i></div>',
-                iconSize: [34, 34],
-                iconAnchor: [17, 34],
-                popupAnchor: [0, -34]
+                html: '<div class="foodigo-map-pin"><i class="fa-solid fa-location-dot"></i></div>',
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36]
             });
 
             const restPin = L.divIcon({
                 className: 'foodigo-leaflet-div-icon',
-                html: '<div class="foodigo-map-pin pin-rest"><i class="fa fa-utensils"></i></div>',
-                iconSize: [34, 34],
-                iconAnchor: [17, 34],
-                popupAnchor: [0, -34]
+                html: '<div class="foodigo-map-pin pin-rest" style="background:#0284c7;"><i class="fa-solid fa-utensils"></i></div>',
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36]
             });
 
             const markers = [];
 
             if (origLat !== 0 && origLng !== 0) {
                 const restMarker = L.marker([origLat, origLng], { icon: restPin }).addTo(map);
-                restMarker.bindPopup(`<b>{{ addslashes($order->restaurant?->restaurant_name ?? __('translate.Restaurant')) }}</b><br><small>{{ addslashes($order->restaurant?->address ?? '') }}</small>`);
+                restMarker.bindPopup(`<b>🏪 {{ addslashes($order->restaurant?->restaurant_name ?? __('translate.Restaurant')) }}</b><br><small>{{ addslashes($order->restaurant?->address ?? '') }}</small>`);
                 markers.push(restMarker);
             }
 
             if (destLat !== 0 && destLng !== 0) {
                 const destMarker = L.marker([destLat, destLng], { icon: destPin }).addTo(map);
-                destMarker.bindPopup(`<b>{{ __('translate.Delivery Destination') }}</b><br><small>{{ addslashes($address->address ?? '') }}</small>`).openPopup();
+                destMarker.bindPopup(`<b>📍 {{ __('translate.Delivery Destination') }}</b><br><small>{{ addslashes($order?->address?->address ?? ($addressObj?->address ?? '')) }}</small>`).openPopup();
                 markers.push(destMarker);
             }
 
-            if (markers.length === 2) {
-                const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.2));
-                // Draw route line
-                L.polyline([[origLat, origLng], [destLat, destLng]], {
-                    color: '#ea580c',
-                    dashArray: '6, 8',
-                    weight: 3,
-                    opacity: 0.8
-                }).addTo(map);
-            } else if (markers.length === 1) {
-                map.setView(markers[0].getLatLng(), 15);
+            const statsBadge = document.getElementById('driverRouteStatsBadge');
+
+            function drawFallbackDirectRoute() {
+                if (origLat !== 0 && destLat !== 0) {
+                    const line = L.polyline([[origLat, origLng], [destLat, destLng]], {
+                        color: '#ea580c',
+                        dashArray: '6, 8',
+                        weight: 3.5,
+                        opacity: 0.85
+                    }).addTo(map);
+
+                    const group = L.featureGroup(markers.concat(line));
+                    map.fitBounds(group.getBounds().pad(0.2));
+
+                    if (statsBadge) {
+                        statsBadge.innerHTML = `<i class="fa-solid fa-route me-1"></i> {{ __('translate.Live Route Connected') }}`;
+                    }
+                } else if (markers.length === 1) {
+                    map.setView(markers[0].getLatLng(), 15);
+                }
             }
 
-            setTimeout(() => { map.invalidateSize(); }, 250);
+            if (origLat !== 0 && origLng !== 0 && destLat !== 0 && destLng !== 0) {
+                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origLng},${origLat};${destLng},${destLat}?overview=full&geometries=geojson`;
+                fetch(osrmUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.code === 'Ok' && data.routes && data.routes.length > 0) {
+                            const route = data.routes[0];
+                            const distKm = (route.distance / 1000).toFixed(1);
+                            const durMin = Math.max(1, Math.round(route.duration / 60));
+
+                            if (statsBadge) {
+                                statsBadge.innerHTML = `<i class="fa-solid fa-car me-1"></i> ${distKm} km • ~${durMin} mins`;
+                                statsBadge.style.background = '#dcfce7';
+                                statsBadge.style.color = '#15803d';
+                            }
+
+                            const routeCoords = route.geometry.coordinates.map(pt => [pt[1], pt[0]]);
+                            
+                            // Road casing (glow outline)
+                            L.polyline(routeCoords, { color: '#c2410c', weight: 6, opacity: 0.3 }).addTo(map);
+                            // Main vibrant route line
+                            const routeLine = L.polyline(routeCoords, { color: '#ea580c', weight: 4, opacity: 0.95 }).addTo(map);
+
+                            const group = L.featureGroup(markers.concat(routeLine));
+                            map.fitBounds(group.getBounds().pad(0.2));
+                        } else {
+                            drawFallbackDirectRoute();
+                        }
+                    })
+                    .catch(() => {
+                        drawFallbackDirectRoute();
+                    });
+            } else {
+                drawFallbackDirectRoute();
+            }
+
+            setTimeout(() => { map.invalidateSize(); }, 300);
+            window.addEventListener('resize', () => { map.invalidateSize(); });
         });
 
         function itemDeleteConfrimation(id){

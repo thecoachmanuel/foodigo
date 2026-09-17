@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\GlobalSetting\App\Models\GlobalSetting;
 use Modules\Order\App\Models\Order;
 use Modules\PaymentWithdraw\App\Models\SellerWithdraw;
@@ -18,13 +19,17 @@ class RestaurantDashboardController extends BaseController
     public function dashboard(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
+            $user = Auth::guard('restaurant')->user();
 
             if (!$user) {
                 return $this->sendError('Unauthorized', [], 401);
             }
 
-            // Order statistics
+            // Order counts
+            $total_orders = Order::where('restaurant_id', $user->id)
+                ->where('payment_status', 'success')
+                ->count();
+
             $active_orders = Order::where('restaurant_id', $user->id)
                 ->where('payment_status', 'success')
                 ->whereBetween('order_status', [2, 4])
@@ -49,16 +54,16 @@ class RestaurantDashboardController extends BaseController
                 ->latest()
                 ->count();
 
-            // Financial data
+            // Financial data (Food sales only, excludes delivery fee and vat)
             $withdraw_list = SellerWithdraw::where('seller_id', $user->id)->get();
             $total_without_reject_withdraw = SellerWithdraw::where('seller_id', $user->id)
                 ->where('status', '!=', 'rejected')
                 ->get();
 
-            $total_income = Order::where('restaurant_id', $user->id)
+            $total_income = (float) Order::where('restaurant_id', $user->id)
                 ->where('payment_status', 'success')
                 ->where('order_status', 5)
-                ->sum('grand_total');
+                ->sum(DB::raw('COALESCE(total, 0) - COALESCE(discount_amount, 0)'));
 
             // Commission calculation
             $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
@@ -181,10 +186,11 @@ class RestaurantDashboardController extends BaseController
                 return $this->sendError('Unauthorized', [], 401);
             }
 
-            $total_income = Order::where('restaurant_id', $user->id)
+            // Food sales revenue only (excludes delivery_charge and vat)
+            $total_income = (float) Order::where('restaurant_id', $user->id)
                 ->where('payment_status', 'success')
                 ->where('order_status', 5)
-                ->sum('grand_total');
+                ->sum(DB::raw('COALESCE(total, 0) - COALESCE(discount_amount, 0)'));
 
             $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
             $commission_per_sale = GlobalSetting::where('key', 'commission_per_sale')->value('value');

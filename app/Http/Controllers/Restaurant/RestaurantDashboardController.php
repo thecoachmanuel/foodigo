@@ -9,6 +9,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\GlobalSetting\App\Models\GlobalSetting;
 use Modules\Order\App\Models\Order;
 use Modules\PaymentWithdraw\App\Models\SellerWithdraw;
@@ -32,7 +33,12 @@ class RestaurantDashboardController extends Controller
 
         $withdraw_list = SellerWithdraw::where('seller_id', $user->id)->get();
         $total_without_reject_withdraw = SellerWithdraw::where('seller_id', $user->id)->where('status', '!=','rejected')->get();
-        $total_income = (float) Order::where('restaurant_id', $user->id)->where('payment_status', 'success')->where('order_status', 5)->sum('grand_total');
+        
+        // Food sales revenue only (excludes delivery_charge and vat)
+        $total_income = (float) Order::where('restaurant_id', $user->id)
+            ->where('payment_status', 'success')
+            ->where('order_status', 5)
+            ->sum(DB::raw('COALESCE(total, 0) - COALESCE(discount_amount, 0)'));
 
         $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
         $commission_per_sale = (float) (GlobalSetting::where('key', 'commission_per_sale')->value('value') ?? 0);

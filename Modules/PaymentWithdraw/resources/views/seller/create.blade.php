@@ -99,7 +99,7 @@
                                                         >
 
                                                         <textarea rows="5" class="crancy__item-input crancy__item-textarea seo_description_box"
-                                                                  name="description" id="" cols="30" rows="10"
+                                                                  name="description" id="withdraw_description" cols="30"
                                                                   placeholder="{{ __('translate.Bank/Account Information') }}"></textarea>
 
                                                     </div>
@@ -131,10 +131,9 @@
                                             </svg>
                                         </button>
                                         <a
-                                            href=""
-                                            class="crancy-btn mg-top-25"
-                                        >{{ __('translate.Cancel') }}</a
-                                        >
+                                            href="{{ route('restaurant.my-withdraw.index') }}"
+                                            class="crancy-btn crancy-btn--cancel mg-top-25"
+                                        >{{ __('translate.Cancel') }}</a>
                                     </div>
                                 </div>
                             </form>
@@ -143,7 +142,7 @@
                 </div>
             </div>
         </div>
-    </section>>
+    </section>
 
 @endsection
 

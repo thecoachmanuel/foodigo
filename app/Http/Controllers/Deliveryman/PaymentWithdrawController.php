@@ -35,9 +35,10 @@ class PaymentWithdrawController extends Controller
             $net_income = $total_income - $total_commission;
         }
 
-        $total_withdraw_amount = $withdraw_without_reject_list->sum('total_amount');
+        $total_withdraw_amount = DeliveryManWithdraw::where('deliveryman_id', $user->id)->where('status', 'approved')->sum('total_amount');
+        $reserved_withdraw_amount = $withdraw_without_reject_list->sum('total_amount');
 
-        $current_balance = $net_income - $total_withdraw_amount;
+        $current_balance = $net_income - $reserved_withdraw_amount;
 
         $pending_withdraw = DeliveryManWithdraw::where('deliveryman_id', $user->id)->where('status', 'pending')->sum('total_amount');
 

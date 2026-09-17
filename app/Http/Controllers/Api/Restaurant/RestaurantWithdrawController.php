@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Restaurant;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\BaseController;
 use Modules\GlobalSetting\App\Models\GlobalSetting;
 use Modules\Order\App\Models\Order;
@@ -20,7 +21,12 @@ class RestaurantWithdrawController extends BaseController
             $user = $request->user();
             $withdraw_list = SellerWithdraw::where('seller_id', $user->id)->get();
             $total_without_reject_withdraw = SellerWithdraw::where('seller_id', $user->id)->where('status', '!=', 'rejected')->get();
-            $total_income = Order::where('restaurant_id', $user->id)->where('payment_status', 'success')->where('order_status', 5)->sum('grand_total');
+            
+            // Food sales revenue only (excludes delivery_charge and vat)
+            $total_income = (float) Order::where('restaurant_id', $user->id)
+                ->where('payment_status', 'success')
+                ->where('order_status', 5)
+                ->sum(DB::raw('COALESCE(total, 0) - COALESCE(discount_amount, 0)'));
 
             $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
             $commission_per_sale = GlobalSetting::where('key', 'commission_per_sale')->value('value');
@@ -94,7 +100,12 @@ class RestaurantWithdrawController extends BaseController
             $method = WithdrawMethod::findOrFail($request->method_id);
             $withdraw_list = SellerWithdraw::where('seller_id', $user->id)->where('status', '!=', 'rejected')->get();
             $already_withdraw_amount = $withdraw_list->sum('total_amount');
-            $my_income = Order::where('restaurant_id', $user->id)->where('payment_status', 'success')->where('order_status', 5)->sum('grand_total');
+            
+            // Food sales revenue only (excludes delivery_charge and vat)
+            $my_income = (float) Order::where('restaurant_id', $user->id)
+                ->where('payment_status', 'success')
+                ->where('order_status', 5)
+                ->sum(DB::raw('COALESCE(total, 0) - COALESCE(discount_amount, 0)'));
 
 
             $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');

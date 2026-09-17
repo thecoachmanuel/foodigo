@@ -3,6 +3,7 @@
 namespace Modules\PaymentWithdraw\App\Http\Controllers\Seller;
 
 use Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -20,12 +21,16 @@ class WithdrawController extends Controller
      */
     public function index(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
-
         $user = Auth::guard('restaurant')->user();
 
-        $withdraw_list = SellerWithdraw::where('seller_id', $user->id)->get();
-        $total_without_reject_withdraw = SellerWithdraw::where('seller_id', $user->id)->where('status', '!=','rejected')->get();
-        $total_income = Order::where('restaurant_id', $user->id)->where('payment_status', 'success')->where('order_status', 5)->sum('grand_total');
+        $withdraw_list = SellerWithdraw::where('seller_id', $user->id)->latest()->get();
+        $total_without_reject_withdraw = SellerWithdraw::where('seller_id', $user->id)->where('status', '!=', 'rejected')->get();
+        
+        // Food sales revenue only (excludes delivery_charge and vat)
+        $total_income = (float) Order::where('restaurant_id', $user->id)
+            ->where('payment_status', 'success')
+            ->where('order_status', 5)
+            ->sum(DB::raw('COALESCE(total, 0) - COALESCE(discount_amount, 0)'));
 
         $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
         $commission_per_sale = GlobalSetting::where('key', 'commission_per_sale')->value('value');
@@ -36,9 +41,10 @@ class WithdrawController extends Controller
             $net_income = $total_income - $total_commission;
         }
 
-        $total_withdraw_amount = $total_without_reject_withdraw->sum('total_amount');
+        $total_withdraw_amount = SellerWithdraw::where('seller_id', $user->id)->where('status', 'approved')->sum('total_amount');
+        $reserved_withdraw_amount = $total_without_reject_withdraw->sum('total_amount');
 
-        $current_balance = $net_income - $total_withdraw_amount;
+        $current_balance = $net_income - $reserved_withdraw_amount;
 
         $pending_withdraw = SellerWithdraw::where('seller_id', $user->id)->where('status', 'pending')->sum('total_amount');
 
@@ -87,8 +93,11 @@ class WithdrawController extends Controller
 
         $already_withdraw_amount = $withdraw_list->sum('total_amount');
 
-        $my_income = Order::where('restaurant_id', $user->id)->where('payment_status', 'success')->where('order_status', 5)->sum('grand_total');
-
+        // Food sales revenue only (excludes delivery_charge and vat)
+        $my_income = (float) Order::where('restaurant_id', $user->id)
+            ->where('payment_status', 'success')
+            ->where('order_status', 5)
+            ->sum(DB::raw('COALESCE(total, 0) - COALESCE(discount_amount, 0)'));
 
         $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
         $commission_per_sale = GlobalSetting::where('key', 'commission_per_sale')->value('value');
@@ -103,17 +112,22 @@ class WithdrawController extends Controller
         $current_balance = $net_income - $already_withdraw_amount;
 
         if($request->amount > $current_balance){
-            $notify_message= trans('translate.You do not have enough balance for withdraw');
-            $notify_message=array('message'=>$notify_message,'alert-type'=>'error');
+            $notify_message = trans('translate.You do not have enough balance for withdraw');
+            $notify_message = array('message' => $notify_message, 'alert-type' => 'error');
+            return redirect()->back()->with($notify_message);
+        }
+
+        if($request->amount < $method->min_amount){
+            $notify_message = trans('translate.You can not withdraw less than') . ' ' . currency($method->min_amount);
+            $notify_message = array('message' => $notify_message, 'alert-type' => 'error');
             return redirect()->back()->with($notify_message);
         }
 
         if($request->amount > $method->max_amount){
-            $notify_message= trans('translate.You can not withdraw more than').' '.$method->max_amount;
-            $notify_message=array('message'=>$notify_message,'alert-type'=>'error');
+            $notify_message = trans('translate.You can not withdraw more than') . ' ' . currency($method->max_amount);
+            $notify_message = array('message' => $notify_message, 'alert-type' => 'error');
             return redirect()->back()->with($notify_message);
         }
-
 
         $charge_amount = ($method->withdraw_charge / 100) * $request->amount;
 
@@ -127,13 +141,30 @@ class WithdrawController extends Controller
         $new_withdraw->withdraw_amount = $withdraw_amount;
         $new_withdraw->charge_amount = $charge_amount;
         $new_withdraw->description = $request->description;
+        $new_withdraw->status = 'pending';
         $new_withdraw->save();
 
-        $notify_message= trans('translate.Withdraw request has been send. please awaiting for admin approval');
-        $notify_message=array('message'=>$notify_message,'alert-type'=>'success');
+        $notify_message = trans('translate.Withdraw request has been send. please awaiting for admin approval');
+        $notify_message = array('message' => $notify_message, 'alert-type' => 'success');
         return redirect()->route('restaurant.my-withdraw.index')->with($notify_message);
+    }
 
+    /**
+     * Show the specified resource.
+     */
+    public function show(Request $request, $id)
+    {
+        $user = Auth::guard('restaurant')->user();
+        $withdraw = SellerWithdraw::where('seller_id', $user->id)->findOrFail($id);
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => true,
+                'withdraw' => $withdraw
+            ]);
+        }
+
+        return view('paymentwithdraw::seller.show', compact('withdraw', 'user'));
     }
 
 }

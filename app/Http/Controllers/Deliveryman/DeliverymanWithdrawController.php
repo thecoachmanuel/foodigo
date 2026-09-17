@@ -17,27 +17,29 @@ class DeliverymanWithdrawController extends Controller
      */
     public function index()
     {
-
         $user = Auth::guard('deliveryman')->user();
 
-        $withdraw_list = DeliveryManWithdraw::where('deliveryman_id', $user->id)->get();
+        $withdraw_list = DeliveryManWithdraw::where('deliveryman_id', $user->id)->latest()->get();
 
-        $withdraw_without_reject_list = DeliveryManWithdraw::where('deliveryman_id', $user->id)->where('status', '!=','rejected')->get();
+        $withdraw_without_reject_list = DeliveryManWithdraw::where('deliveryman_id', $user->id)->where('status', '!=', 'rejected')->get();
 
-        $total_income = Order::where('delivery_man_id', $user->id)->where('payment_status', 'success')->where('order_status', 5)->sum('delivery_charge');
+        $complete = Order::where('delivery_man_id', $user->id)->where('payment_status', 'success')->where('order_request', 3)->sum('delivery_charge');
+        $cancel = Order::where('delivery_man_id', $user->id)->where('payment_status', 'success')->where('order_request', 4)->sum('delivery_charge');
+        $total_income = $complete + $cancel;
 
         $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
-        $commission_per_sale = GlobalSetting::where('key', 'commission_per_sale')->value('value');
+        $Commission_per_delivery = GlobalSetting::where('key', 'Commission_per_delivery')->value('value');
         $total_commission = 0.00;
         $net_income = $total_income;
         if($commission_type == 'commission'){
-            $total_commission = ($commission_per_sale / 100) * $total_income;
+            $total_commission = ($Commission_per_delivery / 100) * $total_income;
             $net_income = $total_income - $total_commission;
         }
 
-        $total_withdraw_amount = $withdraw_without_reject_list->sum('total_amount');
+        $total_withdraw_amount = DeliveryManWithdraw::where('deliveryman_id', $user->id)->where('status', 'approved')->sum('total_amount');
+        $reserved_withdraw_amount = $withdraw_without_reject_list->sum('total_amount');
 
-        $current_balance = $net_income - $total_withdraw_amount;
+        $current_balance = $net_income - $reserved_withdraw_amount;
 
         $pending_withdraw = DeliveryManWithdraw::where('deliveryman_id', $user->id)->where('status', 'pending')->sum('total_amount');
 
@@ -78,10 +80,9 @@ class DeliverymanWithdrawController extends Controller
             'description.required' => trans('translate.Bank Information is required'),
         ]);
 
-
         $user = Auth::guard('deliveryman')->user();
         $method = WithdrawMethod::findOrFail($request->method_id);
-        $withdraw_list = DeliveryManWithdraw::where('deliveryman_id', $user->id)->get();
+        $withdraw_without_reject_list = DeliveryManWithdraw::where('deliveryman_id', $user->id)->where('status', '!=', 'rejected')->get();
 
         $complete = Order::where('delivery_man_id', $user->id)->where('payment_status', 'success')->where('order_request', 3)->sum('delivery_charge');
         $cancel = Order::where('delivery_man_id', $user->id)->where('payment_status', 'success')->where('order_request', 4)->sum('delivery_charge');
@@ -96,19 +97,25 @@ class DeliverymanWithdrawController extends Controller
             $net_income = $total_income - $total_commission;
         }
 
-        $total_withdraw_amount = $withdraw_list->sum('total_amount');
+        $already_withdraw_amount = $withdraw_without_reject_list->sum('total_amount');
 
-        $current_balance = $net_income - $total_withdraw_amount;
+        $current_balance = $net_income - $already_withdraw_amount;
 
         if($request->amount > $current_balance){
-            $notify_message= trans('translate.You do not have enough balance for withdraw');
-            $notify_message=array('message'=>$notify_message,'alert-type'=>'error');
+            $notify_message = trans('translate.You do not have enough balance for withdraw');
+            $notify_message = array('message' => $notify_message, 'alert-type' => 'error');
+            return redirect()->back()->with($notify_message);
+        }
+
+        if($request->amount < $method->min_amount){
+            $notify_message = trans('translate.You can not withdraw less than') . ' ' . currency($method->min_amount);
+            $notify_message = array('message' => $notify_message, 'alert-type' => 'error');
             return redirect()->back()->with($notify_message);
         }
 
         if($request->amount > $method->max_amount){
-            $notify_message= trans('translate.You can not withdraw more than').' '.$method->max_amount;
-            $notify_message=array('message'=>$notify_message,'alert-type'=>'error');
+            $notify_message = trans('translate.You can not withdraw more than') . ' ' . currency($method->max_amount);
+            $notify_message = array('message' => $notify_message, 'alert-type' => 'error');
             return redirect()->back()->with($notify_message);
         }
 
@@ -124,13 +131,25 @@ class DeliverymanWithdrawController extends Controller
         $new_withdraw->withdraw_amount = $withdraw_amount;
         $new_withdraw->charge_amount = $charge_amount;
         $new_withdraw->description = $request->description;
+        $new_withdraw->status = 'pending';
         $new_withdraw->save();
 
-        $notify_message= trans('translate.Withdraw request has been send. please awaiting for admin approval');
-        $notify_message=array('message'=>$notify_message,'alert-type'=>'success');
+        $notify_message = trans('translate.Withdraw request has been send. please awaiting for admin approval');
+        $notify_message = array('message' => $notify_message, 'alert-type' => 'success');
         return redirect()->route('deliveryman.my-withdraw.index')->with($notify_message);
+    }
 
+    /**
+     * Show the specified resource.
+     */
+    public function show($id)
+    {
+        $user = Auth::guard('deliveryman')->user();
+        $withdraw = DeliveryManWithdraw::where('deliveryman_id', $user->id)->findOrFail($id);
 
+        return view('deliveryman.withdraw.show', [
+            'withdraw' => $withdraw
+        ]);
     }
 
 }

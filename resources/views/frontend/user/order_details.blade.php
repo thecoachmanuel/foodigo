@@ -443,10 +443,27 @@
 
                             @php
                                 $addressObj = is_string($order->delivery_address) ? json_decode($order->delivery_address) : (object) ($order->delivery_address ?? []);
-                                $destLat = (float)($addressObj->latitude ?? ($addressObj->lat ?? ($order->address?->lat ?? 0)));
-                                $destLng = (float)($addressObj->longitude ?? ($addressObj->lon ?? ($order->address?->lon ?? 0)));
+                                $destLat = (float)($order?->address?->latitude ?? ($order?->address?->lat ?? ($addressObj->latitude ?? ($addressObj->lat ?? 0))));
+                                $destLng = (float)($order?->address?->longitude ?? ($order?->address?->lon ?? ($addressObj->longitude ?? ($addressObj->lon ?? ($addressObj->lng ?? 0)))));
+                                if ($destLat == 0 && $destLng == 0 && $order->address_id) {
+                                    $fallbackAddr = \App\Models\UserAddress::find($order->address_id);
+                                    if ($fallbackAddr) {
+                                        $destLat = (float)($fallbackAddr->lat ?? 0);
+                                        $destLng = (float)($fallbackAddr->lon ?? 0);
+                                    }
+                                }
                                 $origLat = (float)($order->restaurant?->latitude ?? 0);
                                 $origLng = (float)($order->restaurant?->longitude ?? 0);
+                                if ($origLat == 0 && $origLng == 0 && $order->restaurant_id) {
+                                    $fallbackRest = \Modules\Restaurant\Entities\Restaurant::withoutGlobalScopes()->find($order->restaurant_id);
+                                    if ($fallbackRest) {
+                                        $origLat = (float)($fallbackRest->latitude ?? 0);
+                                        $origLng = (float)($fallbackRest->longitude ?? 0);
+                                    }
+                                }
+                                $navUrl = ($origLat != 0 && $destLat != 0) 
+                                    ? "https://www.google.com/maps/dir/?api=1&origin={$origLat},{$origLng}&destination={$destLat},{$destLng}"
+                                    : ($destLat != 0 ? "https://www.google.com/maps/search/?api=1&query={$destLat},{$destLng}" : "https://www.google.com/maps/search/?api=1&query=" . urlencode($order?->address?->address ?? ($addressObj->address ?? '')));
                             @endphp
 
                             <ul class="invoice_address">
@@ -463,14 +480,24 @@
                             </ul>
 
                             @if($destLat != 0 || $origLat != 0)
-                                <div class="card p-3 mb-4 rounded-3 shadow-sm border-0" style="background: #ffffff;">
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <h6 class="m-0 fw-bold" style="color: #1e293b;">
-                                            <i class="fa-solid fa-map-location-dot text-primary me-2"></i> {{ __('translate.Live Delivery Route Map') }}
-                                        </h6>
-                                        <span class="badge bg-success text-white"><i class="fa-solid fa-location-dot me-1"></i> Foodigo Live Map</span>
+                                <div class="card p-3 mb-4 rounded-3 shadow-sm border-0" style="background: #ffffff; border: 1.5px solid #e2e8f0 !important;">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                                        <div>
+                                            <h6 class="m-0 fw-bold" style="color: #0f172a; font-size: 15px;">
+                                                <i class="fa-solid fa-map-location-dot text-primary me-2"></i> {{ __('translate.Live Delivery Route & Location Map') }}
+                                            </h6>
+                                            <small class="text-muted" id="userRouteDistanceText">{{ __('translate.Live route tracking from restaurant to your address') }}</small>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge" id="userRouteStatsBadge" style="background: #e0f2fe; color: #0284c7; font-weight: 600; font-size: 12px; padding: 6px 12px; border-radius: 6px;">
+                                                <i class="fa-solid fa-route me-1"></i> {{ __('translate.Live Route') }}
+                                            </span>
+                                            <a href="{{ $navUrl }}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size: 12px; font-weight: 600; border-radius: 6px; padding: 5px 12px;">
+                                                <i class="fa-solid fa-location-arrow me-1"></i> {{ __('translate.Navigation') }}
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div id="user_order_map" style="height: 250px; width: 100%; border-radius: 10px; border: 1.5px solid #e2e8f0; z-index: 1;"></div>
+                                    <div id="user_order_map" style="height: 280px; width: 100%; border-radius: 10px; border: 1.5px solid #e2e8f0; z-index: 1;"></div>
                                 </div>
                             @endif
 
@@ -771,13 +798,17 @@
             const mapEl = document.getElementById('user_order_map');
             if (!mapEl) return;
 
-            let destLat = parseFloat("{{ $destLat }}") || 0;
-            let destLng = parseFloat("{{ $destLng }}") || 0;
-            let origLat = parseFloat("{{ $origLat }}") || 0;
-            let origLng = parseFloat("{{ $origLng }}") || 0;
+            const destLat = parseFloat("{{ $destLat }}") || 0;
+            const destLng = parseFloat("{{ $destLng }}") || 0;
+            const origLat = parseFloat("{{ $origLat }}") || 0;
+            const origLng = parseFloat("{{ $origLng }}") || 0;
+            const orderStatus = parseInt("{{ $order->order_status }}") || 1;
+            const hasDeliveryman = {{ $order->deliveryman ? 'true' : 'false' }};
+            const riderName = "{{ addslashes($order->deliveryman ? ($order->deliveryman->fname . ' ' . $order->deliveryman->lname) : '') }}";
+            const riderPhone = "{{ addslashes($order->deliveryman?->phone ?? '') }}";
 
-            let initialLat = destLat || origLat || 7.4250;
-            let initialLng = destLng || origLng || 3.9050;
+            const initialLat = origLat || destLat || 7.4250;
+            const initialLng = origLng || destLng || 3.9050;
 
             const map = L.map('user_order_map', {
                 center: [initialLat, initialLng],
@@ -793,47 +824,121 @@
             const destPin = L.divIcon({
                 className: 'foodigo-leaflet-div-icon',
                 html: '<div class="foodigo-map-pin"><i class="fa-solid fa-location-dot"></i></div>',
-                iconSize: [34, 34],
-                iconAnchor: [17, 34],
-                popupAnchor: [0, -34]
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36]
             });
 
             const restPin = L.divIcon({
                 className: 'foodigo-leaflet-div-icon',
-                html: '<div class="foodigo-map-pin" style="background:#0284c7;"><i class="fa-solid fa-utensils"></i></div>',
-                iconSize: [34, 34],
-                iconAnchor: [17, 34],
-                popupAnchor: [0, -34]
+                html: '<div class="foodigo-map-pin pin-rest" style="background:#0284c7;"><i class="fa-solid fa-utensils"></i></div>',
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36]
+            });
+
+            const riderPin = L.divIcon({
+                className: 'foodigo-leaflet-div-icon',
+                html: '<div class="foodigo-map-pin pin-rider" style="background:#16a34a;"><i class="fa-solid fa-motorcycle"></i></div>',
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36]
             });
 
             const markers = [];
 
             if (origLat !== 0 && origLng !== 0) {
                 const restMarker = L.marker([origLat, origLng], { icon: restPin }).addTo(map);
-                restMarker.bindPopup(`<b>{{ addslashes($order->restaurant?->restaurant_name ?? __('translate.Restaurant')) }}</b><br><small>{{ addslashes($order->restaurant?->address ?? '') }}</small>`);
+                restMarker.bindPopup(`<b>🏪 {{ addslashes($order->restaurant?->restaurant_name ?? __('translate.Restaurant')) }}</b><br><small>{{ addslashes($order->restaurant?->address ?? '') }}</small>`);
                 markers.push(restMarker);
             }
 
             if (destLat !== 0 && destLng !== 0) {
                 const destMarker = L.marker([destLat, destLng], { icon: destPin }).addTo(map);
-                destMarker.bindPopup(`<b>{{ __('translate.Your Delivery Location') }}</b><br><small>{{ addslashes($order?->address?->address ?? ($addressObj->address ?? '')) }}</small>`).openPopup();
+                destMarker.bindPopup(`<b>📍 {{ __('translate.Your Delivery Location') }}</b><br><small>{{ addslashes($order?->address?->address ?? ($addressObj->address ?? '')) }}</small>`).openPopup();
                 markers.push(destMarker);
             }
 
-            if (markers.length === 2) {
-                const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.25));
-                L.polyline([[origLat, origLng], [destLat, destLng]], {
-                    color: '#ea580c',
-                    dashArray: '6, 8',
-                    weight: 3,
-                    opacity: 0.85
-                }).addTo(map);
-            } else if (markers.length === 1) {
-                map.setView(markers[0].getLatLng(), 15);
+            const statsBadge = document.getElementById('userRouteStatsBadge');
+            const statsText = document.getElementById('userRouteDistanceText');
+
+            function drawFallbackDirectRoute() {
+                if (origLat !== 0 && destLat !== 0) {
+                    const line = L.polyline([[origLat, origLng], [destLat, destLng]], {
+                        color: '#ea580c',
+                        dashArray: '6, 8',
+                        weight: 3.5,
+                        opacity: 0.85
+                    }).addTo(map);
+
+                    if (hasDeliveryman && orderStatus === 4) {
+                        const midLat = (origLat + destLat) / 2;
+                        const midLng = (origLng + destLng) / 2;
+                        const riderMarker = L.marker([midLat, midLng], { icon: riderPin }).addTo(map);
+                        riderMarker.bindPopup(`<b>🛵 {{ __('translate.Delivery Partner') }}:</b> ${riderName}<br><small><a href="tel:${riderPhone}">📞 ${riderPhone}</a></small><br><span class="badge bg-success text-white mt-1">{{ __('translate.On the way') }}</span>`);
+                        markers.push(riderMarker);
+                    }
+
+                    const group = L.featureGroup(markers.concat(line));
+                    map.fitBounds(group.getBounds().pad(0.25));
+
+                    if (statsBadge) {
+                        statsBadge.innerHTML = `<i class="fa-solid fa-route me-1"></i> {{ __('translate.Live Route Connected') }}`;
+                    }
+                } else if (markers.length === 1) {
+                    map.setView(markers[0].getLatLng(), 15);
+                }
             }
 
-            setTimeout(() => { map.invalidateSize(); }, 250);
+            if (origLat !== 0 && origLng !== 0 && destLat !== 0 && destLng !== 0) {
+                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origLng},${origLat};${destLng},${destLat}?overview=full&geometries=geojson`;
+                fetch(osrmUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.code === 'Ok' && data.routes && data.routes.length > 0) {
+                            const route = data.routes[0];
+                            const distKm = (route.distance / 1000).toFixed(1);
+                            const durMin = Math.max(1, Math.round(route.duration / 60));
+
+                            if (statsBadge) {
+                                statsBadge.innerHTML = `<i class="fa-solid fa-car me-1"></i> ${distKm} km • ~${durMin} mins`;
+                                statsBadge.style.background = '#dcfce7';
+                                statsBadge.style.color = '#15803d';
+                            }
+                            if (statsText) {
+                                statsText.textContent = `Estimated delivery distance: ${distKm} km (~${durMin} minutes drive)`;
+                            }
+
+                            const routeCoords = route.geometry.coordinates.map(pt => [pt[1], pt[0]]);
+                            
+                            // Road casing (glow outline)
+                            L.polyline(routeCoords, { color: '#c2410c', weight: 6, opacity: 0.3 }).addTo(map);
+                            // Main vibrant route line
+                            const routeLine = L.polyline(routeCoords, { color: '#ea580c', weight: 4, opacity: 0.95 }).addTo(map);
+
+                            // Add Delivery Rider marker on route
+                            if (hasDeliveryman && orderStatus === 4 && routeCoords.length > 2) {
+                                const midIdx = Math.floor(routeCoords.length / 2);
+                                const riderMarker = L.marker(routeCoords[midIdx], { icon: riderPin }).addTo(map);
+                                riderMarker.bindPopup(`<b>🛵 {{ __('translate.Delivery Partner') }}:</b> ${riderName}<br><small><a href="tel:${riderPhone}">📞 ${riderPhone}</a></small><br><span class="badge bg-success text-white mt-1">{{ __('translate.Food on the way') }}</span>`);
+                                markers.push(riderMarker);
+                            }
+
+                            const group = L.featureGroup(markers.concat(routeLine));
+                            map.fitBounds(group.getBounds().pad(0.2));
+                        } else {
+                            drawFallbackDirectRoute();
+                        }
+                    })
+                    .catch(() => {
+                        drawFallbackDirectRoute();
+                    });
+            } else {
+                drawFallbackDirectRoute();
+            }
+
+            setTimeout(() => { map.invalidateSize(); }, 300);
+            window.addEventListener('resize', () => { map.invalidateSize(); });
         });
     </script>
     @endif

@@ -23,30 +23,28 @@
                                     <div class="crancy-customer-filter__single crancy-customer-filter__single--csearch d-flex items-center justify-between create_new_btn_box">
                                         <div class="crancy-header__form crancy-header__form--customer create_new_btn_inline_box">
                                             <h4 class="crancy-product-card__title">{{ __('translate.Withdraw Detail') }}</h4>
-
+                                            <a href="{{ route('deliveryman.my-withdraw.index') }}" class="crancy-btn"><i class="fa fa-list"></i> {{ __('translate.Withdraw List') }}</a>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- crancy Table -->
-                                <div id="crancy-table__main_wrapper" class=" dt-bootstrap5 no-footer">
+                                <div id="crancy-table__main_wrapper" class="dt-bootstrap5 no-footer">
 
                                     <table class="crancy-table__main crancy-table__main-v3 no-footer">
 
                                         <!-- crancy Table Body -->
                                         <tbody class="crancy-table__body review-detials">
 
-
                                             <tr class="odd">
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
-                                                    <h4 class="crancy-table__product-title">{{ __('translate.Seller') }}</h4>
+                                                    <h4 class="crancy-table__product-title">{{ __('translate.Delivery Man') }}</h4>
                                                 </td>
 
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
-                                                    <h4 class="crancy-table__product-title"><a href="#">{{ html_decode($withdraw?->restaurant?->restaurant_name) }}</a></h4>
+                                                    <h4 class="crancy-table__product-title">{{ $withdraw?->deliveryman?->fname . ' ' . $withdraw?->deliveryman?->lname }}</h4>
                                                 </td>
                                             </tr>
-
 
                                             <tr class="odd">
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
@@ -80,16 +78,14 @@
 
                                             <tr class="odd">
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
-                                                    <h4 class="crancy-table__product-title">{{ __('translate.Crated at') }}</h4>
+                                                    <h4 class="crancy-table__product-title">{{ __('translate.Created at') }}</h4>
                                                 </td>
-
 
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                                     <h4 class="crancy-table__product-title">
                                                         {{ $withdraw->created_at->format('d F Y') }}
                                                     </h4>
                                                 </td>
-
                                             </tr>
 
                                             <tr class="odd">
@@ -97,15 +93,12 @@
                                                     <h4 class="crancy-table__product-title">{{ __('translate.Withdraw Method') }}</h4>
                                                 </td>
 
-
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                                     <h4 class="crancy-table__product-title">
                                                         {{ $withdraw->withdraw_method_name }}
                                                     </h4>
                                                 </td>
-
                                             </tr>
-
 
                                             <tr class="odd">
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
@@ -124,41 +117,14 @@
 
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                                     @if ($withdraw->status == 'approved')
-                                                            <span class="badge bg-success text-white">{{ __('translate.Approved') }}</span>
-                                                        @elseif ($withdraw->status == 'rejected')
-                                                            <span class="badge bg-danger text-white">{{ __('translate.Rejected') }}</span>
-                                                        @else
-                                                            <span class="badge bg-danger text-white">{{ __('translate.Pending') }}</span>
-                                                        @endif
-                                                </td>
-                                            </tr>
-
-
-
-
-
-                                            <tr class="odd">
-
-                                                <td class="crancy-table__column-2 crancy-table__data-2">
-                                                    <h4 class="crancy-table__product-title">{{ __('translate.Action') }}</h4>
-                                                </td>
-
-                                                <td class="crancy-table__column-2 crancy-table__data-2">
-
-
-
-                                                    @if ($withdraw->status == 'pending')
-                                                    <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#reviewApproval" class="crancy-btn approval_button"><i class="fas fa-check"></i> {{ __('translate.Make Approval') }}</a>
-
-                                                    <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#reviewRejected" class="crancy-btn"><i class="fas fa-check"></i> {{ __('translate.Make Reject') }}</a>
+                                                        <span class="badge bg-success text-white">{{ __('translate.Approved') }}</span>
+                                                    @elseif ($withdraw->status == 'rejected')
+                                                        <span class="badge bg-danger text-white">{{ __('translate.Rejected') }}</span>
+                                                    @else
+                                                        <span class="badge bg-warning text-dark">{{ __('translate.Pending') }}</span>
                                                     @endif
-
-                                                    <a onclick="itemDeleteConfrimation({{ $withdraw->id }})" href="javascript:;" data-bs-toggle="modal" data-bs-target="#exampleModal" class="crancy-btn delete_danger_btn"><i class="fas fa-trash"></i> {{ __('translate.Delete') }}</a>
-
-
                                                 </td>
                                             </tr>
-
 
                                         </tbody>
                                         <!-- End crancy Table Body -->
@@ -170,90 +136,10 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
     <!-- End crancy Dashboard -->
-
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">{{ __('translate.Delete Confirmation') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ __('translate.Are you realy want to delete this item?') }}</p>
-                </div>
-                <div class="modal-footer">
-                    <form action="{{ route('deliveryman.withdraw-list.destroy', $withdraw->id) }}" id="item_delect_confirmation" class="delet_modal_form" method="POST">
-                        @csrf
-                        @method('DELETE')
-
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
-                        <button type="submit" class="btn btn-primary btn-type-dlt">{{ __('translate.Yes, Delete') }}</button>
-
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Approval Confirmation Modal -->
-    <div class="modal fade" id="reviewApproval" tabindex="-1" aria-labelledby="reviewApprovalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reviewApprovalLabel">{{ __('translate.Approval Confirmation') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ __('translate.Are you realy want to approved this withdraw?') }}</p>
-                </div>
-                <div class="modal-footer">
-                    <form action="{{ route('deliveryman.withdraw-approval', $withdraw->id) }}" class="delet_modal_form" method="POST">
-                        @csrf
-
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ __('translate.Yes, Approved') }}</button>
-
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Approval Confirmation Modal -->
-    <div class="modal fade" id="reviewRejected" tabindex="-1" aria-labelledby="reviewRejectedLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reviewRejectedLabel">{{ __('translate.Rejected Confirmation') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ __('translate.Are you realy want to rejected this withdraw?') }}</p>
-                </div>
-                <div class="modal-footer">
-                    <form action="{{ route('deliveryman.withdraw-rejected', $withdraw->id) }}" class="delet_modal_form" method="POST">
-                        @csrf
-
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ __('translate.Yes, Rejected') }}</button>
-
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
 
 @endsection
 

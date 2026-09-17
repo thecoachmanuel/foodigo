@@ -135,7 +135,11 @@ class RestaurantController extends Controller
         $pending_orders = Order::where('restaurant_id', $id)->whereIn('order_status', [1, 2, 3, 4])->count();
         $cancelled_orders = Order::where('restaurant_id', $id)->where('order_status', 6)->count();
 
-        $total_income = (float) Order::where('restaurant_id', $id)->where('payment_status', 'success')->where('order_status', 5)->sum('grand_total');
+        // Food sales revenue only (excludes delivery_charge and vat which belong to delivery pool and tax)
+        $total_income = (float) Order::where('restaurant_id', $id)
+            ->where('payment_status', 'success')
+            ->where('order_status', 5)
+            ->sum(DB::raw('COALESCE(total, 0) - COALESCE(discount_amount, 0)'));
 
         $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
         $commission_per_sale = (float) (GlobalSetting::where('key', 'commission_per_sale')->value('value') ?? 0);

@@ -269,128 +269,106 @@
                             </div>
 
             <!-- Content -->
-            @if($withdraw_list->count() > 0)
             <!-- crancy Table -->
-
             <div class="crancy-table crancy-table--v3 mg-top-30">
-
                 <div class="crancy-customer-filter">
                     <div class="crancy-customer-filter__single crancy-customer-filter__single--csearch d-flex items-center justify-between create_new_btn_box">
                         <div class="crancy-header__form crancy-header__form--customer create_new_btn_inline_box">
                             <h4 class="crancy-product-card__title">{{ __('translate.Withdraw List') }}</h4>
-                            <a href="{{ route('restaurant.my-withdraw.create') }}" class="crancy-btn "><span>
+                            <a href="{{ route('restaurant.my-withdraw.create') }}" class="crancy-btn"><span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                                    <path d="M8 1V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                                    <path d="M1 8H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                                </svg>
+                                    <path d="M8 1V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M1 8H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
                                 </span> {{ __('translate.New Withdraw') }}</a>
                         </div>
                     </div>
                 </div>
-                <!-- crancy Table -->
-                <div id="crancy-table__main_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
 
+                <div id="crancy-table__main_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                     <table class="crancy-table__main crancy-table__main-v3 dataTable no-footer" id="dataTable">
                         <!-- crancy Table Head -->
                         <thead class="crancy-table__head">
                         <tr>
-
-                            <th class="crancy-table__column-2 crancy-table__h2 sorting" >
+                            <th class="crancy-table__column-2 crancy-table__h2 sorting">
                                 {{ __('translate.Serial') }}
                             </th>
-
-                            <th class="crancy-table__column-2 crancy-table__h2 sorting" >
+                            <th class="crancy-table__column-2 crancy-table__h2 sorting">
                                 {{ __('translate.Restaurant Name') }}
                             </th>
-
-                            <th class="crancy-table__column-2 crancy-table__h2 sorting" >
+                            <th class="crancy-table__column-2 crancy-table__h2 sorting">
                                 {{ __('translate.Total Amount') }}
                             </th>
-
-                            <th class="crancy-table__column-2 crancy-table__h2 sorting" >
+                            <th class="crancy-table__column-2 crancy-table__h2 sorting">
                                 {{ __('translate.Withdraw Amount') }}
                             </th>
-
-                            <th class="crancy-table__column-2 crancy-table__h2 sorting" >
+                            <th class="crancy-table__column-2 crancy-table__h2 sorting">
                                 {{ __('translate.Withdraw Charge') }}
                             </th>
-
-                            <th class="crancy-table__column-2 crancy-table__h2 sorting" >
+                            <th class="crancy-table__column-2 crancy-table__h2 sorting">
                                 {{ __('translate.Status') }}
                             </th>
-
                             <th class="crancy-table__column-3 crancy-table__h3 sorting">
                                 {{ __('translate.Action') }}
                             </th>
-
                         </tr>
                         </thead>
                         <!-- crancy Table Body -->
                         <tbody class="crancy-table__body">
-                        @foreach ($withdraw_list as $index => $withdraw)
-
+                        @forelse ($withdraw_list as $index => $withdraw)
                             <tr class="odd">
-
                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                     <h4 class="crancy-table__product-title">{{ ++$index }}</h4>
                                 </td>
-
                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                     <h4 class="crancy-table__product-title">
                                         <a href="#">{{ $withdraw?->restaurant?->restaurant_name }}</a>
                                     </h4>
                                 </td>
-
-
                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                     <h4 class="crancy-table__product-title">{{ currency($withdraw->total_amount) }}</h4>
                                 </td>
-
                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                     <h4 class="crancy-table__product-title">{{ currency($withdraw->withdraw_amount) }}</h4>
                                 </td>
-
                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                     <h4 class="crancy-table__product-title">{{ currency($withdraw->charge_amount) }}</h4>
                                 </td>
-
-
                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                     @if ($withdraw->status == 'approved')
                                         <span class="badge bg-success text-white">{{ __('translate.Approved') }}</span>
                                     @elseif ($withdraw->status == 'rejected')
                                         <span class="badge bg-danger text-white">{{ __('translate.Rejected') }}</span>
                                     @else
-                                        <span class="badge bg-danger text-white">{{ __('translate.Pending') }}</span>
+                                        <span class="badge bg-warning text-dark">{{ __('translate.Pending') }}</span>
                                     @endif
                                 </td>
-
                                 <td class="crancy-table__column-2 crancy-table__data-2">
                                     <a data-bs-toggle="modal"
-                                            data-bs-target="#withdrawShow{{ $withdraw->id }}" class="crancy-btn"><i class="fas fa-eye"></i> {{ __('translate.View') }}</a>
+                                       data-bs-target="#withdrawShow{{ $withdraw->id }}" class="crancy-btn"><i class="fas fa-eye"></i> {{ __('translate.View') }}</a>
                                 </td>
                             </tr>
-                        @endforeach
-
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">{{ __('translate.No withdrawal requests found') }}</td>
+                            </tr>
+                        @endforelse
                         </tbody>
                         <!-- End crancy Table Body -->
                     </table>
                 </div>
-                </div>
-                <!-- End crancy Table -->
-            @endif
+            </div>
+            <!-- End crancy Table -->
         </div>
-    </section>>
-
-
+    </section>
 
     @foreach ($withdraw_list as $index => $withdraw)
-        <div class="modal fade" id="withdrawShow{{ $withdraw->id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+        <div class="modal fade" id="withdrawShow{{ $withdraw->id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ $withdraw->id }}"
              aria-hidden="true">
             <div class="modal-dialog modal-lg">
-                <div class="modal-content ">
+                <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">{{ __('translate.Withdraw Details') }}</h5>
+                        <h5 class="modal-title" id="exampleModalLabel{{ $withdraw->id }}">{{ __('translate.Withdraw Details') }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -401,47 +379,36 @@
                                 <td>{{ $withdraw->withdraw_method_name }}</td>
                             </tr>
                             <tr>
-                                <td> {{ __('translate.Total Amount') }}</td>
+                                <td>{{ __('translate.Total Amount') }}</td>
                                 <td>{{ currency($withdraw->total_amount) }}</td>
                             </tr>
-
                             <tr>
-                                <td> {{ __('translate.Withdraw Amount') }}</td>
+                                <td>{{ __('translate.Withdraw Amount') }}</td>
                                 <td>{{ currency($withdraw->withdraw_amount) }}</td>
                             </tr>
-
                             <tr>
-                                <td> {{ __('translate.Charge Amount') }}</td>
+                                <td>{{ __('translate.Charge Amount') }}</td>
                                 <td>{{ currency($withdraw->charge_amount) }}</td>
                             </tr>
-
                             <tr>
-                                <td> {{ __('translate.Status') }}</td>
+                                <td>{{ __('translate.Status') }}</td>
                                 <td>
                                     @if ($withdraw->status == 'approved')
-                                        <span class="status-badge in-progress"> {{ __('translate.Approved') }} </span>
+                                        <span class="badge bg-success text-white">{{ __('translate.Approved') }}</span>
                                     @elseif ($withdraw->status == 'rejected')
-                                        <span class="status-badge pending"> {{ __('translate.Rejected') }} </span>
+                                        <span class="badge bg-danger text-white">{{ __('translate.Rejected') }}</span>
                                     @else
-                                        <span class="status-badge pending"> {{ __('translate.Pending') }} </span>
+                                        <span class="badge bg-warning text-dark">{{ __('translate.Pending') }}</span>
                                     @endif
                                 </td>
                             </tr>
-
                             <tr>
-                                <td> {{ __('translate.Withdraw Method') }}</td>
-                                <td>{{ $withdraw->withdraw_method_name }}</td>
-                            </tr>
-
-                            <tr>
-                                <td> {{ __('translate.Bank/Account Info') }}</td>
+                                <td>{{ __('translate.Bank/Account Info') }}</td>
                                 <td>{!! clean(nl2br(html_decode($withdraw->description))) !!}</td>
                             </tr>
-
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>

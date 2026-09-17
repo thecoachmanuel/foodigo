@@ -367,7 +367,7 @@
                                                 </th>
 
                                                 <th class="crancy-table__column-2 crancy-table__h2 sorting" >
-                                                    {{ __('translate.delivery Method') }}
+                                                    {{ __('translate.Withdraw Method') }}
                                                 </th>
 
                                                 <th class="crancy-table__column-2 crancy-table__h2 sorting" >
@@ -428,7 +428,7 @@
                                                         @elseif ($withdraw->status == 'rejected')
                                                             <span class="badge bg-danger text-white">{{ __('translate.Rejected') }}</span>
                                                         @else
-                                                            <span class="badge bg-danger text-white">{{ __('translate.Pending') }}</span>
+                                                            <span class="badge bg-warning text-white">{{ __('translate.Pending') }}</span>
                                                         @endif
                                                     </td>
 

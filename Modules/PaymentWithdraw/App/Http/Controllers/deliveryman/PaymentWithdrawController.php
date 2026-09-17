@@ -30,7 +30,7 @@ class PaymentWithdrawController extends Controller
      */
     public function show($id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
-        $withdraw = DeliveryManWithdraw::findOrFail($id);
+        $withdraw = DeliveryManWithdraw::with('deliveryman')->findOrFail($id);
         return view('paymentwithdraw::deliveryman.show', [
             'withdraw' => $withdraw
         ]);
@@ -42,22 +42,34 @@ class PaymentWithdrawController extends Controller
     public function withdraw_approval($id): RedirectResponse
     {
         $withdraw = DeliveryManWithdraw::findOrFail($id);
+        if ($withdraw->status == 'approved') {
+            $notify_message = trans('translate.Withdraw already approved');
+            $notify_message = array('message' => $notify_message, 'alert-type' => 'info');
+            return redirect()->back()->with($notify_message);
+        }
+
         $withdraw->status = 'approved';
         $withdraw->save();
 
-        $notify_message= trans('translate.Withdraw approved successful');
-        $notify_message=array('message'=>$notify_message,'alert-type'=>'success');
+        $notify_message = trans('translate.Withdraw approved successful');
+        $notify_message = array('message' => $notify_message, 'alert-type' => 'success');
         return redirect()->back()->with($notify_message);
     }
 
     public function withdraw_rejected($id): RedirectResponse
     {
         $withdraw = DeliveryManWithdraw::findOrFail($id);
+        if ($withdraw->status == 'rejected') {
+            $notify_message = trans('translate.Withdraw already rejected');
+            $notify_message = array('message' => $notify_message, 'alert-type' => 'info');
+            return redirect()->back()->with($notify_message);
+        }
+
         $withdraw->status = 'rejected';
         $withdraw->save();
 
-        $notify_message= trans('translate.Withdraw rejected successful');
-        $notify_message=array('message'=>$notify_message,'alert-type'=>'success');
+        $notify_message = trans('translate.Withdraw rejected successful');
+        $notify_message = array('message' => $notify_message, 'alert-type' => 'success');
         return redirect()->back()->with($notify_message);
     }
 

@@ -20,23 +20,18 @@
                     <!-- Progress Card -->
                     <div class="crancy-ecom-card crancy-ecom-card__v2">
                         <div class="flex-main">
-
                             <div class="flex-1">
                                 <div class="crancy-ecom-card__heading">
-                                <div class="crancy-ecom-card__icon">
-                                    <h4 class="crancy-ecom-card__title">{{ __('translate.Active Orders') }} </h4>
-                                </div>
-
+                                    <div class="crancy-ecom-card__icon">
+                                        <h4 class="crancy-ecom-card__title">{{ __('translate.Active Orders') }}</h4>
+                                    </div>
                                 </div>
                                 <div class="crancy-ecom-card__content">
-                                <div class="crancy-ecom-card__camount">
-                                    <div class="crancy-ecom-card__camount__inside">
-                                        <h3 class="crancy-ecom-card__amount">{{$active_orders}}</h3>
-
+                                    <div class="crancy-ecom-card__camount">
+                                        <div class="crancy-ecom-card__camount__inside">
+                                            <h3 class="crancy-ecom-card__amount">{{ $active_orders }}</h3>
+                                        </div>
                                     </div>
-
-                                </div>
-
                                 </div>
                             </div>
                             <span>
@@ -45,7 +40,7 @@
                                         <path d="M13.4167 9.33337H23.562C24.291 9.33337 24.6554 9.33337 24.9223 9.45102C26.1026 9.97142 25.5749 11.2826 25.3763 12.2248C25.3385 12.4038 25.222 12.5127 25.0834 12.6016M8.75004 9.33337H4.43801C3.70913 9.33337 3.34469 9.33337 3.07785 9.45102C1.89751 9.97142 2.42524 11.2826 2.62381 12.2248C2.65948 12.3941 2.7755 12.5382 2.93819 12.6154C3.6129 12.9356 4.08544 13.5428 4.20946 14.249L4.90081 18.1858C5.20499 19.918 5.30898 22.3933 6.82691 23.6136C7.94061 24.5 9.54527 24.5 12.7546 24.5H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                         <path d="M20.4157 15.1666C18.9383 15.1666 17.9803 16.1088 16.8473 16.4523C16.3865 16.5919 16.1562 16.6617 16.063 16.7602C15.9698 16.8585 15.9425 17.0024 15.8879 17.2901C15.3036 20.3681 16.5807 23.2138 19.6259 24.3215C19.9532 24.4405 20.1167 24.5 20.4174 24.5C20.718 24.5 20.8817 24.4405 21.2088 24.3215C24.254 23.2138 25.5297 20.3681 24.9453 17.2901C24.8907 17.0024 24.8633 16.8585 24.7701 16.7601C24.6769 16.6616 24.4466 16.5918 23.9859 16.4523C22.8524 16.1089 21.8933 15.1666 20.4157 15.1666Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                         <path d="M7.58337 12.8333L11.6667 3.5M17.5 3.5L20.4167 9.33333" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                        </svg>
+                                    </svg>
                                 </div>
                             </span>
                         </div>
@@ -57,38 +52,30 @@
                     <!-- Progress Card -->
                     <div class="crancy-ecom-card crancy-ecom-card__v2">
                         <div class="flex-main">
-
-
                             <div class="flex-1">
-                            <div class="crancy-ecom-card__heading">
-                             <div class="crancy-ecom-card__icon">
-                                <h4 class="crancy-ecom-card__title">{{ __('translate.Pending Orders') }} </h4>
-                            </div>
-
-                             </div>
-                            <div class="crancy-ecom-card__content">
-                                <div class="crancy-ecom-card__camount">
-                                    <div class="crancy-ecom-card__camount__inside">
-                                        <h3 class="crancy-ecom-card__amount">{{$pending_orders}}</h3>
-
+                                <div class="crancy-ecom-card__heading">
+                                    <div class="crancy-ecom-card__icon">
+                                        <h4 class="crancy-ecom-card__title">{{ __('translate.Pending Orders') }}</h4>
                                     </div>
-
                                 </div>
-
+                                <div class="crancy-ecom-card__content">
+                                    <div class="crancy-ecom-card__camount">
+                                        <div class="crancy-ecom-card__camount__inside">
+                                            <h3 class="crancy-ecom-card__amount">{{ $pending_orders }}</h3>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <span>
-                            <div class="d-inline-flex justify-content-center align-items-center bg-success-white rounded-circle grid-icon-size text-primary">
-                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M13.4167 9.33337H23.562C24.291 9.33337 24.6554 9.33337 24.9223 9.45102C26.1026 9.97142 25.5749 11.2826 25.3763 12.2248C25.3406 12.3941 25.2245 12.5382 25.0619 12.6154C24.3872 12.9356 23.9146 13.5428 23.7906 14.249L23.0992 18.1858C22.7951 19.918 22.6911 22.3934 21.1732 23.6136C20.0595 24.5 18.4548 24.5 15.2455 24.5H12.7546C9.54527 24.5 7.94061 24.5 6.82691 23.6136C5.30898 22.3933 5.20499 19.918 4.90081 18.1858L4.20946 14.249C4.08544 13.5428 3.6129 12.9356 2.93819 12.6154C2.7755 12.5382 2.65948 12.3941 2.62381 12.2248C2.42524 11.2826 1.89751 9.97142 3.07785 9.45102C3.34469 9.33337 3.70913 9.33337 4.43801 9.33337H8.75004" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                    <path d="M16.3333 14H11.6666" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M7.58337 12.8333L11.6667 3.5M17.5 3.5L20.4167 9.33333" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <span>
+                                <div class="d-inline-flex justify-content-center align-items-center bg-success-white rounded-circle grid-icon-size text-primary">
+                                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M13.4167 9.33337H23.562C24.291 9.33337 24.6554 9.33337 24.9223 9.45102C26.1026 9.97142 25.5749 11.2826 25.3763 12.2248C25.3406 12.3941 25.2245 12.5382 25.0619 12.6154C24.3872 12.9356 23.9146 13.5428 23.7906 14.249L23.0992 18.1858C22.7951 19.918 22.6911 22.3934 21.1732 23.6136C20.0595 24.5 18.4548 24.5 15.2455 24.5H12.7546C9.54527 24.5 7.94061 24.5 6.82691 23.6136C5.30898 22.3933 5.20499 19.918 4.90081 18.1858L4.20946 14.249C4.08544 13.5428 3.6129 12.9356 2.93819 12.6154C2.7755 12.5382 2.65948 12.3941 2.62381 12.2248C2.42524 11.2826 1.89751 9.97142 3.07785 9.45102C3.34469 9.33337 3.70913 9.33337 4.43801 9.33337H8.75004" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M16.3333 14H11.6666" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M7.58337 12.8333L11.6667 3.5M17.5 3.5L20.4167 9.33333" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                     </svg>
-
-                            </div>
-                        </span>
+                                </div>
+                            </span>
                         </div>
-
                     </div>
                     <!-- End Progress Card -->
                 </div>
@@ -97,24 +84,19 @@
                     <!-- Progress Card -->
                     <div class="crancy-ecom-card crancy-ecom-card__v2">
                         <div class="flex-main">
-
                             <div class="flex-1">
-                            <div class="crancy-ecom-card__heading">
-                            <div class="crancy-ecom-card__icon">
-                                <h4 class="crancy-ecom-card__title">{{ __('translate.Completed Orders') }} </h4>
-                            </div>
-
-                        </div>
-                        <div class="crancy-ecom-card__content">
-                            <div class="crancy-ecom-card__camount">
-                                <div class="crancy-ecom-card__camount__inside">
-                                    <h3 class="crancy-ecom-card__amount">{{$complete_orders}}</h3>
-
+                                <div class="crancy-ecom-card__heading">
+                                    <div class="crancy-ecom-card__icon">
+                                        <h4 class="crancy-ecom-card__title">{{ __('translate.Completed Orders') }}</h4>
+                                    </div>
                                 </div>
-
-                            </div>
-
-                        </div>
+                                <div class="crancy-ecom-card__content">
+                                    <div class="crancy-ecom-card__camount">
+                                        <div class="crancy-ecom-card__camount__inside">
+                                            <h3 class="crancy-ecom-card__amount">{{ $complete_orders }}</h3>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <span>
                                 <div class="d-inline-flex justify-content-center align-items-center bg-success-white rounded-circle grid-icon-size text-primary">
@@ -122,8 +104,7 @@
                                         <path d="M13.4167 9.33337H23.562C24.291 9.33337 24.6554 9.33337 24.9223 9.45102C26.1026 9.97142 25.5749 11.2826 25.3763 12.2248C25.3406 12.3941 25.2245 12.5382 25.0619 12.6154C24.4354 12.9127 24.0782 13.4067 23.8776 14M8.75004 9.33337H4.43801C3.70913 9.33337 3.34469 9.33337 3.07785 9.45102C1.89751 9.97142 2.42524 11.2826 2.62381 12.2248C2.65948 12.3941 2.7755 12.5382 2.93819 12.6154C3.6129 12.9356 4.08544 13.5428 4.20946 14.249L4.90081 18.1858C5.20499 19.918 5.30898 22.3933 6.82691 23.6136C7.94061 24.5 9.54527 24.5 12.7546 24.5H13.4167" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                         <path d="M16.3334 22.1667C16.3334 22.1667 17.5 22.1667 18.6667 24.5C18.6667 24.5 22.3726 18.6667 25.6667 17.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                         <path d="M7.58337 12.8333L11.6667 3.5M17.5 3.5L20.4167 9.33333" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                        </svg>
-
+                                    </svg>
                                 </div>
                             </span>
                         </div>
@@ -135,24 +116,19 @@
                     <!-- Progress Card -->
                     <div class="crancy-ecom-card crancy-ecom-card__v2">
                         <div class="flex-main">
-
                             <div class="flex-1">
-                            <div class="crancy-ecom-card__heading">
-                            <div class="crancy-ecom-card__icon">
-                                <h4 class="crancy-ecom-card__title">{{ __('translate.Cancel Orders') }} </h4>
-                            </div>
-
-                        </div>
-                        <div class="crancy-ecom-card__content">
-                            <div class="crancy-ecom-card__camount">
-                                <div class="crancy-ecom-card__camount__inside">
-                                    <h3 class="crancy-ecom-card__amount"> {{$cancel_orders}}</h3>
-
+                                <div class="crancy-ecom-card__heading">
+                                    <div class="crancy-ecom-card__icon">
+                                        <h4 class="crancy-ecom-card__title">{{ __('translate.Cancel Orders') }}</h4>
+                                    </div>
                                 </div>
-
-                            </div>
-
-                        </div>
+                                <div class="crancy-ecom-card__content">
+                                    <div class="crancy-ecom-card__camount">
+                                        <div class="crancy-ecom-card__camount__inside">
+                                            <h3 class="crancy-ecom-card__amount">{{ $cancel_orders }}</h3>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <span>
                                 <div class="d-inline-flex justify-content-center align-items-center bg-success-white rounded-circle grid-icon-size text-primary">
@@ -160,16 +136,13 @@
                                         <path d="M15.1666 24.5H12.7545C9.54514 24.5 7.94049 24.5 6.82679 23.6136C5.30886 22.3933 5.20486 19.918 4.90069 18.1858L4.20934 14.249C4.08532 13.5428 3.61277 12.9356 2.93807 12.6154C2.77537 12.5382 2.65936 12.3941 2.62368 12.2248C2.42512 11.2826 1.89739 9.97142 3.07773 9.45102C3.34457 9.33337 3.70901 9.33337 4.43789 9.33337H8.74992M13.4166 9.33337H23.5619C24.2909 9.33337 24.6553 9.33337 24.9221 9.45102C26.1025 9.97142 25.5748 11.2826 25.3762 12.2248C25.3405 12.3941 25.2244 12.5382 25.0618 12.6154C24.1989 13.0249 23.9118 13.7583 23.7379 14.5834" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                         <path d="M18.6667 17.5L22.1667 21M22.1667 21L25.6667 24.5M22.1667 21L18.6667 24.5M22.1667 21L25.6667 17.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                         <path d="M7.58325 12.8333L11.6666 3.5M17.4999 3.5L20.4166 9.33333" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                        </svg>
-
-
+                                    </svg>
                                 </div>
                             </span>
                         </div>
                     </div>
                     <!-- End Progress Card -->
                 </div>
-
             </div>
 
             <div class="row mg-top-30 row__bscreen">

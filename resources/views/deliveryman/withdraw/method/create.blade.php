@@ -1,6 +1,6 @@
 @extends('deliveryman.master_layout')
 @section('title')
-    <title>{{ __('translate.deliveryman || New Withdraw') }}</title>
+    <title>{{ __('translate.Deliveryman || New Withdraw') }}</title>
 @endsection
 @section('body-header')
     <h3 class="crancy-header__title m-0">{{ __('translate.My Withdraw') }}</h3>
@@ -26,7 +26,7 @@
                             <div class="create_new_btn_inline_box mb-3">
                                 <h4 class="crancy-product-card__title">{{ __('translate.Create Withdraw') }}</h4>
 
-                                <a href="{{ route('deliveryman.my-withdraw.index') }}" class="crancy-btn "><i class="fa fa-list"></i> {{ __('translate.Withdraw List') }}</a>
+                                <a href="{{ route('deliveryman.my-withdraw.index') }}" class="crancy-btn"><i class="fa fa-list"></i> {{ __('translate.Withdraw List') }}</a>
                             </div>
                             <form method="post" action="{{ route('deliveryman.my-withdraw.store') }}"
                                   enctype="multipart/form-data">
@@ -100,7 +100,7 @@
                                                         >
 
                                                         <textarea rows="5" class="crancy__item-input crancy__item-textarea seo_description_box"
-                                                                  name="description" id="" cols="30" rows="10"
+                                                                  name="description" id="withdraw_description" cols="30"
                                                                   placeholder="{{ __('translate.Bank/Account Information') }}"></textarea>
 
                                                     </div>
@@ -132,10 +132,9 @@
                                             </svg>
                                         </button>
                                         <a
-                                            href=""
-                                            class="crancy-btn mg-top-25"
-                                        >{{ __('translate.Cancel') }}</a
-                                        >
+                                            href="{{ route('deliveryman.my-withdraw.index') }}"
+                                            class="crancy-btn crancy-btn--cancel mg-top-25"
+                                        >{{ __('translate.Cancel') }}</a>
                                     </div>
                                 </div>
                             </form>
@@ -144,7 +143,7 @@
                 </div>
             </div>
         </div>
-    </section>>
+    </section>
 
 @endsection
 
