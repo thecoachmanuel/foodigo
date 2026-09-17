@@ -6865,34 +6865,68 @@ a {
 
 .privace_policy_main h4 {
     color: var(--color-balck);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 28px;
+    margin-top: 28px;
     padding-bottom: 12px;
+}
+
+.privace_policy_main h4:first-child {
+    margin-top: 0;
 }
 
 .privace_policy_main p {
     font-size: 16px;
     font-weight: 400;
-    line-height: 24px;
+    line-height: 26px;
     letter-spacing: -0.01em;
-    color: var(--color-slate-600);
-    padding-bottom: 20px;
+    color: var(--color-slate-700);
+    padding-bottom: 16px;
 }
 
-.privace_policy_main ul {
+.privace_policy_main strong {
+    color: var(--color-balck);
+    font-weight: 600;
+}
+
+.privace_policy_main a {
+    color: var(--color-red);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: var(--all-transition);
+}
+
+.privace_policy_main a:hover {
+    color: var(--color-hover-50);
+}
+
+.privace_policy_main ul,
+.privace_policy_main ol {
     margin-left: 25px;
     padding-bottom: 20px;
 }
 
-.privace_policy_main ul li {
+.privace_policy_main ul li,
+.privace_policy_main ol li {
     font-size: 16px;
     font-weight: 400;
-    line-height: 24px;
+    line-height: 26px;
     letter-spacing: -0.01em;
-    color: var(--color-slate-600);
-    list-style: disc;
-    padding-bottom: 5px;
+    color: var(--color-slate-800);
+    padding-bottom: 6px;
 }
 
-.privace_policy_main ul li:last-of-type {
+.privace_policy_main ul li {
+    list-style: disc;
+}
+
+.privace_policy_main ol li {
+    list-style: decimal;
+}
+
+.privace_policy_main ul li:last-of-type,
+.privace_policy_main ol li:last-of-type {
     margin-bottom: 0;
 }
 

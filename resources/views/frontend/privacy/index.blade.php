@@ -1,9 +1,9 @@
 @extends('frontend.layouts.master')
 
 @section('title')
-    <title>{{ $seo_setting->seo_title }}</title>
-    <meta name="title" content="{{ $seo_setting->seo_title }}" />
-    <meta name="description" content="{!! strip_tags(clean($seo_setting->seo_description)) !!}" />
+    <title>{{ $seo_setting?->seo_title ?? 'Privacy Policy | Nectar' }}</title>
+    <meta name="title" content="{{ $seo_setting?->seo_title ?? 'Privacy Policy | Nectar' }}" />
+    <meta name="description" content="{!! strip_tags(clean($seo_setting?->seo_description ?? 'Read the Nectar Privacy Policy to learn how we protect your personal data, privacy, and security.')) !!}" />
 @endsection
 
 @section('content')
@@ -32,7 +32,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="privace_policy_main">
-                            {!! clean($privacy_policy->description) !!}
+                            {!! clean($privacy_policy?->description ?? '') !!}
                         </div>
                     </div>
                 </div>
