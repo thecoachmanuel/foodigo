@@ -18,7 +18,7 @@ Route::group(['as'=> 'admin.', 'prefix' => 'admin/restaurant', 'middleware' => [
     
     Route::resource('restaurants', RestaurantController::class);
     Route::put('trusted-status/{id}', [RestaurantController::class, 'trusted_status'])->name('restaruant-trusted');
-
-
+    Route::post('approval-status/{id}', [RestaurantController::class, 'approval_status'])->name('restaurants.approval-status');
+    Route::post('ban-status/{id}', [RestaurantController::class, 'ban_status'])->name('restaurants.ban-status');
 });
 

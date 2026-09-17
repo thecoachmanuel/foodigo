@@ -53,23 +53,23 @@
                                          <form class="crancy-wc__form-main" action="{{ route('deliveryman.login') }}" method="post">
                                              @csrf
                                              <div class="row">
-                                                 <div class="col-12">
-                                                     <!-- Form Group -->
-                                                     <div class="form-group">
-                                                         <div class="form-group__input">
-                                                             <input class="crancy-wc__form-input" type="email" name="email" placeholder="{{ __('translate.Email') }}">
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                                 <div class="col-12">
-                                                     <!-- Form Group -->
-                                                     <div class="form-group">
-                                                         <div class="form-group__input">
-                                                             <input class="crancy-wc__form-input" placeholder="{{ __('translate.Password') }}" id="password-field" type="password" name="password">
-                                                             <span class="crancy-wc__toggle"><i class="fas fa-eye-slash" id="toggle-icon"></i></span>
-                                                         </div>
-                                                     </div>
-                                                 </div>
+                                                  <div class="col-12">
+                                                      <!-- Form Group -->
+                                                      <div class="form-group">
+                                                          <div class="form-group__input">
+                                                              <input class="crancy-wc__form-input" type="email" name="email" value="{{ old('email') }}" placeholder="{{ __('translate.Email') }}" required>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-12">
+                                                      <!-- Form Group -->
+                                                      <div class="form-group">
+                                                          <div class="form-group__input">
+                                                              <input class="crancy-wc__form-input" placeholder="{{ __('translate.Password') }}" id="password-field" type="password" name="password" required>
+                                                              <span class="crancy-wc__toggle"><i class="fas fa-eye-slash" id="toggle-icon"></i></span>
+                                                          </div>
+                                                      </div>
+                                                  </div>
                                              </div>
 
                                              <div class="col-12">

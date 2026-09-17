@@ -195,11 +195,14 @@ class OrderController extends Controller
 
     public function deliveryman(Request $request, $id): RedirectResponse
     {
-        $order = Order::find($id);
+        $order = Order::findOrFail($id);
         $order->delivery_man_id = $request->delivery_man_id;
+        if ($request->delivery_man_id) {
+            $order->order_request = 0;
+        }
         $order->save();
 
-        $message = trans('translate.Order Delivered Successfully');
+        $message = trans('translate.Delivery man assigned successfully');
         $notification = array('message'=>$message,'alert-type'=>'success');
         return redirect()->back()->with($notification);
     }

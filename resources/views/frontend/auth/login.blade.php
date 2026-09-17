@@ -309,6 +309,11 @@
                         <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#resendVerificationModal">{{ __('translate.Resend Email') }}</a>
                     </span>
                 </p>
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; font-size: 13px;">
+                    <span><a href="{{ route('restaurant.login') }}" style="color: #ff6b35; font-weight: 600;"><i class="fa-solid fa-utensils me-1"></i> {{ __('translate.Restaurant Login') }}</a></span>
+                    <span style="color: #cbd5e1;">|</span>
+                    <span><a href="{{ route('deliveryman.login') }}" style="color: #0284c7; font-weight: 600;"><i class="fa-solid fa-motorcycle me-1"></i> {{ __('translate.Delivery Login') }}</a></span>
+                </div>
             </div>
 
 

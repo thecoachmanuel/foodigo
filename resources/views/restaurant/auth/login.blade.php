@@ -55,7 +55,7 @@
                                                     <!-- Form Group -->
                                                     <div class="form-group">
                                                         <div class="form-group__input">
-                                                            <input class="crancy-wc__form-input" type="email" name="email" placeholder="{{ __('translate.Email') }}">
+                                                            <input class="crancy-wc__form-input" type="email" name="email" value="{{ old('email') }}" placeholder="{{ __('translate.Email') }}" required>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -63,8 +63,16 @@
                                                     <!-- Form Group -->
                                                     <div class="form-group">
                                                         <div class="form-group__input">
-                                                            <input class="crancy-wc__form-input" placeholder="{{ __('translate.Password') }}" id="password-field" type="password" name="password">
+                                                            <input class="crancy-wc__form-input" placeholder="{{ __('translate.Password') }}" id="password-field" type="password" name="password" required>
                                                             <span class="crancy-wc__toggle"><i class="fas fa-eye-slash" id="toggle-icon"></i></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" name="remember" class="custom-control-input" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                                            <label class="custom-control-label" for="remember">{{ __('translate.Remember Me') }}</label>
                                                         </div>
                                                     </div>
                                                 </div>

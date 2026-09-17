@@ -312,6 +312,7 @@ Route::group(['as'=> 'admin.', 'prefix' => 'admin'],function (){
         Route::post('deliveryman-store', [DeliveryManController::class, 'deliveryman_store'])->name('deliveryman-store');
         Route::get('deliveryman-edit/{id}', [DeliveryManController::class, 'deliveryman_edit'])->name('deliveryman-edit');
         Route::put('deliveryman-update/{id}', [DeliveryManController::class, 'deliveryman_update'])->name('deliveryman-update');
+        Route::post('deliveryman-status/{id}', [DeliveryManController::class, 'deliveryman_status'])->name('deliveryman-status');
 
     });
 });

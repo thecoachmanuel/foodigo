@@ -269,6 +269,13 @@
 
                         <div class="overview-researcher">
                             <p>{{ html_decode($deliveryman->designation ?? $deliveryman->man_type ?? 'Delivery Man') }} </p>
+                            <div class="mt-2">
+                                @if ($deliveryman->status == 1)
+                                    <span class="badge bg-success text-white px-3 py-1">{{ __('translate.Active') }}</span>
+                                @else
+                                    <span class="badge bg-danger text-white px-3 py-1">{{ __('translate.Inactive') }}</span>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="overview-profile-item">
@@ -317,10 +324,17 @@
 
 
                             <div class="overview-profile-inner">
+                                <form action="{{ route('admin.deliveryman-status', $deliveryman->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="crancy-btn crancy-full-width" style="background-color: {{ $deliveryman->status == 1 ? '#eab308' : '#22be0d' }}; color: #fff; border: none; border-radius: 8px; padding: 10px;">
+                                        <i class="fas {{ $deliveryman->status == 1 ? 'fa-user-slash' : 'fa-user-check' }}"></i>
+                                        {{ $deliveryman->status == 1 ? __('translate.Deactivate Deliveryman') : __('translate.Activate Deliveryman') }}
+                                    </button>
+                                </form>
 
-                                <a href="{{ route('admin.deliveryman-edit', $deliveryman->id) }}" class="crancy-btn crancy-full-width mg-top-20 user_edit_btn"><i class="fas fa-edit"></i> {{ __('translate.Edit Profile') }}</a>
+                                <a href="{{ route('admin.deliveryman-edit', $deliveryman->id) }}" class="crancy-btn crancy-full-width mg-top-15 user_edit_btn"><i class="fas fa-edit"></i> {{ __('translate.Edit Profile') }}</a>
 
-                                <a onclick="itemDeleteConfrimation({{ $deliveryman->id }})" href="javascript:;" data-bs-toggle="modal" data-bs-target="#exampleModal" class="crancy-btn crancy-full-width mg-top-20 user_delete_btn"> <i class="fas fa-trash    "></i> {{ __('translate.Delete Deliveryman') }}</a>
+                                <a onclick="itemDeleteConfrimation({{ $deliveryman->id }})" href="javascript:;" data-bs-toggle="modal" data-bs-target="#exampleModal" class="crancy-btn crancy-full-width mg-top-15 user_delete_btn"> <i class="fas fa-trash"></i> {{ __('translate.Delete Deliveryman') }}</a>
 
                             </div>
                         </div>

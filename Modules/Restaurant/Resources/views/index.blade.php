@@ -70,6 +70,10 @@
                                                 </th>
 
                                                 <th class="crancy-table__column-2 crancy-table__h2 sorting" >
+                                                    {{ __('translate.Status') }}
+                                                </th>
+
+                                                <th class="crancy-table__column-2 crancy-table__h2 sorting" >
                                                     {{ __('translate.Is Trusted') }}
                                                 </th>
 
@@ -90,15 +94,15 @@
                                                     </td>
 
                                                     <td class="crancy-table__column-2 crancy-table__data-2">
-                                                        <h4 class="crancy-table__product-title"><a href="">{{ html_decode($restaurant?->restaurant_name) }}</a></h4>
+                                                        <h4 class="crancy-table__product-title"><a href="{{ route('admin.restaurants.show', $restaurant->id) }}">{{ html_decode($restaurant?->restaurant_name) }}</a></h4>
                                                     </td>
 
                                                     <td class="crancy-table__column-2 crancy-table__data-2">
-                                                        <h4 class="crancy-table__product-title"><a href="">{{ html_decode($restaurant?->owner_name) }}</a></h4>
+                                                        <h4 class="crancy-table__product-title">{{ html_decode($restaurant?->owner_name) }}</h4>
                                                     </td>
 
                                                     <td class="crancy-table__column-2 crancy-table__data-2">
-                                                        <h4 class="crancy-table__product-title"><a target="_blank" href="">{{ html_decode($restaurant->email) }}</a></h4>
+                                                        <h4 class="crancy-table__product-title"><a target="_blank" href="mailto:{{ html_decode($restaurant->email) }}">{{ html_decode($restaurant->email) }}</a></h4>
                                                     </td>
 
 
@@ -112,7 +116,15 @@
                                                         @elseif ($restaurant->admin_approval == 'rejected')
                                                         <span class="badge bg-danger">{{ __('translate.Reject') }}</span>
                                                         @else
-                                                            <span class="badge bg-danger">{{ __('translate.Awaiting') }}</span>
+                                                            <span class="badge bg-warning text-dark">{{ __('translate.Awaiting') }}</span>
+                                                        @endif
+                                                    </td>
+
+                                                    <td class="crancy-table__column-2 crancy-table__data-2">
+                                                        @if ($restaurant->is_banned == 'enable')
+                                                            <span class="badge bg-danger">{{ __('translate.Banned') }}</span>
+                                                        @else
+                                                            <span class="badge bg-primary">{{ __('translate.Active') }}</span>
                                                         @endif
                                                     </td>
 
@@ -124,6 +136,8 @@
                                                     </td>
 
                                                     <td class="crancy-table__column-2 crancy-table__data-2">
+                                                        <a href="{{ route('admin.restaurants.show', $restaurant->id) }}" class="crancy-btn"><i class="fas fa-eye"></i></a>
+
                                                         <a href="{{ route('admin.restaurants.edit', $restaurant->id) }}" class="crancy-btn"><i class="fas fa-edit"></i></a>
 
                                                         <a onclick="itemDeleteConfrimation({{ $restaurant->id }})" href="javascript:;" data-bs-toggle="modal" data-bs-target="#exampleModal" class="crancy-btn delete_danger_btn"><i class="fas fa-trash"></i></a>

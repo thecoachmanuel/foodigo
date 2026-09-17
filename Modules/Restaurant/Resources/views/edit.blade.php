@@ -345,6 +345,16 @@
 
                                             <div class="col-md-6">
                                                 <div class="crancy__item-form--group mg-top-form-20">
+                                                    <label class="crancy__item-label">{{ __('translate.Account Status') }} *</label>
+                                                    <select class="form-select crancy__item-input" name="is_banned">
+                                                        <option value="disable" {{ $restaurant->is_banned != 'enable' ? 'selected' : '' }}>{{ __('translate.Active') }}</option>
+                                                        <option value="enable" {{ $restaurant->is_banned == 'enable' ? 'selected' : '' }}>{{ __('translate.Banned') }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="crancy__item-form--group mg-top-form-20">
                                                     <label class="crancy__item-label">{{ __('translate.Opening Hour') }} * </label>
                                                     <input class="crancy__item-input clockpicker" type="text" name="opening_hour" id="opening_hour" value="{{ $restaurant->opening_hour }}" data-align="top" data-autoclose="true" autocomplete="off">
                                                 </div>

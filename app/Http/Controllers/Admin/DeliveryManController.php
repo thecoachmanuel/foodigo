@@ -133,6 +133,9 @@ class DeliveryManController extends Controller
         $deliveryman->idn_num = $request->idn_num;
         $deliveryman->man_type = $request->man_type;
         $deliveryman->phone = $request->phone;
+        if ($request->has('status')) {
+            $deliveryman->status = (int)$request->status;
+        }
         if ($request->filled('password')) {
             $deliveryman->password = Hash::make($request->password);
         }
@@ -194,4 +197,13 @@ class DeliveryManController extends Controller
         return redirect()->back()->with($notification);
     }
 
+    public function deliveryman_status($id){
+        $deliveryman = DeliveryMan::findOrFail($id);
+        $deliveryman->status = $deliveryman->status == 1 ? 0 : 1;
+        $deliveryman->save();
+
+        $notification = trans('translate.Deliveryman status changed successfully');
+        $notification = array('message'=>$notification,'alert-type'=>'success');
+        return redirect()->back()->with($notification);
+    }
 }

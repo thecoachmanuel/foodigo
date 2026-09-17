@@ -18,6 +18,7 @@ use Modules\Order\App\Models\OrderItem;
 use Modules\PaymentWithdraw\App\Models\SellerWithdraw;
 use Modules\Product\App\Models\Product;
 use Modules\Product\App\Models\ProductTranslation;
+use Modules\GlobalSetting\App\Models\GlobalSetting;
 use Modules\Restaurant\Entities\Restaurant;
 use Modules\Restaurant\Http\Requests\RestaurantRequest;
 
@@ -113,10 +114,66 @@ class RestaurantController extends Controller
         $restaurant->is_pickup_order = $request->is_pickup_order ? 'enable' : 'disable';
         $restaurant->is_delivery_order = $request->is_delivery_order ? 'enable' : 'disable';
         $restaurant->admin_approval = $request->admin_approval ?: 'enable';
+        $restaurant->is_banned = $request->is_banned ?: 'disable';
         $restaurant->save();
 
         $notification = ['message' => trans('translate.Created Successfully'), 'alert-type' => 'success'];
         return redirect()->route('admin.restaurants.index')->with($notification);
+    }
+
+    /**
+     * Show the specified restaurant details.
+     * @param int $id
+     * @return Renderable
+     */
+    public function show($id)
+    {
+        $restaurant = Restaurant::withoutGlobalScopes()->with(['city.translate'])->findOrFail($id);
+
+        $total_orders = Order::where('restaurant_id', $id)->count();
+        $completed_orders = Order::where('restaurant_id', $id)->where('order_status', 5)->count();
+        $pending_orders = Order::where('restaurant_id', $id)->whereIn('order_status', [1, 2, 3, 4])->count();
+        $cancelled_orders = Order::where('restaurant_id', $id)->where('order_status', 6)->count();
+
+        $total_income = (float) Order::where('restaurant_id', $id)->where('payment_status', 'success')->where('order_status', 5)->sum('grand_total');
+
+        $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
+        $commission_per_sale = (float) (GlobalSetting::where('key', 'commission_per_sale')->value('value') ?? 0);
+        $total_commission = 0.00;
+        $net_income = $total_income;
+        if ($commission_type == 'commission') {
+            $total_commission = ($commission_per_sale / 100) * $total_income;
+            $net_income = $total_income - $total_commission;
+        }
+
+        $withdraw_list = SellerWithdraw::where('seller_id', $id)->latest()->get();
+        $total_withdraw_amount = (float) SellerWithdraw::where('seller_id', $id)->where('status', '!=', 'rejected')->sum('total_amount');
+        $current_balance = $net_income - $total_withdraw_amount;
+        $pending_withdraw = (float) SellerWithdraw::where('seller_id', $id)->where('status', 'pending')->sum('total_amount');
+
+        $products = Product::withoutGlobalScopes()->with('translate_product')->where('restaurant_id', $id)->latest()->get();
+        $orders = Order::with('user')->where('restaurant_id', $id)->latest()->take(20)->get();
+        $reviews = Review::with('user')->where('restaurant_id', $id)->latest()->take(20)->get();
+
+        return view('restaurant::show', compact(
+            'restaurant',
+            'total_orders',
+            'completed_orders',
+            'pending_orders',
+            'cancelled_orders',
+            'total_income',
+            'total_commission',
+            'net_income',
+            'current_balance',
+            'total_withdraw_amount',
+            'pending_withdraw',
+            'withdraw_list',
+            'products',
+            'orders',
+            'reviews',
+            'commission_per_sale',
+            'commission_type'
+        ));
     }
 
     /**
@@ -219,6 +276,9 @@ class RestaurantController extends Controller
         if ($request->admin_approval) {
             $restaurant->admin_approval = $request->admin_approval;
         }
+        if ($request->is_banned) {
+            $restaurant->is_banned = $request->is_banned;
+        }
         $restaurant->save();
 
         $notification = ['message' => trans('translate.Updated Successfully'), 'alert-type' => 'success'];
@@ -291,5 +351,28 @@ class RestaurantController extends Controller
 
         $message = trans('translate.Status Changed Successfully');
         return response()->json($message);
+    }
+
+    public function approval_status(Request $request, $id)
+    {
+        $restaurant = Restaurant::withoutGlobalScopes()->findOrFail($id);
+        $restaurant->admin_approval = $request->status; // 'enable', 'awaiting', 'rejected'
+        $restaurant->save();
+
+        $notification = ['message' => trans('translate.Approval status updated successfully'), 'alert-type' => 'success'];
+        return redirect()->back()->with($notification);
+    }
+
+    public function ban_status($id)
+    {
+        $restaurant = Restaurant::withoutGlobalScopes()->findOrFail($id);
+        $restaurant->is_banned = $restaurant->is_banned == 'enable' ? 'disable' : 'enable';
+        $restaurant->save();
+
+        $message = $restaurant->is_banned == 'enable' 
+            ? trans('translate.Restaurant banned successfully') 
+            : trans('translate.Restaurant unbanned successfully');
+        $notification = ['message' => $message, 'alert-type' => 'success'];
+        return redirect()->back()->with($notification);
     }
 }

@@ -27,7 +27,7 @@ class RestaurantLoginController extends BaseController
         }
 
         try {
-            $restaurant = Restaurant::where('email', $request->email)->first();
+            $restaurant = Restaurant::withoutGlobalScope(\App\Models\Scopes\RestaurantLocationScope::class)->where('email', $request->email)->first();
 
             if (!$restaurant) {
                 return $this->sendError('Email not found', [], 404);

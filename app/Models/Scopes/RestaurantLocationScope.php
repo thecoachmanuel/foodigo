@@ -18,6 +18,11 @@ class RestaurantLocationScope implements Scope
             return; // No filtering needed
         }
 
+        // Bypass location filter for admin, restaurant, deliveryman portal and API endpoints
+        if (request()->is('admin*') || request()->is('restaurant*') || request()->is('deliveryman*') || request()->is('api/v1/restaurant*') || request()->is('api/v1/deliveryman*') || request()->is('api/v1/admin*')) {
+            return;
+        }
+
         $lat = Session::get('latitude');
         $lng = Session::get('longitude');
 

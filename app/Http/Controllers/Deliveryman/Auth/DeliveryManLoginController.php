@@ -25,8 +25,9 @@ class DeliveryManLoginController extends Controller
         ];
 
         $customMessages = [
-            'email.required' => trans('translate.admin_validation.Email is required'),
-            'password.required' => trans('translate.admin_validation.Password is required'),
+            'email.required' => trans('translate.Email is required'),
+            'email.email' => trans('translate.Invalid email format'),
+            'password.required' => trans('translate.Password is required'),
         ];
 
         $this->validate($request, $rules, $customMessages);
@@ -39,27 +40,34 @@ class DeliveryManLoginController extends Controller
         $deliveryMan = DeliveryMan::where('email', $request->email)->first();
 
         if (!$deliveryMan) {
-            return back()->withErrors(['email' => trans('translate.admin_validation.Invalid Email')]);
+            return back()->withInput($request->only('email', 'remember'))->withErrors(['email' => trans('translate.Invalid Email')]);
+        }
+
+        if (!Hash::check($request->password, $deliveryMan->password)) {
+            return back()->withInput($request->only('email', 'remember'))->withErrors(['password' => trans('translate.Invalid Password')]);
         }
 
         if ($deliveryMan->status != 1) {
-            return back()->withErrors(['email' => trans('translate.admin_validation.Inactive account')]);
+            return back()->withInput($request->only('email', 'remember'))->withErrors(['email' => trans('translate.Your account is inactive or pending approval')]);
         }
 
         // Perform authentication
         if (!Auth::guard('deliveryman')->attempt($credentials, $request->has('remember'))) {
-            return back()->withErrors(['password' => trans('translate.admin_validation.Invalid Password')]);
+            return back()->withInput($request->only('email', 'remember'))->withErrors(['password' => trans('translate.Login failed due to invalid credentials')]);
         }
 
-        session()->flash('success', trans('translate.admin_validation.Login Successfully'));
-
-        return redirect()->route('deliveryman.dashboard');
+        return redirect()->route('deliveryman.dashboard')->with([
+            'message' => trans('translate.Login successfully'),
+            'alert-type' => 'success'
+        ]);
     }
 
-   public function logout(){
-    Auth::guard('deliveryman')->logout();
-    $notification= trans('translate.admin_validation.Logout Successfully');
-    $notification=array('messege'=>$notification,'alert-type'=>'success');
-    return redirect()->route('deliveryman.login')->with($notification);
-}
+    public function logout(){
+        Auth::guard('deliveryman')->logout();
+        $notification = [
+            'message' => trans('translate.Logout successfully'),
+            'alert-type' => 'success'
+        ];
+        return redirect()->route('deliveryman.login')->with($notification);
+    }
 }

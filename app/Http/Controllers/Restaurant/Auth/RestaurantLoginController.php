@@ -64,22 +64,22 @@ class RestaurantLoginController extends Controller
 
         $this->validate($request, $rules, $custom_errors);
 
-        $restaurant = Restaurant::where('email', $request->email)->first();
+        $restaurant = Restaurant::withoutGlobalScope(\App\Models\Scopes\RestaurantLocationScope::class)->where('email', $request->email)->first();
 
         if (!$restaurant) {
-            return $this->redirectWithError(trans('translate.Email not found'));
+            return $this->redirectWithError(trans('translate.Email not found'), $request);
         }
 
         if (!Hash::check($request->password, $restaurant->password)) {
-            return $this->redirectWithError(trans('translate.Credentials do not match'));
+            return $this->redirectWithError(trans('translate.Credentials do not match'), $request);
         }
 
         if ($restaurant->admin_approval !== 'enable') {
-            return $this->redirectWithError(trans('translate.Your account is not approved yet'));
+            return $this->redirectWithError(trans('translate.Your account is not approved yet'), $request);
         }
 
         if ($restaurant->is_banned === 'enable') {
-            return $this->redirectWithError(trans('translate.Your account is banned'));
+            return $this->redirectWithError(trans('translate.Your account is banned'), $request);
         }
 
         // Attempt login
@@ -95,21 +95,28 @@ class RestaurantLoginController extends Controller
             ]);
         }
 
-        return $this->redirectWithError(trans('translate.Login failed due to unknown reasons'));
+        return $this->redirectWithError(trans('translate.Login failed due to unknown reasons'), $request);
     }
 
     /**
      * Helper function to handle redirect with error message.
      *
      * @param string $message
+     * @param Request|null $request
      * @return RedirectResponse
      */
-    protected function redirectWithError(string $message): RedirectResponse
+    protected function redirectWithError(string $message, ?Request $request = null): RedirectResponse
     {
-        return redirect()->back()->with([
+        $redirect = redirect()->back()->with([
             'message' => $message,
             'alert-type' => 'error'
         ]);
+
+        if ($request) {
+            $redirect->withInput($request->only('email', 'remember'));
+        }
+
+        return $redirect;
     }
 
 

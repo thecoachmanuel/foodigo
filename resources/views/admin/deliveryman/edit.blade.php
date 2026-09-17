@@ -77,6 +77,19 @@
                                                 <input class="crancy__item-input" type="text" name="phone" value="{{ $deliveryman->phone }}">
                                             </div>
 
+                                            <div class="crancy__item-form--group mg-top-25">
+                                                <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Status') }}</label>
+                                                <select class="crancy__item-input" name="status" id="status">
+                                                    <option value="1" {{ $deliveryman->status == 1 ? 'selected' : '' }}>{{ __('translate.Active') }}</option>
+                                                    <option value="0" {{ $deliveryman->status == 0 ? 'selected' : '' }}>{{ __('translate.Inactive') }}</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="crancy__item-form--group mg-top-25">
+                                                <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Password') }} ({{ __('translate.Leave blank to keep current password') }})</label>
+                                                <input class="crancy__item-input" type="password" name="password" placeholder="{{ __('translate.Enter new password') }}">
+                                            </div>
+
                                             <button class="crancy-btn mg-top-25" type="submit">{{ __('translate.Update') }}</button>
                                         </div>
                                         <!-- End Product Card -->
