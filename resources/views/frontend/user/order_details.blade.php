@@ -441,11 +441,19 @@
                             </div>
 
 
+                            @php
+                                $addressObj = is_string($order->delivery_address) ? json_decode($order->delivery_address) : (object) ($order->delivery_address ?? []);
+                                $destLat = (float)($addressObj->latitude ?? ($addressObj->lat ?? ($order->address?->lat ?? 0)));
+                                $destLng = (float)($addressObj->longitude ?? ($addressObj->lon ?? ($order->address?->lon ?? 0)));
+                                $origLat = (float)($order->restaurant?->latitude ?? 0);
+                                $origLng = (float)($order->restaurant?->longitude ?? 0);
+                            @endphp
+
                             <ul class="invoice_address">
                                 <li>{{__('translate.Order ID')}}: <span>{{$order->id}}</span></li>
                                 @if($order->order_type == 'delivery')
                                     <li>{{__('translate.Billing Address')}}:
-                                        <span>{{$order?->address?->address ?? __('Address not found')}}</span></li>
+                                        <span>{{$order?->address?->address ?? ($addressObj->address ?? __('Address not found'))}}</span></li>
                                     @if($order?->address)
                                         <li>{{__('translate.Type')}}: <span> {{$order->address->delivery_type}}</span></li>
                                     @endif
@@ -453,6 +461,18 @@
                                     <li>{{__('translate.Order Type')}}: <span>{{ucfirst($order->order_type)}}</span></li>
                                 @endif
                             </ul>
+
+                            @if($destLat != 0 || $origLat != 0)
+                                <div class="card p-3 mb-4 rounded-3 shadow-sm border-0" style="background: #ffffff;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <h6 class="m-0 fw-bold" style="color: #1e293b;">
+                                            <i class="fa-solid fa-map-location-dot text-primary me-2"></i> {{ __('translate.Live Delivery Route Map') }}
+                                        </h6>
+                                        <span class="badge bg-success text-white"><i class="fa-solid fa-location-dot me-1"></i> Foodigo Live Map</span>
+                                    </div>
+                                    <div id="user_order_map" style="height: 250px; width: 100%; border-radius: 10px; border: 1.5px solid #e2e8f0; z-index: 1;"></div>
+                                </div>
+                            @endif
 
 
                             <div class="dashboard_order_details_tabel">
@@ -741,3 +761,80 @@
         <!-- dashboard part end -->
     </main>
 @endsection
+
+@push('js_section')
+    @if($destLat != 0 || $origLat != 0)
+    <script>
+        "use strict";
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const mapEl = document.getElementById('user_order_map');
+            if (!mapEl) return;
+
+            let destLat = parseFloat("{{ $destLat }}") || 0;
+            let destLng = parseFloat("{{ $destLng }}") || 0;
+            let origLat = parseFloat("{{ $origLat }}") || 0;
+            let origLng = parseFloat("{{ $origLng }}") || 0;
+
+            let initialLat = destLat || origLat || 7.4250;
+            let initialLng = destLng || origLng || 3.9050;
+
+            const map = L.map('user_order_map', {
+                center: [initialLat, initialLng],
+                zoom: 14,
+                zoomControl: true
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const destPin = L.divIcon({
+                className: 'foodigo-leaflet-div-icon',
+                html: '<div class="foodigo-map-pin"><i class="fa-solid fa-location-dot"></i></div>',
+                iconSize: [34, 34],
+                iconAnchor: [17, 34],
+                popupAnchor: [0, -34]
+            });
+
+            const restPin = L.divIcon({
+                className: 'foodigo-leaflet-div-icon',
+                html: '<div class="foodigo-map-pin" style="background:#0284c7;"><i class="fa-solid fa-utensils"></i></div>',
+                iconSize: [34, 34],
+                iconAnchor: [17, 34],
+                popupAnchor: [0, -34]
+            });
+
+            const markers = [];
+
+            if (origLat !== 0 && origLng !== 0) {
+                const restMarker = L.marker([origLat, origLng], { icon: restPin }).addTo(map);
+                restMarker.bindPopup(`<b>{{ addslashes($order->restaurant?->restaurant_name ?? __('translate.Restaurant')) }}</b><br><small>{{ addslashes($order->restaurant?->address ?? '') }}</small>`);
+                markers.push(restMarker);
+            }
+
+            if (destLat !== 0 && destLng !== 0) {
+                const destMarker = L.marker([destLat, destLng], { icon: destPin }).addTo(map);
+                destMarker.bindPopup(`<b>{{ __('translate.Your Delivery Location') }}</b><br><small>{{ addslashes($order?->address?->address ?? ($addressObj->address ?? '')) }}</small>`).openPopup();
+                markers.push(destMarker);
+            }
+
+            if (markers.length === 2) {
+                const group = L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.25));
+                L.polyline([[origLat, origLng], [destLat, destLng]], {
+                    color: '#ea580c',
+                    dashArray: '6, 8',
+                    weight: 3,
+                    opacity: 0.85
+                }).addTo(map);
+            } else if (markers.length === 1) {
+                map.setView(markers[0].getLatLng(), 15);
+            }
+
+            setTimeout(() => { map.invalidateSize(); }, 250);
+        });
+    </script>
+    @endif
+@endpush

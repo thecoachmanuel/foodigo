@@ -177,10 +177,22 @@
                                 <div class="address_form_inner">
                                     <label class="crancy__item-label mb-2">{{ __('translate.Your Location') }} * </label>
 
-                                    <input id="searchMapInput" class="form-control" type="text"
-                                           placeholder="{{ __('translate.Enter Nigerian area, estate, or street (e.g. Bodija, Ikeja, Lekki)...') }}">
+                                    <div class="position-relative w-100">
+                                        <input id="searchMapInput" class="form-control" type="text"
+                                               placeholder="{{ __('translate.Search area, street, or estate...') }}" autocomplete="off" style="font-weight: 600;">
+                                    </div>
 
-                                    <div id="google_map_area" style="display: none;"></div>
+                                    <!-- Quick Location Actions Bar matching Home Screen -->
+                                    <div class="d-flex align-items-center justify-content-between mt-2 mb-2 px-1">
+                                        <small class="text-muted" style="font-size: 12px; font-weight: 500;">
+                                            <i class="fa-solid fa-map-pin text-warning me-1"></i> {{ __('translate.Drag pin or click map to adjust') }}
+                                        </small>
+                                        <button type="button" id="btn_detect_gps" class="btn btn-sm" style="font-size: 12px; font-weight: 700; color: #ea580c; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 6px;">
+                                            <i class="fa-solid fa-crosshairs"></i> <span id="btn_gps_text">{{ __('translate.Locate Me') }}</span>
+                                        </button>
+                                    </div>
+
+                                    <div id="google_map_area"></div>
                                 </div>
                             </div>
 
@@ -346,7 +358,37 @@
         }
 
         #google_map_area {
-            display: none !important;
+            height: 260px;
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 10px;
+            border: 1.5px solid #cbd5e1;
+            z-index: 1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .foodigo-leaflet-div-icon {
+            background: none !important;
+            border: none !important;
+        }
+
+        .foodigo-map-pin {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: #ea580c;
+            border: 2.5px solid #ffffff;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+        }
+
+        .foodigo-map-pin i {
+            transform: rotate(45deg);
+            color: #ffffff;
+            font-size: 15px;
         }
 
         /* High-Contrast Pure Black on White Autocomplete Dropdown */
@@ -429,6 +471,165 @@
         }
 
         $(document).ready(function() {
+            let addrMap = null;
+            let addrMarker = null;
+            let defaultLat = parseFloat("{{ session('latitude', '7.4250') }}") || 7.4250;
+            let defaultLng = parseFloat("{{ session('longitude', '3.9050') }}") || 3.9050;
+
+            const foodigoPinIcon = L.divIcon({
+                className: 'foodigo-leaflet-div-icon',
+                html: '<div class="foodigo-map-pin"><i class="fa-solid fa-location-dot"></i></div>',
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36]
+            });
+
+            function initAddressMap() {
+                const mapEl = document.getElementById('google_map_area');
+                if (!mapEl || addrMap) return;
+
+                addrMap = L.map('google_map_area', {
+                    center: [defaultLat, defaultLng],
+                    zoom: 14,
+                    zoomControl: true
+                });
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(addrMap);
+
+                addrMarker = L.marker([defaultLat, defaultLng], {
+                    draggable: true,
+                    icon: foodigoPinIcon
+                }).addTo(addrMap);
+
+                function updateCoords(lat, lng, addressText) {
+                    $('#latitude').val(lat);
+                    $('#longitude').val(lng);
+                    if (addressText) {
+                        $('#plain_address').val(addressText);
+                        $('#searchMapInput').val(addressText);
+                        addrMarker.bindPopup(`<b>${addressText}</b>`).openPopup();
+                    } else {
+                        fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data && data.address) {
+                                    $('#plain_address').val(data.address);
+                                    $('#searchMapInput').val(data.address);
+                                    addrMarker.bindPopup(`<b>${data.address}</b>`).openPopup();
+                                }
+                            })
+                            .catch(console.warn);
+                    }
+                }
+
+                addrMarker.on('dragend', function(e) {
+                    const pos = e.target.getLatLng();
+                    updateCoords(pos.lat, pos.lng);
+                });
+
+                addrMap.on('click', function(e) {
+                    addrMarker.setLatLng(e.latlng);
+                    updateCoords(e.latlng.lat, e.latlng.lng);
+                });
+            }
+
+            $('#exampleModal').on('shown.bs.modal', function () {
+                if (!addrMap) {
+                    initAddressMap();
+                }
+                setTimeout(() => {
+                    if (addrMap) addrMap.invalidateSize();
+                }, 150);
+            });
+
+            // Locate Me GPS Button Handler
+            $('#btn_detect_gps').on('click', function() {
+                if (!addrMap) initAddressMap();
+                const $text = $('#btn_gps_text');
+                $text.text("{{ __('translate.Locating...') }}");
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            const lat = pos.coords.latitude;
+                            const lng = pos.coords.longitude;
+                            if (addrMap && addrMarker) {
+                                addrMap.setView([lat, lng], 16);
+                                addrMarker.setLatLng([lat, lng]);
+                            }
+                            $('#latitude').val(lat);
+                            $('#longitude').val(lng);
+                            fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data && data.address) {
+                                        $('#plain_address').val(data.address);
+                                        $('#searchMapInput').val(data.address);
+                                        if (addrMarker) addrMarker.bindPopup(`<b>${data.address}</b>`).openPopup();
+                                    }
+                                })
+                                .catch(console.warn);
+
+                            $text.text("{{ __('translate.Located!') }}");
+                            setTimeout(() => { $text.text("{{ __('translate.Locate Me') }}"); }, 2000);
+                        },
+                        function(err) {
+                            $text.text("{{ __('translate.Locate Me') }}");
+                            toastr.warning("{{ __('translate.Could not access GPS. Please pinpoint your location on the map or type your address.') }}");
+                        },
+                        { enableHighAccuracy: true, timeout: 8000 }
+                    );
+                } else {
+                    $text.text("{{ __('translate.Locate Me') }}");
+                    toastr.warning("{{ __('translate.Geolocation is not supported by your browser.') }}");
+                }
+            });
+
+            // Auto-Geocoding Function: Converts typed text directly into lat/lng + moves pin
+            let geocodeTimer = null;
+            function autoGeocodeAddress(queryText, updateOtherFieldSelector) {
+                if (!queryText || queryText.trim().length < 2) return;
+                clearTimeout(geocodeTimer);
+                geocodeTimer = setTimeout(() => {
+                    fetch(`/api/geocode/search?q=${encodeURIComponent(queryText.trim())}`)
+                        .then(res => res.json())
+                        .then(results => {
+                            if (results && results.length > 0) {
+                                const top = results[0];
+                                $('#latitude').val(top.lat);
+                                $('#longitude').val(top.lng);
+                                if (updateOtherFieldSelector) {
+                                    $(updateOtherFieldSelector).val(top.name);
+                                }
+                                if (addrMap && addrMarker) {
+                                    addrMap.setView([top.lat, top.lng], 16);
+                                    addrMarker.setLatLng([top.lat, top.lng]);
+                                    addrMarker.bindPopup(`<b>${top.name}</b>`).openPopup();
+                                }
+                            }
+                        })
+                        .catch(console.warn);
+                }, 400);
+            }
+
+            // Bind real-time input / paste / change events to auto-populate lat/lng
+            $('#plain_address').on('input paste change', function() {
+                const val = $(this).val();
+                if (val && val.trim().length >= 3) {
+                    autoGeocodeAddress(val, '#searchMapInput');
+                }
+            });
+
+            $('#searchMapInput').on('input paste change', function() {
+                const val = $(this).val();
+                if (val && val.trim().length >= 3) {
+                    autoGeocodeAddress(val, '#plain_address');
+                }
+            });
+
             if (window.NigeriaGeo) {
                 window.NigeriaGeo.attach('#searchMapInput', {
                     latField: '#latitude, .latitude',
@@ -438,6 +639,11 @@
                         $('#plain_address').val(item.name);
                         $('#latitude').val(item.lat);
                         $('#longitude').val(item.lng);
+                        if (addrMap && addrMarker) {
+                            addrMap.setView([item.lat, item.lng], 16);
+                            addrMarker.setLatLng([item.lat, item.lng]);
+                            addrMarker.bindPopup(`<b>${item.name}</b>`).openPopup();
+                        }
                     }
                 });
 
@@ -448,6 +654,11 @@
                     onSelect: function(item) {
                         $('#latitude').val(item.lat);
                         $('#longitude').val(item.lng);
+                        if (addrMap && addrMarker) {
+                            addrMap.setView([item.lat, item.lng], 16);
+                            addrMarker.setLatLng([item.lat, item.lng]);
+                            addrMarker.bindPopup(`<b>${item.name}</b>`).openPopup();
+                        }
                     }
                 });
             }

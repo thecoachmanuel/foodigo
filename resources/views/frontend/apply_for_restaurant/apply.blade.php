@@ -133,13 +133,13 @@
                                             <div class="edit_profile_form_inner d-none">
                                                 <label for="latitude" class="form-label  mb-2 mt-2">{{__('translate.Latitude *')}}</label>
                                                 <input type="text" class="form-control" id="latitude"
-                                                    name="latitude" readonly>
+                                                    name="latitude" value="{{ old('latitude') }}" readonly>
                                             </div>
 
                                             <div class="edit_profile_form_inner d-none">
                                                 <label for="longitude" class="form-label  mb-2 mt-2">{{__('translate.Longitude *')}}</label>
                                                 <input type="text" class="form-control" id="longitude"
-                                                    name="longitude" readonly>
+                                                    name="longitude" value="{{ old('longitude') }}" readonly>
                                             </div>
 
                                             <div class="edit_profile_form_inner">
@@ -149,17 +149,26 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6">
-                                          <div class="b-b" >
-                                            <label class="crancy__item-label mb-2">{{ __('translate.Your Location') }} * </label>
+                                         <div class="col-md-6">
+                                           <div class="b-b" >
+                                             <label class="crancy__item-label mb-2">{{ __('translate.Your Location') }} * </label>
+                                             <div class="position-relative w-100">
+                                                 <input id="searchMapInput" class="form-control" type="text" placeholder="{{ __('translate.Search area, street, or estate...') }}" autocomplete="off" style="font-weight: 600;">
+                                             </div>
 
-                                            <input id="searchMapInput" class="mapControls" type="text" placeholder="{{ __('translate.Enter a location') }}">
+                                             <!-- Quick Location Actions Bar matching Home Screen -->
+                                             <div class="d-flex align-items-center justify-content-between mt-2 mb-2 px-1">
+                                                 <small class="text-muted" style="font-size: 12px; font-weight: 500;">
+                                                     <i class="fa-solid fa-map-pin text-warning me-1"></i> {{ __('translate.Drag pin or click map to adjust') }}
+                                                 </small>
+                                                 <button type="button" id="btn_detect_gps" class="btn btn-sm" style="font-size: 12px; font-weight: 700; color: #ea580c; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 6px;">
+                                                     <i class="fa-solid fa-crosshairs"></i> <span id="btn_gps_text">{{ __('translate.Locate Me') }}</span>
+                                                 </button>
+                                             </div>
 
-                                            <div id="google_map_area">
-
-                                            </div>
-                                          </div>
-                                        </div>
+                                             <div id="google_map_area"></div>
+                                           </div>
+                                         </div>
                                    </div>
                                 </div>
 
@@ -336,15 +345,19 @@
 @push('style_section')
 
 <link rel="stylesheet" href="{{ asset('global/select2/select2.min.css') }}">
-
 <link rel="stylesheet" href="{{ asset('global/tagify/tagify.css') }}">
-
 <link rel="stylesheet" href="{{ asset('global/clockpicker/bootstrap-clockpicker.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
     <style>
         #google_map_area {
-            height: 450px;
+            height: 400px;
             width: 100%;
+            border-radius: 12px;
+            margin-top: 12px;
+            border: 1.5px solid #cbd5e1;
+            z-index: 1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
 
         .tox .tox-promotion,
@@ -352,52 +365,95 @@
             display: none !important;
         }
 
-        #map {
-            width: 100%;
-            height: 400px;
+        .foodigo-leaflet-div-icon {
+            background: none !important;
+            border: none !important;
         }
 
-        .mapControls {
-            margin-top: 10px;
-            border: 1px solid transparent;
-            border-radius: 2px 0 0 2px;
-            box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            height: 32px;
-            outline: none;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        .foodigo-map-pin {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: #ea580c;
+            border: 2.5px solid #ffffff;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.35);
         }
 
-        #searchMapInput {
-            background-color: #fff;
-            font-family: Roboto;
+        .foodigo-map-pin i {
+            transform: rotate(45deg);
+            color: #ffffff;
             font-size: 15px;
-            font-weight: 300;
-            margin-left: 12px;
-            padding: 0 11px 0 13px;
-            text-overflow: ellipsis;
-            width: 50%;
-            margin-top: 8px !important;
         }
 
-        #searchMapInput:focus {
-            border-color: #4d90fe;
+        /* High-Contrast Autocomplete Dropdown */
+        .nga-geo-wrapper {
+            position: relative !important;
+            width: 100% !important;
+            display: block !important;
         }
-
-
+        .nga-geo-dropdown {
+            position: absolute !important;
+            top: calc(100% + 4px) !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            z-index: 10000050 !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            border: 2px solid #000000 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.35), 0 8px 15px -6px rgba(0, 0, 0, 0.2) !important;
+            max-height: 280px !important;
+            overflow-y: auto !important;
+            padding: 0 !important;
+            display: none;
+        }
+        .nga-geo-item {
+            padding: 10px 14px !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            transition: all 0.15s ease !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            color: #000000 !important;
+            background: #ffffff !important;
+        }
+        .nga-geo-item:hover, .nga-geo-item.active {
+            background-color: #f1f5f9 !important;
+            border-left: 4px solid #ea580c !important;
+            padding-left: 14px !important;
+        }
+        .nga-geo-title {
+            font-weight: 700 !important;
+            color: #000000 !important;
+            font-size: 14px !important;
+            line-height: 1.35 !important;
+            display: block !important;
+        }
+        .nga-geo-subtitle {
+            font-size: 12.5px !important;
+            color: #475569 !important;
+            font-weight: 500 !important;
+            line-height: 1.3 !important;
+            margin-top: 2px !important;
+            display: block !important;
+        }
     </style>
-
 
 @endpush
 
 @push('js_section')
 
-
     <script src="{{ asset('global/select2/select2.min.js') }}"></script>
-
     <script src="{{ asset('global/tagify/tagify.js') }}"></script>
-
     <script src="{{ asset('global/clockpicker/bootstrap-clockpicker.js') }}"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="{{ asset('frontend/js/nigeria-geo-autocomplete.js') }}"></script>
 
     <script>
         (function($) {
@@ -410,15 +466,12 @@
                 })
 
                 $('.select2').select2();
-
                 $('.tags').tagify();
-
                 $('.clockpicker').clockpicker();
 
                 $('.reset_btn').on('click', function(){
                     location.reload();
                 })
-
             });
         })(jQuery);
 
@@ -428,7 +481,6 @@
                 var output = document.getElementById('view_img');
                 output.src = reader.result;
             }
-
             reader.readAsDataURL(event.target.files[0]);
         };
 
@@ -438,142 +490,180 @@
                 var output = document.getElementById('view_cover_img');
                 output.src = reader.result;
             }
-
             reader.readAsDataURL(event.target.files[0]);
         };
-
     </script>
 
-
     <script>
-
         "use strict";
 
         document.addEventListener("DOMContentLoaded", function() {
+            let defaultLat = parseFloat("{{ old('latitude', '7.4250') }}") || 7.4250;
+            let defaultLng = parseFloat("{{ old('longitude', '3.9050') }}") || 3.9050;
 
-        let my_location_lat = 0;
-        let my_location_long = 0;
-        var googleMapsLoaded = false;
-        // get current location
-
-
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                alert("{{ __('translate.Geolocation is not supported by this browser.') }}");
-            }
-        }
-
-        function showError(error) {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    alert("{{ __('translate.Please enable to Geolocation in yor browser ') }}");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("{{ __('translate.Location information is unavailable.') }}");
-                    break;
-                case error.TIMEOUT:
-                    alert("{{ __('translate.The request to get user location timed out.') }}");
-                    break;
-                default:
-                    alert("{{ __('translate.An unknown error occurred.') }}");
-                    break;
-            }
-        }
-
-        function showPosition(position) {
-            my_location_lat = position.coords.latitude;
-            my_location_long = position.coords.longitude;
-            if (googleMapsLoaded) {
-                initMap();
-            }
-        }
-
-
-        function loadGoogleMapsAPI(callback) {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key={{ google_map_key() ?: env('MAP_API') }}&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            script.onload = function () {
-                googleMapsLoaded = true;
-                callback();
-            };
-            document.head.appendChild(script);
-        }
-
-        loadGoogleMapsAPI(function () {
-            initMap();
-        });
-
-        window.initMap = function(){
-            var map = new google.maps.Map(document.getElementById('google_map_area'), {
-                center: {
-                    lat: my_location_lat,
-                    lng: my_location_long
-                },
-                zoom: 13
-            });
-            var input = document.getElementById('searchMapInput');
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-            var autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
-
-            var infowindow = new google.maps.InfoWindow();
-            var marker = new google.maps.Marker({
-                position: { lat: parseFloat(my_location_lat), lng: parseFloat(my_location_long) },
-                map: map,
-                draggable: true
+            const foodigoPinIcon = L.divIcon({
+                className: 'foodigo-leaflet-div-icon',
+                html: '<div class="foodigo-map-pin"><i class="fa-solid fa-location-dot"></i></div>',
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -36]
             });
 
-            autocomplete.addListener('place_changed', function() {
-                infowindow.close();
-                marker.setVisible(false);
-                var place = autocomplete.getPlace();
+            const map = L.map('google_map_area', {
+                center: [defaultLat, defaultLng],
+                zoom: 14,
+                zoomControl: true
+            });
 
-                /* If the place has a geometry, then present it on a map. */
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const marker = L.marker([defaultLat, defaultLng], {
+                draggable: true,
+                icon: foodigoPinIcon
+            }).addTo(map);
+
+            function updateLocation(lat, lng, addressText) {
+                $('#latitude').val(lat);
+                $('#longitude').val(lng);
+                if (addressText) {
+                    $('#plain_address').val(addressText);
+                    $('#searchMapInput').val(addressText);
+                    marker.bindPopup(`<b>${addressText}</b>`).openPopup();
                 } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17);
+                    fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data && data.address) {
+                                $('#plain_address').val(data.address);
+                                $('#searchMapInput').val(data.address);
+                                marker.bindPopup(`<b>${data.address}</b>`).openPopup();
+                            }
+                        })
+                        .catch(console.warn);
                 }
-                marker.setIcon(({
-                    url: place.icon,
-                    size: new google.maps.Size(71, 71),
-                    origin: new google.maps.Point(0, 0),
-                    anchor: new google.maps.Point(17, 34),
-                    scaledSize: new google.maps.Size(35, 35)
-                }));
-                marker.setPosition(place.geometry.location);
-                marker.setVisible(true);
+            }
 
-                var address = '';
-                if (place.address_components) {
-                    address = [
-                        (place.address_components[0] && place.address_components[0].short_name || ''),
-                        (place.address_components[1] && place.address_components[1].short_name || ''),
-                        (place.address_components[2] && place.address_components[2].short_name || '')
-                    ].join(' ');
-                }
-
-                infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-                infowindow.open(map, marker);
-
-
-                $("#plain_address").val(place.formatted_address);
-                $("#latitude").val(place.geometry.location.lat());
-                $("#longitude").val(place.geometry.location.lng());
-
+            // Draggable pin event
+            marker.on('dragend', function(e) {
+                const pos = e.target.getLatLng();
+                updateLocation(pos.lat, pos.lng);
             });
-        }
 
+            // Map click event
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                updateLocation(e.latlng.lat, e.latlng.lng);
+            });
 
-        getLocation()
+            // Locate Me GPS Button Handler
+            $('#btn_detect_gps').on('click', function() {
+                const $text = $('#btn_gps_text');
+                $text.text("{{ __('translate.Locating...') }}");
 
-    });
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            const lat = pos.coords.latitude;
+                            const lng = pos.coords.longitude;
+                            map.setView([lat, lng], 16);
+                            marker.setLatLng([lat, lng]);
+                            updateLocation(lat, lng);
+                            $text.text("{{ __('translate.Located!') }}");
+                            setTimeout(() => { $text.text("{{ __('translate.Locate Me') }}"); }, 2000);
+                        },
+                        function(err) {
+                            $text.text("{{ __('translate.Locate Me') }}");
+                            toastr.warning("{{ __('translate.Could not access GPS. Please pinpoint your location on the map or type your address.') }}");
+                        },
+                        { enableHighAccuracy: true, timeout: 8000 }
+                    );
+                } else {
+                    $text.text("{{ __('translate.Locate Me') }}");
+                    toastr.warning("{{ __('translate.Geolocation is not supported by your browser.') }}");
+                }
+            });
+
+            // Auto-detect GPS on first load if on default coordinates
+            if (navigator.geolocation && defaultLat === 7.4250 && defaultLng === 3.9050 && !$('#latitude').val()) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    map.setView([lat, lng], 15);
+                    marker.setLatLng([lat, lng]);
+                    updateLocation(lat, lng);
+                }, function() {});
+            }
+
+            // Auto-Geocoding Function: Converts typed text directly into lat/lng + moves pin
+            let geocodeTimer = null;
+            function autoGeocodeAddress(queryText, updateOtherFieldSelector) {
+                if (!queryText || queryText.trim().length < 2) return;
+                clearTimeout(geocodeTimer);
+                geocodeTimer = setTimeout(() => {
+                    fetch(`/api/geocode/search?q=${encodeURIComponent(queryText.trim())}`)
+                        .then(res => res.json())
+                        .then(results => {
+                            if (results && results.length > 0) {
+                                const top = results[0];
+                                $('#latitude').val(top.lat);
+                                $('#longitude').val(top.lng);
+                                if (updateOtherFieldSelector) {
+                                    $(updateOtherFieldSelector).val(top.name);
+                                }
+                                map.setView([top.lat, top.lng], 16);
+                                marker.setLatLng([top.lat, top.lng]);
+                                marker.bindPopup(`<b>${top.name}</b>`).openPopup();
+                            }
+                        })
+                        .catch(console.warn);
+                }, 400);
+            }
+
+            // Bind real-time input / paste / change events to auto-populate lat/lng
+            $('#plain_address').on('input paste change', function() {
+                const val = $(this).val();
+                if (val && val.trim().length >= 3) {
+                    autoGeocodeAddress(val, '#searchMapInput');
+                }
+            });
+
+            $('#searchMapInput').on('input paste change', function() {
+                const val = $(this).val();
+                if (val && val.trim().length >= 3) {
+                    autoGeocodeAddress(val, '#plain_address');
+                }
+            });
+
+            // NigeriaGeo Autocomplete Integration
+            if (window.NigeriaGeo) {
+                window.NigeriaGeo.attach('#searchMapInput', {
+                    latField: '#latitude',
+                    lngField: '#longitude',
+                    plainAddressField: '#plain_address',
+                    onSelect: function(item) {
+                        map.setView([item.lat, item.lng], 16);
+                        marker.setLatLng([item.lat, item.lng]);
+                        updateLocation(item.lat, item.lng, item.name);
+                    }
+                });
+
+                window.NigeriaGeo.attach('#plain_address', {
+                    latField: '#latitude',
+                    lngField: '#longitude',
+                    plainAddressField: '#searchMapInput',
+                    onSelect: function(item) {
+                        map.setView([item.lat, item.lng], 16);
+                        marker.setLatLng([item.lat, item.lng]);
+                        updateLocation(item.lat, item.lng, item.name);
+                    }
+                });
+            }
+
+            setTimeout(() => { map.invalidateSize(); }, 300);
+        });
     </script>
 @endpush
 
