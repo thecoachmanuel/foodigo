@@ -36,7 +36,7 @@ class DeliveryManLoginController extends BaseController
                 return $this->sendError('Email not found', [], 404);
             }
 
-            if (!$deliveryMan->is_email_verified) {
+            if (!$deliveryMan->is_email_verified && (int)$deliveryMan->status !== 1) {
                 return $this->sendError('Please verify your email first', [], 401);
             }
 

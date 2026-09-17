@@ -4,7 +4,7 @@
 @endsection
 @section('body-header')
     <h3 class="crancy-header__title m-0">{{ __('translate.Create Deliveryman') }}</h3>
-    <p class="crancy-header__text">{{ __('translate.Dashboard') }} >> {{ __('translate.Create Deliveryman') }}</p>
+    <p class="crancy-header__text">{{ __('translate.Manage Deliveryman') }} >> {{ __('translate.Create Deliveryman') }}</p>
 @endsection
 @section('body-content')
     <!-- crancy Dashboard -->
@@ -21,54 +21,76 @@
                                     <div class="col-12 mg-top-30">
                                         <!-- Product Card -->
                                         <div class="crancy-product-card">
-                                            <h4 class="crancy-product-card__title">{{ __('translate.Basic Information') }}</h4>
+                                            <h4 class="crancy-product-card__title">{{ __('translate.Deliveryman Information') }}</h4>
+                                            
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <div class="crancy__item-form--group w-100 h-100">
-                                                        <label class="crancy__item-label">{{ __('translate.Image') }}
-                                                            * </label>
-                                                        <div
-                                                            class="crancy-product-card__upload crancy-product-card__upload--border">
-                                                            <input type="file" class="btn-check" name="man_image"
-                                                                   required id="input-img1" autocomplete="off"
-                                                                   onchange="previewImage(event)">
-                                                            <label class="crancy-image-video-upload__label"
-                                                                   for="input-img1">
-                                                                <img id="view_img"
-                                                                     src="{{ asset($general_setting->placeholder_image) }}">
+                                                        <label class="crancy__item-label">{{ __('translate.Profile Image') }} *</label>
+                                                        <div class="crancy-product-card__upload crancy-product-card__upload--border">
+                                                            <input type="file" class="btn-check" name="man_image" id="input-img1" autocomplete="off" onchange="previewImage(event)">
+                                                            <label class="crancy-image-video-upload__label" for="input-img1">
+                                                                <img id="view_img" src="{{ asset($general_setting->placeholder_image ?? 'uploads/website-images/default-avatar.png') }}">
                                                                 <h4 class="crancy-image-video-upload__title">{{ __('translate.Click here to') }}
-                                                                    <span
-                                                                        class="crancy-primary-color">{{ __('translate.Choose File') }}</span> {{ __('translate.and upload') }}
+                                                                    <span class="crancy-primary-color">{{ __('translate.Choose File') }}</span> {{ __('translate.and upload') }}
                                                                 </h4>
                                                             </label>
                                                         </div>
                                                     </div>
                                                 </div>
-
-
                                             </div>
 
-                                            <div class="crancy__item-form--group mg-top-25">
-                                                <label class="crancy__item-label crancy__item-label-product">{{ __('translate.First Name') }}</label>
-                                                <input class="crancy__item-input" type="text" name="fname" >
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="crancy__item-form--group mg-top-25">
+                                                        <label class="crancy__item-label crancy__item-label-product">{{ __('translate.First Name') }} *</label>
+                                                        <input class="crancy__item-input" type="text" name="fname" value="{{ old('fname') }}" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="crancy__item-form--group mg-top-25">
+                                                        <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Last Name') }}</label>
+                                                        <input class="crancy__item-input" type="text" name="lname" value="{{ old('lname') }}">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="crancy__item-form--group mg-top-25">
+                                                        <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Email') }} *</label>
+                                                        <input class="crancy__item-input" type="email" name="email" value="{{ old('email') }}" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="crancy__item-form--group mg-top-25">
+                                                        <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Password') }} *</label>
+                                                        <input class="crancy__item-input" type="password" name="password" required autocomplete="new-password">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="crancy__item-form--group mg-top-25">
+                                                        <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Phone') }} *</label>
+                                                        <input class="crancy__item-input" type="text" name="phone" value="{{ old('phone') }}" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="crancy__item-form--group mg-top-25">
+                                                        <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Status') }} *</label>
+                                                        <select class="form-select crancy__item-input" name="status">
+                                                            <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>{{ __('translate.Active') }}</option>
+                                                            <option value="0" {{ old('status') === '0' ? 'selected' : '' }}>{{ __('translate.Inactive') }}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
 
-                                            <div class="crancy__item-form--group mg-top-25">
-                                                <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Email') }}</label>
-                                                <input class="crancy__item-input" type="email" name="email" >
+                                            <div class="d-flex gap-2 mg-top-25">
+                                                <a href="{{ route('admin.deliveryman-index') }}" class="crancy-btn user_delete_btn" style="text-decoration: none; text-align: center;">{{ __('translate.Cancel') }}</a>
+                                                <button class="crancy-btn" type="submit">{{ __('translate.Save Deliveryman') }}</button>
                                             </div>
-
-                                            <div class="crancy__item-form--group mg-top-25">
-                                                <label class="crancy__item-label crancy__item-label-product">{{ __('translate.password') }}</label>
-                                                <input class="crancy__item-input" type="text" name="password">
-                                            </div>
-
-                                            <div class="crancy__item-form--group mg-top-25">
-                                                <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Phone') }}</label>
-                                                <input class="crancy__item-input" type="text" name="phone">
-                                            </div>
-
-                                            <button class="crancy-btn mg-top-25" type="submit">{{ __('translate.Save') }}</button>
 
                                         </div>
                                         <!-- End Product Card -->
@@ -79,7 +101,6 @@
                         <!-- End Dashboard Inner -->
                     </div>
                 </div>
-
 
             </div>
         </div>
@@ -98,18 +119,9 @@
                 output.src = reader.result;
             }
 
-            reader.readAsDataURL(event.target.files[0]);
-        };
-
-        function reviewImage(event) {
-            var reader = new FileReader();
-            reader.onload = function(){
-                var output = document.getElementById('view_img');
-                output.src = reader.result;
+            if (event.target.files && event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
             }
-
-            reader.readAsDataURL(event.target.files[0]);
         };
     </script>
 @endpush
-

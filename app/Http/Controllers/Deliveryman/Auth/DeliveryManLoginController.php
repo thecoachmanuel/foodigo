@@ -47,14 +47,12 @@ class DeliveryManLoginController extends Controller
             return back()->withInput($request->only('email', 'remember'))->withErrors(['password' => trans('translate.Invalid Password')]);
         }
 
-        if ($deliveryMan->status != 1) {
+        if ((int)$deliveryMan->status !== 1) {
             return back()->withInput($request->only('email', 'remember'))->withErrors(['email' => trans('translate.Your account is inactive or pending approval')]);
         }
 
-        // Perform authentication
-        if (!Auth::guard('deliveryman')->attempt($credentials, $request->has('remember'))) {
-            return back()->withInput($request->only('email', 'remember'))->withErrors(['password' => trans('translate.Login failed due to invalid credentials')]);
-        }
+        Auth::guard('deliveryman')->login($deliveryMan, $request->boolean('remember'));
+        $request->session()->regenerate();
 
         return redirect()->route('deliveryman.dashboard')->with([
             'message' => trans('translate.Login successfully'),

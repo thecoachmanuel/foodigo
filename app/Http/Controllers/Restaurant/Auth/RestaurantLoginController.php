@@ -82,20 +82,13 @@ class RestaurantLoginController extends Controller
             return $this->redirectWithError(trans('translate.Your account is banned'), $request);
         }
 
-        // Attempt login
-        $credentials = [
-            'email' => $request->email,
-            'password' => $request->password,
-        ];
+        Auth::guard('restaurant')->login($restaurant, $request->boolean('remember'));
+        $request->session()->regenerate();
 
-        if (Auth::guard('restaurant')->attempt($credentials, $request->remember)) {
-            return redirect()->route('restaurant.dashboard')->with([
-                'message' => trans('translate.Login successfully'),
-                'alert-type' => 'success'
-            ]);
-        }
-
-        return $this->redirectWithError(trans('translate.Login failed due to unknown reasons'), $request);
+        return redirect()->route('restaurant.dashboard')->with([
+            'message' => trans('translate.Login successfully'),
+            'alert-type' => 'success'
+        ]);
     }
 
     /**

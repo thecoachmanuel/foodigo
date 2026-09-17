@@ -73,21 +73,37 @@ class DeliveryManController extends Controller
     }
 
     public function deliveryman_store(Request $request){
+        $request->validate([
+            'fname' => 'required|string|max:255',
+            'email' => 'required|email|unique:delivery_men,email',
+            'password' => 'required|string|min:4',
+            'phone' => 'required|string|max:255',
+        ], [
+            'fname.required' => trans('translate.First name is required'),
+            'email.required' => trans('translate.Email is required'),
+            'email.email' => trans('translate.Invalid email format'),
+            'email.unique' => trans('translate.Email already exists'),
+            'password.required' => trans('translate.Password is required'),
+            'password.min' => trans('translate.Password must be at least 4 characters'),
+            'phone.required' => trans('translate.Phone is required'),
+        ]);
 
-        $deliveryman = new Deliveryman();
+        $deliveryman = new DeliveryMan();
         $deliveryman->fname = $request->fname;
-        $deliveryman->lname = 'test';
-        $deliveryman->status = '1';
-        $deliveryman->man_type = 'male';
+        $deliveryman->lname = $request->lname ?? '';
+        $deliveryman->status = $request->has('status') ? (int)$request->status : 1;
+        $deliveryman->man_type = $request->man_type ?? 'delivery_man';
         $deliveryman->email = $request->email;
         $deliveryman->password = Hash::make($request->password);
         $deliveryman->phone = $request->phone;
+        $deliveryman->is_email_verified = 1;
+        $deliveryman->verified_at = now();
 
         if ($request->hasFile('man_image')) {
             try {
                 $user_image = $request->file('man_image');
                 $extension = $user_image->getClientOriginalExtension();
-                $image_name = $request->fname . date('-Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $extension;
+                $image_name = Str::slug($request->fname) . date('-Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $extension;
 
                 $image_path = 'uploads/custom-images/' . $image_name;
 
@@ -109,29 +125,40 @@ class DeliveryManController extends Controller
 
         $deliveryman->save();
 
-        $notification=trans('translate.Deliveryman created successfully');
-        $notification=array('message'=>$notification,'alert-type'=>'success');
-        return redirect()->back()->with($notification);
-
+        $notification = ['message' => trans('translate.Deliveryman created successfully'), 'alert-type' => 'success'];
+        return redirect()->route('admin.deliveryman-index')->with($notification);
     }
 
     public function deliveryman_edit($id)
     {
-        $deliveryman = Deliveryman::findOrFail($id);
+        $deliveryman = DeliveryMan::findOrFail($id);
         return view('admin.deliveryman.edit', compact('deliveryman'));
     }
 
 
     public function deliveryman_update(Request $request, $id)
     {
-        $deliveryman = Deliveryman::findOrFail($id);
+        $deliveryman = DeliveryMan::findOrFail($id);
+
+        $request->validate([
+            'fname' => 'required|string|max:255',
+            'email' => 'required|email|unique:delivery_men,email,' . $id,
+            'password' => 'nullable|string|min:4',
+            'phone' => 'required|string|max:255',
+        ], [
+            'fname.required' => trans('translate.First name is required'),
+            'email.required' => trans('translate.Email is required'),
+            'email.email' => trans('translate.Invalid email format'),
+            'email.unique' => trans('translate.Email already exists'),
+            'phone.required' => trans('translate.Phone is required'),
+        ]);
 
         $deliveryman->fname = $request->fname;
-        $deliveryman->lname = $request->lname;
+        $deliveryman->lname = $request->lname ?? $deliveryman->lname;
         $deliveryman->email = $request->email;
         $deliveryman->idn_type = $request->idn_type;
         $deliveryman->idn_num = $request->idn_num;
-        $deliveryman->man_type = $request->man_type;
+        $deliveryman->man_type = $request->man_type ?? $deliveryman->man_type;
         $deliveryman->phone = $request->phone;
         if ($request->has('status')) {
             $deliveryman->status = (int)$request->status;
@@ -140,12 +167,11 @@ class DeliveryManController extends Controller
             $deliveryman->password = Hash::make($request->password);
         }
 
-
         if ($request->hasFile('man_image')) {
             try {
                 $user_image = $request->file('man_image');
                 $extension = $user_image->getClientOriginalExtension();
-                $image_name = $request->fname . date('-Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $extension;
+                $image_name = Str::slug($request->fname) . date('-Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $extension;
 
                 $image_path = 'uploads/custom-images/' . $image_name;
 
@@ -161,16 +187,14 @@ class DeliveryManController extends Controller
                 // Update the deliveryman image path
                 $deliveryman->man_image = $image_path;
             } catch (\Exception $e) {
-                // Log the error message or handle it accordingly
                 Log::error('Image upload failed: ' . $e->getMessage());
             }
         }
 
         $deliveryman->save(); // Save the updated deliveryman data
 
-        $notification=trans('translate.Deliveryman updated successfully');
-        $notification=array('message'=>$notification,'alert-type'=>'success');
-        return redirect()->back()->with($notification);
+        $notification = ['message' => trans('translate.Deliveryman updated successfully'), 'alert-type' => 'success'];
+        return redirect()->route('admin.deliveryman-index')->with($notification);
     }
 
     public function deliveryman_pending(){
