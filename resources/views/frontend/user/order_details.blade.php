@@ -634,33 +634,17 @@
 
                                                                         <h3 class="mt-3 mb-3">{{ __('translate.Submit Review') }}</h3>
 
-                                                                        <div id="full-stars-example-{{ $key }}" class="mt-3">
-                                                                            <div class="rating-group">
-                                                                                <input class="rating__input rating__input--none" name="rating" id="rating{{ $key }}-none" value="5" type="radio">
-                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-1" value="1" type="radio">
-                                                                                <label aria-label="1 star" class="rating__label" for="rating{{ $key }}-1">
-                                                                                    <i class="rating__icon rating__icon--star fa fa-star"></i>
-                                                                                </label>
-
-                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-2" value="2" type="radio">
-                                                                                <label aria-label="2 stars" class="rating__label" for="rating{{ $key }}-2">
-                                                                                    <i class="rating__icon rating__icon--star fa fa-star"></i>
-                                                                                </label>
-
-                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-3" value="3" type="radio">
-                                                                                <label aria-label="3 stars" class="rating__label" for="rating{{ $key }}-3">
-                                                                                    <i class="rating__icon rating__icon--star fa fa-star"></i>
-                                                                                </label>
-
-                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-4" value="4" type="radio">
-                                                                                <label aria-label="4 stars" class="rating__label" for="rating{{ $key }}-4">
-                                                                                    <i class="rating__icon rating__icon--star fa fa-star"></i>
-                                                                                </label>
-
-                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-5" value="5" type="radio" checked>
-                                                                                <label aria-label="5 stars" class="rating__label" for="rating{{ $key }}-5">
-                                                                                    <i class="rating__icon rating__icon--star fa fa-star"></i>
-                                                                                </label>
+                                                                        <div class="my-3">
+                                                                            <div class="star-rating-ltr-group d-flex align-items-center gap-2">
+                                                                                <input type="hidden" name="rating" value="5" class="rating-value-input">
+                                                                                <div class="star-rating-stars d-flex align-items-center" style="gap: 4px; font-size: 26px;">
+                                                                                    <i class="fa fa-star star-item text-warning" data-value="1" title="1 Star"></i>
+                                                                                    <i class="fa fa-star star-item text-warning" data-value="2" title="2 Stars"></i>
+                                                                                    <i class="fa fa-star star-item text-warning" data-value="3" title="3 Stars"></i>
+                                                                                    <i class="fa fa-star star-item text-warning" data-value="4" title="4 Stars"></i>
+                                                                                    <i class="fa fa-star star-item text-warning" data-value="5" title="5 Stars"></i>
+                                                                                </div>
+                                                                                <span class="rating-text badge bg-warning text-dark fw-bold px-2 py-1" style="font-size: 13px;">5.0</span>
                                                                             </div>
                                                                         </div>
 
@@ -770,21 +754,16 @@
                                                                 <input type="hidden" name="order_id" value="{{ $order->id }}">
                                                                 <input type="hidden" name="restaurant_id" value="{{ $itemProd->restaurant_id ?: $order->restaurant_id }}">
 
-                                                                <div class="interactive-star-picker d-inline-flex flex-row-reverse align-items-center" style="font-size: 22px;">
-                                                                    <input type="radio" id="st5-{{ $order_item->id }}" name="rating" value="5" class="d-none star-pick-input" checked>
-                                                                    <label for="st5-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="5 stars"><i class="fa fa-star"></i></label>
-
-                                                                    <input type="radio" id="st4-{{ $order_item->id }}" name="rating" value="4" class="d-none star-pick-input">
-                                                                    <label for="st4-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="4 stars"><i class="fa fa-star"></i></label>
-
-                                                                    <input type="radio" id="st3-{{ $order_item->id }}" name="rating" value="3" class="d-none star-pick-input">
-                                                                    <label for="st3-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="3 stars"><i class="fa fa-star"></i></label>
-
-                                                                    <input type="radio" id="st2-{{ $order_item->id }}" name="rating" value="2" class="d-none star-pick-input">
-                                                                    <label for="st2-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="2 stars"><i class="fa fa-star"></i></label>
-
-                                                                    <input type="radio" id="st1-{{ $order_item->id }}" name="rating" value="1" class="d-none star-pick-input">
-                                                                    <label for="st1-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="1 star"><i class="fa fa-star"></i></label>
+                                                                <div class="star-rating-ltr-group d-flex align-items-center gap-2 me-md-2">
+                                                                    <input type="hidden" name="rating" value="5" class="rating-value-input">
+                                                                    <div class="star-rating-stars d-flex align-items-center" style="gap: 3px; font-size: 22px;">
+                                                                        <i class="fa fa-star star-item text-warning" data-value="1" title="1 Star"></i>
+                                                                        <i class="fa fa-star star-item text-warning" data-value="2" title="2 Stars"></i>
+                                                                        <i class="fa fa-star star-item text-warning" data-value="3" title="3 Stars"></i>
+                                                                        <i class="fa fa-star star-item text-warning" data-value="4" title="4 Stars"></i>
+                                                                        <i class="fa fa-star star-item text-warning" data-value="5" title="5 Stars"></i>
+                                                                    </div>
+                                                                    <span class="rating-text badge bg-warning text-dark fw-bold px-2 py-1" style="font-size: 12px; min-width: 32px; text-align: center;">5.0</span>
                                                                 </div>
 
                                                                 <input type="text" name="review" class="form-control form-control-sm flex-grow-1" placeholder="{{ __('translate.Share feedback on this item...') }}" required style="height: 38px; border-radius: 8px; font-size: 13px;">
@@ -1063,52 +1042,69 @@
 @endpush
 
 <style>
-    .interactive-star-picker {
-        direction: rtl;
-        display: inline-flex;
+    .star-rating-ltr-group {
+        direction: ltr !important;
+        unicode-bidi: isolate !important;
+        user-select: none;
     }
-    .interactive-star-picker .star-pick-label {
-        color: #cbd5e1 !important;
-        cursor: pointer;
-        transition: color 0.15s ease-in-out, transform 0.1s ease;
+    .star-rating-stars {
+        direction: ltr !important;
+        display: flex !important;
+        flex-direction: row !important;
     }
-    .interactive-star-picker .star-pick-input:checked ~ .star-pick-label,
-    .interactive-star-picker .star-pick-label:hover,
-    .interactive-star-picker .star-pick-label:hover ~ .star-pick-label {
-        color: #ffbe00 !important;
+    .star-rating-stars .star-item {
+        cursor: pointer !important;
+        transition: transform 0.15s ease, color 0.15s ease;
     }
-    .interactive-star-picker .star-pick-label:hover {
-        transform: scale(1.15);
-    }
-    .rating-group {
-        display: inline-flex;
-    }
-    .rating__icon {
-        pointer-events: none;
-    }
-    .rating__input {
-        position: absolute !important;
-        left: -9999px !important;
-    }
-    .rating__input--none {
-        display: none;
-    }
-    .rating__label {
-        cursor: pointer;
-        padding: 0 0.1em;
-        font-size: 2rem;
-    }
-    .rating__icon--star {
-        color: orange;
-    }
-    .rating__input:checked ~ .rating__label .rating__icon--star {
-        color: #ddd;
-    }
-    .rating-group:hover .rating__label .rating__icon--star {
-        color: orange;
-    }
-    .rating__input:hover ~ .rating__label .rating__icon--star {
-        color: #ddd;
+    .star-rating-stars .star-item:hover {
+        transform: scale(1.25);
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.star-rating-ltr-group').forEach(function(group) {
+            const input = group.querySelector('.rating-value-input');
+            const stars = group.querySelectorAll('.star-item');
+            const label = group.querySelector('.rating-text');
+            let currentVal = parseInt(input.value) || 5;
+
+            function updateStars(val) {
+                stars.forEach(function(star) {
+                    const starVal = parseInt(star.getAttribute('data-value'));
+                    if (starVal <= val) {
+                        star.className = 'fa fa-star star-item text-warning';
+                    } else {
+                        star.className = 'fa fa-star-o star-item text-muted';
+                    }
+                });
+                if (label) {
+                    label.textContent = val + '.0';
+                }
+            }
+
+            updateStars(currentVal);
+
+            stars.forEach(function(star) {
+                star.addEventListener('mouseenter', function() {
+                    const hoverVal = parseInt(this.getAttribute('data-value'));
+                    updateStars(hoverVal);
+                });
+
+                star.addEventListener('click', function() {
+                    currentVal = parseInt(this.getAttribute('data-value'));
+                    input.value = currentVal;
+                    updateStars(currentVal);
+                });
+            });
+
+            const starContainer = group.querySelector('.star-rating-stars');
+            if (starContainer) {
+                starContainer.addEventListener('mouseleave', function() {
+                    updateStars(currentVal);
+                });
+            }
+        });
+    });
+</script>
 
