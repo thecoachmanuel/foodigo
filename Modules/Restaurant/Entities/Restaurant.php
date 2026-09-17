@@ -41,12 +41,30 @@ class Restaurant extends Authenticatable
 
     public function reviews(): HasMany
     {
-        return $this->hasMany(Review::class);
+        return $this->hasMany(Review::class)->where(function($q) {
+            $q->where('status', 1)->orWhere('status', 'active');
+        });
     }
 
     public function wishlist(): HasMany
     {
         return $this->hasMany(RestaurantWishlist::class);
+    }
+
+    public function getReviewsAvgRatingAttribute()
+    {
+        if (array_key_exists('reviews_avg_rating', $this->attributes) && !is_null($this->attributes['reviews_avg_rating'])) {
+            return (float) $this->attributes['reviews_avg_rating'];
+        }
+        return (float) ($this->reviews()->avg('rating') ?: 0);
+    }
+
+    public function getReviewsCountAttribute()
+    {
+        if (array_key_exists('reviews_count', $this->attributes) && !is_null($this->attributes['reviews_count'])) {
+            return (int) $this->attributes['reviews_count'];
+        }
+        return (int) $this->reviews()->count();
     }
 
     protected static function booted()

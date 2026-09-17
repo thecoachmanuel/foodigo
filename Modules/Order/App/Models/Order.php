@@ -45,4 +45,9 @@ class Order extends Model
     public function deliveryman(){
         return $this->belongsTo(DeliveryMan::class, 'delivery_man_id', 'id');
     }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(\App\Models\Review::class, 'order_id');
+    }
 }

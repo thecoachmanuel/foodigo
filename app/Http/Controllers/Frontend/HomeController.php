@@ -372,10 +372,27 @@ class HomeController extends Controller
 
         $home_translate = HomepageTranslation::where(['homepage_id' => $homepage->id, 'lang_code' => front_lang()])->first();
 
-        $restaurant = Restaurant::where('slug', $slug)->withAvg('reviews', 'rating')->withCount('reviews')->first();
+        $restaurant = Restaurant::where('slug', $slug)
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->with(['reviews' => function ($q) {
+                $q->where(function($sub) {
+                    $sub->where('status', 1)->orWhere('status', 'active');
+                })->with(['user', 'product.translate_product'])->latest();
+            }])
+            ->first();
         if (!$restaurant) {
             abort(404);
         }
+
+        $totalReviews = $restaurant->reviews ? $restaurant->reviews->count() : 0;
+        $ratingBreakdown = [
+            5 => $totalReviews > 0 ? $restaurant->reviews->where('rating', 5)->count() : 0,
+            4 => $totalReviews > 0 ? $restaurant->reviews->where('rating', 4)->count() : 0,
+            3 => $totalReviews > 0 ? $restaurant->reviews->where('rating', 3)->count() : 0,
+            2 => $totalReviews > 0 ? $restaurant->reviews->where('rating', 2)->count() : 0,
+            1 => $totalReviews > 0 ? $restaurant->reviews->where('rating', 1)->count() : 0,
+        ];
 
         $categories = Category::with(['products' => function ($query) use ($restaurant) {
             $query->where('restaurant_id', $restaurant->id)
@@ -405,7 +422,7 @@ class HomeController extends Controller
             ->get();
 
 
-        return view('frontend.restaurant.single', compact('restaurant', 'categories', 'homepage', 'home_translate', 'search_foods'));
+        return view('frontend.restaurant.single', compact('restaurant', 'categories', 'homepage', 'home_translate', 'search_foods', 'ratingBreakdown', 'totalReviews'));
     }
 
     public function view_all_cuisine(): Factory|\Illuminate\Foundation\Application|View|Application

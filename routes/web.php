@@ -161,6 +161,7 @@ Route::group(['middleware' => [ 'HtmlSpecialchars', 'MaintenanceMode']], functio
         Route::get('/order-details/{id}', [UserOrderController::class, 'order_details'])->name('user.order-details');
 
         Route::post('/food-review/{food_id}', [UserOrderController::class, 'review_submit'])->name('user.review-submit');
+        Route::post('/order-review/{order_id}', [UserOrderController::class, 'order_review_submit'])->name('user.order-review-submit');
 
         Route::get('/review', [UserDashboardController::class, 'review'])->name('user.review');
 

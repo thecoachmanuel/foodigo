@@ -589,17 +589,22 @@
 
                                             </td>
 
-                                            <td>
+                                             <td>
                                                 @if ($order->order_status == 5 && $product)
-
-
                                                 @php
-                                                    $review = Auth::check() ? App\Models\Review::where('product_id', $product->id)->where('order_id', $order->id)->where('user_id', Auth::id())->first() : null;
+                                                    $review = Auth::check() ? ($order->reviews ? $order->reviews->firstWhere('product_id', $product->id) : App\Models\Review::where('product_id', $product->id)->where('order_id', $order->id)->where('user_id', Auth::id())->first()) : null;
                                                 @endphp
                                                 @if(!$review)
                                                     <a class="thm-btn cursor-pointer" data-bs-toggle="modal" data-bs-target="#popularModal-{{$key}}">{{ __('translate.Review') }}</a>
                                                 @else
-                                                    <p>{{ __('translate.Review submitted') }}</p>
+                                                    <div class="d-flex flex-column align-items-start gap-1">
+                                                        <div class="text-warning" style="font-size: 13px;">
+                                                            @for($s=1; $s<=5; $s++)
+                                                                <i class="fa fa-star{{ $s <= $review->rating ? '' : '-o text-muted' }}"></i>
+                                                            @endfor
+                                                        </div>
+                                                        <span class="badge bg-success text-white" style="font-size: 10px; border-radius: 6px;">{{ __('translate.Review submitted') }}</span>
+                                                    </div>
                                                 @endif
                                                 <!--food_card_modal-->
                                                 <div class="modal food_card_modal fade" id="popularModal-{{$key}}" tabindex="-1"
@@ -619,7 +624,7 @@
                                                                 <div class="modal_body_inner ">
                                                                     <div class="modal_body_top_txt">
                                                                         <div class="modal_body_top_txt_df">
-                                                                            <h4>{{$product->translate_product?->name}}</h4>
+                                                                            <h4>{{$product->translate_product?->name ?? $product->name}}</h4>
                                                                         </div>
 
                                                                         <p>{{$product->translate_product?->short_description}}</p>
@@ -627,46 +632,46 @@
                                                                     <form action="{{route('user.review-submit', ['food_id' => $product->id])}}" method="post">
                                                                         @csrf
 
-
                                                                         <h3 class="mt-3 mb-3">{{ __('translate.Submit Review') }}</h3>
 
                                                                         <div id="full-stars-example-{{ $key }}" class="mt-3">
                                                                             <div class="rating-group">
-                                                                                <input disabled checked class="rating__input rating__input--none" name="rating" id="rating{{ $key }}-none" value="1" type="radio">
-                                                                                <label aria-label="1 star" class="rating__label" for="rating{{ $key }}-none">
+                                                                                <input class="rating__input rating__input--none" name="rating" id="rating{{ $key }}-none" value="5" type="radio">
+                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-1" value="1" type="radio">
+                                                                                <label aria-label="1 star" class="rating__label" for="rating{{ $key }}-1">
                                                                                     <i class="rating__icon rating__icon--star fa fa-star"></i>
                                                                                 </label>
 
-                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-1" value="2" type="radio">
-                                                                                <label aria-label="2 stars" class="rating__label" for="rating{{ $key }}-1">
+                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-2" value="2" type="radio">
+                                                                                <label aria-label="2 stars" class="rating__label" for="rating{{ $key }}-2">
                                                                                     <i class="rating__icon rating__icon--star fa fa-star"></i>
                                                                                 </label>
 
-                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-2" value="3" type="radio">
-                                                                                <label aria-label="3 stars" class="rating__label" for="rating{{ $key }}-2">
+                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-3" value="3" type="radio">
+                                                                                <label aria-label="3 stars" class="rating__label" for="rating{{ $key }}-3">
                                                                                     <i class="rating__icon rating__icon--star fa fa-star"></i>
                                                                                 </label>
 
-                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-3" value="4" type="radio">
-                                                                                <label aria-label="4 stars" class="rating__label" for="rating{{ $key }}-3">
+                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-4" value="4" type="radio">
+                                                                                <label aria-label="4 stars" class="rating__label" for="rating{{ $key }}-4">
                                                                                     <i class="rating__icon rating__icon--star fa fa-star"></i>
                                                                                 </label>
 
-                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-4" value="5" type="radio">
-                                                                                <label aria-label="5 stars" class="rating__label" for="rating{{ $key }}-4">
+                                                                                <input class="rating__input" name="rating" id="rating{{ $key }}-5" value="5" type="radio" checked>
+                                                                                <label aria-label="5 stars" class="rating__label" for="rating{{ $key }}-5">
                                                                                     <i class="rating__icon rating__icon--star fa fa-star"></i>
                                                                                 </label>
                                                                             </div>
                                                                         </div>
 
                                                                         <input type="hidden" name="order_id" value="{{ $order->id }}">
-                                                                        <input type="hidden" name="restaurant_id" value="{{ $product?->restaurant->id }}">
-                                                                        <div class="from-inner-two  pb-4 mt-3">
-                                                                            <textarea class="form-control" name="review" id="reviewText"
-                                                                                rows="5" placeholder="{{ __('translate.Write Review') }} *" required></textarea>
+                                                                        <input type="hidden" name="restaurant_id" value="{{ $product?->restaurant_id ?? $order->restaurant_id }}">
+                                                                        <div class="from-inner-two pb-4 mt-3">
+                                                                            <textarea class="form-control" name="review" id="reviewText-{{ $key }}"
+                                                                                rows="4" placeholder="{{ __('translate.Write Review') }} *" required></textarea>
                                                                         </div>
 
-                                                                        <button class="thm-btn">{{ __('translate.Submit') }}</button>
+                                                                        <button type="submit" class="thm-btn">{{ __('translate.Submit') }}</button>
 
                                                                     </form>
                                                                 </div>
@@ -684,6 +689,119 @@
 
                                 </table>
                             </div>
+
+                            @if($order->order_status == 5)
+                            @php
+                                $totalOrderItems = $order->items ? $order->items->count() : 0;
+                                $orderReviews = $order->reviews ?? collect();
+                                $allOrderReviewed = ($totalOrderItems > 0 && $orderReviews->count() >= $totalOrderItems);
+                            @endphp
+                            <div id="rate-order" class="card mt-4 p-4 rounded-4 border-0 shadow-sm" style="background: #ffffff; border: 1.5px solid #e2e8f0 !important;">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-3 mb-3 border-bottom">
+                                    <div>
+                                        <h5 class="m-0 fw-bold" style="color: #0f172a; font-size: 18px;">
+                                            <i class="fa fa-star text-warning me-2"></i> {{ __('translate.Rate Your Order & Experience') }}
+                                        </h5>
+                                        <small class="text-muted">
+                                            {{ __('translate.Your rating directly accumulates into the restaurant star rating and guides other customers!') }}
+                                        </small>
+                                    </div>
+                                    @if($allOrderReviewed)
+                                        <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill" style="font-size: 13px;">
+                                            <i class="fa fa-check-circle me-1"></i> {{ __('translate.Order Fully Rated') }}
+                                        </span>
+                                    @else
+                                        <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-2 rounded-pill" style="font-size: 13px;">
+                                            <i class="fa fa-star text-warning me-1"></i> {{ $orderReviews->count() }} / {{ $totalOrderItems }} {{ __('translate.Rated') }}
+                                        </span>
+                                    @endif
+                                </div>
+
+                                @if($allOrderReviewed)
+                                    <div class="alert alert-success d-flex align-items-center gap-2 mb-3" style="border-radius: 12px; background: #f0fdf4; border-color: #bbf7d0;">
+                                        <i class="fa fa-circle-check text-success fa-lg"></i>
+                                        <div style="font-size: 14px; color: #166534;">
+                                            <strong>{{ __('translate.Thank you for rating your order!') }}</strong>
+                                            <div>{{ __('translate.Your review has been accumulated into the restaurant star rating.') }}</div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <div class="rate_order_items_list">
+                                    @foreach($order->items ?? [] as $itemIndex => $order_item)
+                                        @php
+                                            $itemProd = $order_item->products ?? Modules\Product\App\Models\Product::find($order_item['product_id']);
+                                            $itemRev = $orderReviews->firstWhere('product_id', $order_item['product_id']);
+                                        @endphp
+                                        @if($itemProd)
+                                            <div class="card mb-3 p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-5 d-flex align-items-center gap-3 mb-2 mb-md-0">
+                                                        <img src="{{ asset($itemProd->image) }}" alt="{{ $itemProd->translate_product?->name ?? $itemProd->name }}" style="width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                                        <div>
+                                                            <h6 class="m-0 fw-bold" style="font-size: 14px; color: #0f172a;">
+                                                                {{ $itemProd->translate_product?->name ?? $itemProd->name }}
+                                                            </h6>
+                                                            <small class="text-muted">{{ currency($order_item->total) }} &bull; Qty: {{ $order_item->qty }}</small>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-7">
+                                                        @if($itemRev)
+                                                            <div class="p-2 px-3 rounded-2 bg-white border">
+                                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                                    <div class="text-warning">
+                                                                        @for($s=1; $s<=5; $s++)
+                                                                            <i class="fa fa-star{{ $s <= $itemRev->rating ? '' : '-o text-muted' }}"></i>
+                                                                        @endfor
+                                                                        <strong class="ms-1 text-dark" style="font-size: 13px;">{{ $itemRev->rating }}.0</strong>
+                                                                    </div>
+                                                                    <small class="text-muted" style="font-size: 11px;">{{ Carbon\Carbon::parse($itemRev->created_at)->diffForHumans() }}</small>
+                                                                </div>
+                                                                @if($itemRev->review)
+                                                                    <p class="m-0 text-secondary" style="font-size: 12px; font-style: italic;">
+                                                                        &ldquo;{{ $itemRev->review }}&rdquo;
+                                                                    </p>
+                                                                @endif
+                                                            </div>
+                                                        @else
+                                                            <form action="{{ route('user.review-submit', ['food_id' => $itemProd->id]) }}" method="POST" class="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
+                                                                @csrf
+                                                                <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                                                <input type="hidden" name="restaurant_id" value="{{ $itemProd->restaurant_id ?: $order->restaurant_id }}">
+
+                                                                <div class="interactive-star-picker d-inline-flex flex-row-reverse align-items-center" style="font-size: 22px;">
+                                                                    <input type="radio" id="st5-{{ $order_item->id }}" name="rating" value="5" class="d-none star-pick-input" checked>
+                                                                    <label for="st5-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="5 stars"><i class="fa fa-star"></i></label>
+
+                                                                    <input type="radio" id="st4-{{ $order_item->id }}" name="rating" value="4" class="d-none star-pick-input">
+                                                                    <label for="st4-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="4 stars"><i class="fa fa-star"></i></label>
+
+                                                                    <input type="radio" id="st3-{{ $order_item->id }}" name="rating" value="3" class="d-none star-pick-input">
+                                                                    <label for="st3-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="3 stars"><i class="fa fa-star"></i></label>
+
+                                                                    <input type="radio" id="st2-{{ $order_item->id }}" name="rating" value="2" class="d-none star-pick-input">
+                                                                    <label for="st2-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="2 stars"><i class="fa fa-star"></i></label>
+
+                                                                    <input type="radio" id="st1-{{ $order_item->id }}" name="rating" value="1" class="d-none star-pick-input">
+                                                                    <label for="st1-{{ $order_item->id }}" class="star-pick-label cursor-pointer px-1" title="1 star"><i class="fa fa-star"></i></label>
+                                                                </div>
+
+                                                                <input type="text" name="review" class="form-control form-control-sm flex-grow-1" placeholder="{{ __('translate.Share feedback on this item...') }}" required style="height: 38px; border-radius: 8px; font-size: 13px;">
+
+                                                                <button type="submit" class="btn btn-sm btn-warning text-dark fw-bold px-3" style="height: 38px; border-radius: 8px; white-space: nowrap; background: #ffbe00; border: none; font-size: 13px;">
+                                                                    {{ __('translate.Submit') }}
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
 
 
                             <div class="row justify-content-end mt_30px">
@@ -943,3 +1061,54 @@
     </script>
     @endif
 @endpush
+
+<style>
+    .interactive-star-picker {
+        direction: rtl;
+        display: inline-flex;
+    }
+    .interactive-star-picker .star-pick-label {
+        color: #cbd5e1 !important;
+        cursor: pointer;
+        transition: color 0.15s ease-in-out, transform 0.1s ease;
+    }
+    .interactive-star-picker .star-pick-input:checked ~ .star-pick-label,
+    .interactive-star-picker .star-pick-label:hover,
+    .interactive-star-picker .star-pick-label:hover ~ .star-pick-label {
+        color: #ffbe00 !important;
+    }
+    .interactive-star-picker .star-pick-label:hover {
+        transform: scale(1.15);
+    }
+    .rating-group {
+        display: inline-flex;
+    }
+    .rating__icon {
+        pointer-events: none;
+    }
+    .rating__input {
+        position: absolute !important;
+        left: -9999px !important;
+    }
+    .rating__input--none {
+        display: none;
+    }
+    .rating__label {
+        cursor: pointer;
+        padding: 0 0.1em;
+        font-size: 2rem;
+    }
+    .rating__icon--star {
+        color: orange;
+    }
+    .rating__input:checked ~ .rating__label .rating__icon--star {
+        color: #ddd;
+    }
+    .rating-group:hover .rating__label .rating__icon--star {
+        color: orange;
+    }
+    .rating__input:hover ~ .rating__label .rating__icon--star {
+        color: #ddd;
+    }
+</style>
+

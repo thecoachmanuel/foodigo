@@ -191,17 +191,31 @@
                                                 </td>
 
                                                 <td>
-                                                    <div class="td_view_btn">
-                                                        <a href="{{route('user.order-details', ['id' => $order->id])}}" class="view_btn">
+                                                    <div class="td_view_btn d-flex align-items-center gap-2">
+                                                        <a href="{{route('user.order-details', ['id' => $order->id])}}" class="view_btn" title="{{ __('translate.View Details') }}">
                                                                 <span>
                                                                     <svg width="18" height="12" viewBox="0 0 18 12"
                                                                          fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                         <path fill-rule="evenodd" clip-rule="evenodd"
                                                                               d="M16.6079 7.78892C17.5743 6.77219 17.5743 5.22748 16.6079 4.21075C14.9781 2.49595 12.1789 0.166504 8.99935 0.166504C5.81975 0.166504 3.02059 2.49595 1.39077 4.21075C0.42443 5.22748 0.424431 6.77219 1.39077 7.78892C3.02059 9.50373 5.81975 11.8332 8.99935 11.8332C12.1789 11.8332 14.9781 9.50373 16.6079 7.78892ZM8.99935 8.49984C10.3801 8.49984 11.4993 7.38055 11.4993 5.99984C11.4993 4.61913 10.3801 3.49984 8.99935 3.49984C7.61864 3.49984 6.49935 4.61913 6.49935 5.99984C6.49935 7.38055 7.61864 8.49984 8.99935 8.49984Z" />
                                                                     </svg>
-
                                                                 </span>
                                                         </a>
+                                                        @if($order->order_status == 5)
+                                                            @php
+                                                                $totalItems = $order->items ? $order->items->count() : 0;
+                                                                $ratedCount = $order->reviews ? $order->reviews->count() : 0;
+                                                            @endphp
+                                                            @if($ratedCount > 0 && $ratedCount >= $totalItems)
+                                                                <span class="badge bg-light text-warning border border-warning d-inline-flex align-items-center gap-1" style="font-size: 11px; padding: 6px 10px; border-radius: 20px;" title="{{ __('translate.Order Rated') }}">
+                                                                    <i class="fa fa-star text-warning"></i> {{ __('translate.Rated') }}
+                                                                </span>
+                                                            @else
+                                                                <a href="{{ route('user.order-details', ['id' => $order->id]) }}#rate-order" class="btn btn-sm btn-warning text-dark fw-bold d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 11px; padding: 5px 12px; border-radius: 20px; white-space: nowrap; background: #ffbe00; border: none;" title="{{ __('translate.Rate Order') }}">
+                                                                    <i class="fa fa-star"></i> {{ __('translate.Rate Order') }}
+                                                                </a>
+                                                            @endif
+                                                        @endif
                                                     </div>
                                                 </td>
 

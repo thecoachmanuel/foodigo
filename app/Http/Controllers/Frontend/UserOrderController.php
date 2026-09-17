@@ -30,7 +30,13 @@ class UserOrderController extends Controller
             $sortOrder = 'desc';
         }
 
-        $orders = Order::with(['restaurant', 'items'])
+        $orders = Order::with([
+            'restaurant',
+            'items',
+            'reviews' => function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            }
+        ])
             ->where('user_id', $user->id)
             ->orderBy($sortBy, $sortOrder)
             ->paginate(10)
@@ -46,7 +52,8 @@ class UserOrderController extends Controller
             'restaurant',
             'address',
             'items.products.translate_product',
-            'items.products.restaurant'
+            'items.products.restaurant',
+            'reviews'
         ]);
 
         if ($user) {
@@ -276,39 +283,105 @@ class UserOrderController extends Controller
 
     public function review_submit(Request $request, $food_id){
 
-       $request->validate([
-            'review' => 'required',
-            'rating' => 'required',
+        $request->validate([
+            'review' => 'nullable|string|max:1000',
+            'rating' => 'required|numeric|min:1|max:5',
             'order_id' => 'required',
-            'restaurant_id' => 'required'
+            'restaurant_id' => 'nullable'
         ]);
 
-        $review = Review::where('product_id', $food_id)->where('order_id', $request->order_id)->where('restaurant_id', $request->restaurant_id)->where('user_id', Auth::user()->id)->first();
+        $order = Order::findOrFail($request->order_id);
 
-        if($review){
-            $message = trans('translate.You already submitted review');
+        if ((int)$order->order_status !== 5) {
+            $message = trans('translate.Reviews can only be submitted after receiving the order');
             $notification = array('message' => $message, 'alert-type' => 'error');
             return redirect()->back()->with($notification);
         }
 
         $product = Product::findOrFail($food_id);
+        $restaurantId = $request->restaurant_id ?: ($order->restaurant_id ?: ($product->restaurant_id ?? 0));
 
-        $order = Order::findOrFail($request->order_id);
+        $review = Review::where('product_id', $food_id)
+            ->where('order_id', $request->order_id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if($review){
+            $review->restaurant_id = $restaurantId;
+            $review->review = $request->review ?: $review->review;
+            $review->rating = (int) $request->rating;
+            $review->status = 1;
+            $review->save();
+
+            $message = trans('translate.Review submited successful');
+            $notification = array('message' => $message, 'alert-type' => 'success');
+            return redirect()->back()->with($notification);
+        }
 
         $review = new Review();
         $review->product_id = $food_id;
-        $review->restaurant_id = $request->restaurant_id;
+        $review->restaurant_id = $restaurantId;
         $review->order_id = $request->order_id;
-        $review->user_id = Auth::user()->id;
-        $review->review = $request->review;
-        $review->rating = $request->rating;
-        $review->status = 0;
+        $review->user_id = Auth::id();
+        $review->review = $request->review ?: 'Great food and service!';
+        $review->rating = (int) $request->rating;
+        $review->status = 1;
         $review->save();
 
         $message = trans('translate.Review submited successful');
         $notification = array('message' => $message, 'alert-type' => 'success');
         return redirect()->back()->with($notification);
 
+    }
+
+    public function order_review_submit(Request $request, $order_id)
+    {
+        $user = Auth::user();
+        $order = Order::with('items.products')->findOrFail($order_id);
+
+        if ($order->user_id && $order->user_id != $user->id) {
+            abort(403);
+        }
+
+        if ((int)$order->order_status !== 5) {
+            $message = trans('translate.Reviews can only be submitted after receiving the order');
+            $notification = array('message' => $message, 'alert-type' => 'error');
+            return redirect()->back()->with($notification);
+        }
+
+        $request->validate([
+            'ratings' => 'required|array',
+            'ratings.*' => 'required|numeric|min:1|max:5',
+            'reviews' => 'nullable|array',
+        ]);
+
+        foreach ($request->ratings as $productId => $rating) {
+            $reviewText = $request->reviews[$productId] ?? '';
+            $product = Product::find($productId);
+            $restaurantId = $order->restaurant_id ?: ($product?->restaurant_id ?? 0);
+
+            $review = Review::where('product_id', $productId)
+                ->where('order_id', $order->id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$review) {
+                $review = new Review();
+                $review->user_id = $user->id;
+                $review->order_id = $order->id;
+                $review->product_id = $productId;
+            }
+
+            $review->restaurant_id = $restaurantId;
+            $review->rating = (int) $rating;
+            $review->review = !empty(trim($reviewText)) ? trim($reviewText) : 'Great food and service!';
+            $review->status = 1;
+            $review->save();
+        }
+
+        $message = trans('translate.Review submited successful');
+        $notification = array('message' => $message, 'alert-type' => 'success');
+        return redirect()->back()->with($notification);
     }
 
 

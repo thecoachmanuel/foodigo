@@ -6,25 +6,7 @@
 
 @section('content')
     <main class="search_V1_bg" >
-        <!-- banner-part start  -->
 
-        <div class="profile_bg" style="background-image: url({{ asset($general_setting->breadcrumb_image) }})">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xxl-12">
-                        <ul class="breadcrumb">
-                            <li><a href="{{route('home')}}">{{__('translate.Home')}}</a></li>
-                            <li><a href="javascript:;">/</a></li>
-                            <li><a href="{{ route('all.restaurant') }}" >{{__('translate.Restaurant')}}</a></li>
-                            <li><a href="javascript:;">/</a></li>
-                            <li><a href="javascript:;" class="active">{{html_decode($restaurant->restaurant_name)}}</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- banner-part end -->
 
 
         <!-- profile Information part start -->
@@ -80,13 +62,12 @@
 
 
                                         <!-- Button trigger modal -->
-                                        <button type="button" class="profile_riview" >
-                                                {{ round($restaurant->reviews_avg_rating ?? 0) }}
+                                        <button type="button" class="profile_riview" data-bs-toggle="modal" data-bs-target="#restaurantReviewModal" style="cursor: pointer;" title="{{ __('translate.View Reviews') }}">
+                                                {{ number_format((float)($restaurant->reviews_avg_rating ?? 0), 1) }}
                                             <span>
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M6.52461 1.45356C7.12812 0.182149 8.87187 0.182146 9.47539 1.45356L10.5184 3.65088C10.7581 4.15576 11.2213 4.5057 11.7572 4.58666L14.0895 4.93902C15.439 5.1429 15.9779 6.86716 15.0013 7.85681L13.3137 9.56719C12.9259 9.96019 12.749 10.5264 12.8405 11.0813L13.2389 13.4964C13.4694 14.8938 12.0587 15.9595 10.8517 15.2997L8.76562 14.1595C8.28631 13.8975 7.71369 13.8975 7.23438 14.1595L5.14832 15.2997C3.94129 15.9595 2.53057 14.8938 2.76109 13.4964L3.15949 11.0813C3.25103 10.5264 3.07408 9.96019 2.68631 9.56719L0.998656 7.85681C0.0221496 6.86716 0.560996 5.1429 1.9105 4.93902L4.24278 4.58666C4.77867 4.5057 5.24192 4.15576 5.48158 3.65088L6.52461 1.45356Z" fill="#F9C200"/>
                                                     </svg>
-
                                             </span>
                                             <span>
                                                 ({{ $restaurant->reviews_count }}+)
@@ -437,7 +418,89 @@
 
         <!-- mobile app  part start -->
         @include('frontend.layouts.partials.mobile_app')
-        <!-- mobile app  part end -->
+        <!-- Restaurant Reviews Modal -->
+        <div class="modal profile_riview_modal fade" id="restaurantReviewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content p-4 rounded-4" style="background: #ffffff; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
+                    <div class="modal-header border-0 pb-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="{{ asset($restaurant->logo) }}" alt="logo" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1.5px solid #e2e8f0;">
+                            <div>
+                                <h4 class="m-0 fw-bold" style="font-size: 20px; color: #0f172a;">{{ html_decode($restaurant->restaurant_name) }}</h4>
+                                <div class="location text-muted" style="font-size: 13px;">{{ html_decode($restaurant->address) }}</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body pt-3">
+                        <div class="rating_box d-flex flex-column flex-md-row align-items-center justify-content-between gap-4 p-4 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <div class="rating text-center text-md-start">
+                                <h2 class="fw-bold m-0" style="font-size: 42px; color: #0f172a;">{{ number_format((float)($restaurant->reviews_avg_rating ?? 0), 1) }}</h2>
+                                <ul class="rating_icon list-unstyled d-flex align-items-center justify-content-center justify-content-md-start my-2" style="font-size: 18px; color: #ffbe00;">
+                                    @php $avg = round((float)($restaurant->reviews_avg_rating ?? 0)); @endphp
+                                    @for($s=1; $s<=5; $s++)
+                                        <li><span><i class="fa fa-star{{ $s <= $avg ? '' : '-o text-muted' }}"></i></span></li>
+                                    @endfor
+                                </ul>
+                                <p class="m-0 text-muted" style="font-size: 13px;">{{ __('translate.Based on') }} {{ $restaurant->reviews_count }} {{ __('translate.verified reviews') }}</p>
+                            </div>
+
+                            <div class="rating_breakdown flex-grow-1" style="max-width: 320px; width: 100%;">
+                                @for($star = 5; $star >= 1; $star--)
+                                    @php
+                                        $cnt = $ratingBreakdown[$star] ?? 0;
+                                        $pct = ($totalReviews > 0) ? round(($cnt / $totalReviews) * 100) : 0;
+                                    @endphp
+                                    <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 12px;">
+                                        <span style="width: 45px; text-align: right; color: #475569;">{{ $star }} <i class="fa fa-star text-warning"></i></span>
+                                        <div class="progress flex-grow-1" style="height: 6px; background-color: #e2e8f0; border-radius: 999px;">
+                                            <div class="progress-bar" style="width: {{ $pct }}%; background-color: #ffbe00; border-radius: 999px;"></div>
+                                        </div>
+                                        <span style="width: 35px; color: #64748b;">{{ $cnt }}</span>
+                                    </div>
+                                @endfor
+                            </div>
+                        </div>
+
+                        <div class="rating_item_box_main mt-4" style="max-height: 400px; overflow-y: auto;">
+                            @forelse($restaurant->reviews ?? [] as $rev)
+                                <div class="rating_item_box p-3 mb-3 rounded-3" style="background: #ffffff; border: 1px solid #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="{{ get_user_avatar($rev->user) }}" alt="{{ $rev->user?->name ?? 'Customer' }}" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+                                            <div>
+                                                <h6 class="m-0 fw-bold" style="font-size: 14px; color: #1e293b;">{{ $rev->user?->name ?? 'Customer' }}</h6>
+                                                <div class="text-warning" style="font-size: 11px;">
+                                                    @for($s=1; $s<=5; $s++)
+                                                        <i class="fa fa-star{{ $s <= $rev->rating ? '' : '-o text-muted' }}"></i>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 11px;">{{ Carbon\Carbon::parse($rev->created_at)->diffForHumans() }}</small>
+                                    </div>
+                                    @if($rev->product)
+                                        <div class="badge bg-light text-secondary border mb-2" style="font-size: 11px; font-weight: 500;">
+                                            <i class="fa-solid fa-utensils me-1"></i> {{ $rev->product->translate_product?->name ?? $rev->product->name }}
+                                        </div>
+                                    @endif
+                                    @if($rev->review)
+                                        <p class="m-0 text-secondary" style="font-size: 13px; line-height: 1.5;">
+                                            &ldquo;{{ $rev->review }}&rdquo;
+                                        </p>
+                                    @endif
+                                </div>
+                            @empty
+                                <div class="text-center py-5 text-muted">
+                                    <i class="fa fa-star-o fa-3x mb-3 text-warning"></i>
+                                    <p class="m-0">{{ __('translate.No reviews yet. Order food and be the first to rate!') }}</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </main>
 @endsection

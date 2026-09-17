@@ -30,21 +30,15 @@ if ('serviceWorker' in navigator) {
     console.log('Service Worker: Supported');
     window.addEventListener('load', function() {
         console.log('Service Worker: Registering...');
-        navigator.serviceWorker.register('/service-worker.js')
+        navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
             .then(function(registration) {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                // Check if service worker is active
-                if (registration.active) {
-                    console.log('Service Worker: Active');
-                } else if (registration.installing) {
-                    console.log('Service Worker: Installing');
-                } else if (registration.waiting) {
-                    console.log('Service Worker: Waiting');
+                // Ensure immediate update check
+                if (typeof registration.update === 'function') {
+                    registration.update();
                 }
             })
             .catch(function(err) {
-                console.log('ServiceWorker registration failed: ', err);
-                console.log('Error details:', err.message);
+                console.warn('ServiceWorker registration notice: ', err?.message || err);
             });
     });
 } else {
