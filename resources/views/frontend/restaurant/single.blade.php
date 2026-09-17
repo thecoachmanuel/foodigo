@@ -531,16 +531,29 @@
             overflow: hidden !important;
             background: #ffffff !important;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+            position: relative !important;
         }
+        /* Banner extends downwards below the restaurant logo */
         .profile_informetion_bg {
-            height: 300px !important;
-            max-height: 300px !important;
-            min-height: 300px !important;
+            height: 420px !important;
+            max-height: 420px !important;
+            min-height: 420px !important;
             width: 100% !important;
             overflow: hidden !important;
             position: relative !important;
             background-color: #f1f5f9 !important;
             border-radius: 16px 16px 0 0 !important;
+        }
+        .profile_informetion_bg::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.22) 100%);
+            pointer-events: none;
+            z-index: 1;
         }
         .profile_informetion_bg img {
             width: 100% !important;
@@ -555,14 +568,16 @@
             background-color: #ffffff !important;
             border-radius: 0 0 16px 16px !important;
         }
+        /* Restaurant logo positioned on the banner with the banner extending downwards below it */
         .profile_informetion_main .company_logo {
-            margin-top: -60px !important;
-            height: 120px !important;
-            width: 120px !important;
-            min-width: 120px !important;
+            margin-top: -175px !important;
+            margin-bottom: 45px !important;
+            height: 140px !important;
+            width: 140px !important;
+            min-width: 140px !important;
             border-radius: 50% !important;
-            border: 4px solid #ffffff !important;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16) !important;
+            border: 5px solid #ffffff !important;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24) !important;
             background: #ffffff !important;
             position: relative !important;
             z-index: 10 !important;
@@ -584,19 +599,19 @@
                 padding: 110px 0 15px 0 !important;
             }
             .profile_informetion_bg {
-                height: 210px !important;
-                max-height: 210px !important;
-                min-height: 210px !important;
+                height: 280px !important;
+                max-height: 280px !important;
+                min-height: 280px !important;
             }
             .profile_informetion_main {
                 padding: 0 16px 18px 16px !important;
             }
             .profile_informetion_main .company_logo {
-                margin-top: -45px !important;
-                height: 90px !important;
-                width: 90px !important;
-                min-width: 90px !important;
-                border-width: 3.5px !important;
+                margin: -125px auto 30px auto !important;
+                height: 100px !important;
+                width: 100px !important;
+                min-width: 100px !important;
+                border-width: 4px !important;
             }
         }
     </style>

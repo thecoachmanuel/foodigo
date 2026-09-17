@@ -124,28 +124,48 @@ class UserAddressController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function delete_address($id): RedirectResponse
+    public function delete_address(Request $request, $id)
     {
-        $address = UserAddress::findOrFail($id);
+        $user = Auth::user();
+        $address = UserAddress::where('user_id', $user->id)->where('id', $id)->first();
 
-        $address->delete();
+        if ($address) {
+            $address->delete();
+            $message = trans('translate.Deleted successfully');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => true, 'message' => $message]);
+            }
+            $notify_message = array('message' => $message, 'alert-type' => 'success');
+            return redirect()->route('user.address')->with($notify_message);
+        }
 
-        $notify_message = trans('translate.Deleted successfully');
-        $notify_message = array('message' => $notify_message, 'alert-type' => 'success');
-        return redirect()->route('user.address')->with($notify_message);
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => false, 'message' => trans('translate.Address not found')], 404);
+        }
+        return redirect()->back()->with(['message' => trans('translate.Address not found'), 'alert-type' => 'error']);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage during checkout.
      */
-    public function delete_address_checkout($id): RedirectResponse
+    public function delete_address_checkout(Request $request, $id)
     {
-        $address = UserAddress::findOrFail($id);
+        $user = Auth::user();
+        $address = UserAddress::where('user_id', $user->id)->where('id', $id)->first();
 
-        $address->delete();
+        if ($address) {
+            $address->delete();
+            $message = trans('translate.Deleted successfully');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => true, 'message' => $message]);
+            }
+            $notify_message = array('message' => $message, 'alert-type' => 'success');
+            return redirect()->route('view.checkout')->with($notify_message);
+        }
 
-        $notify_message = trans('translate.Deleted successfully');
-        $notify_message = array('message' => $notify_message, 'alert-type' => 'success');
-        return redirect()->route('view.checkout')->with($notify_message);
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => false, 'message' => trans('translate.Address not found')], 404);
+        }
+        return redirect()->back()->with(['message' => trans('translate.Address not found'), 'alert-type' => 'error']);
     }
 }

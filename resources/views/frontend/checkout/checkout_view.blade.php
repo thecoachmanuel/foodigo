@@ -169,9 +169,18 @@
                                                             data-lat="{{ $address->lat }}"
                                                             data-lon="{{ $address->lon }}"
                                                             data-address="{{ $address->id }}">
-                                                            <div class="dashboard_address_txt">
-                                                                <h5>{{ __('translate.Address') }} # {{ $key + 1 }}
-                                                                </h5>
+                                                            <div class="dashboard_address_txt d-flex justify-content-between align-items-center">
+                                                                <h5 class="mb-0">{{ __('translate.Address') }} # {{ $key + 1 }}</h5>
+                                                                <a href="javascript:;" class="checkout_address_delete_btn" title="{{ __('translate.Delete Address') }}"
+                                                                   onclick="event.stopPropagation(); checkoutDeleteAddressConfirmation({{ $address->id }})"
+                                                                   data-bs-toggle="modal" data-bs-target="#deleteCheckoutAddressModal">
+                                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E94222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                                    </svg>
+                                                                </a>
                                                             </div>
 
                                                             <div class="dashboard_address_inner">
@@ -530,6 +539,30 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Checkout Address Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteCheckoutAddressModal" tabindex="-1" aria-labelledby="deleteCheckoutAddressModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteCheckoutAddressModalLabel">{{ __('translate.Delete Confirmation') }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>{{ __('translate.Are you realy want to delete this item?') }}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form action="" id="checkout_address_delete_form" method="POST">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
+                                <button type="submit" class="btn btn-primary btn-type-dlt">{{ __('translate.Yes, Delete') }}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         @endif
 
     </main>
@@ -549,6 +582,24 @@
             cursor: pointer;
             border: 1px solid #ddd;
             transition: border-color 0.3s ease;
+        }
+
+        .checkout_address_delete_btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: rgba(233, 66, 34, 0.08);
+            border: 1px solid rgba(233, 66, 34, 0.2);
+            transition: all 0.2s ease;
+        }
+        .checkout_address_delete_btn:hover {
+            background: #E94222;
+        }
+        .checkout_address_delete_btn:hover svg {
+            stroke: #ffffff;
         }
 
         .dashboard_address_item.selected {
@@ -808,6 +859,10 @@
             }
 
         });
+
+        function checkoutDeleteAddressConfirmation(id) {
+            $("#checkout_address_delete_form").attr("action", '<?php echo e(url("user/address-checkout-delete")); ?>' + "/" + id);
+        }
     </script>
 
 

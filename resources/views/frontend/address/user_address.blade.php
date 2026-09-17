@@ -93,7 +93,7 @@
                                                             </svg>
                                                         </span>
                                                         </a>
-                                                        <a href="#" class="delet_btn" onclick="itemDeleteConfrimation({{ $address->id }})" href="javascript:;" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                        <a href="javascript:;" class="delet_btn" onclick="itemDeleteConfirmation({{ $address->id }})" data-bs-toggle="modal" data-bs-target="#deleteAddressModal">
                                                         <span>
                                                             <svg width="36" height="36" viewBox="0 0 36 36" fill="none"
                                                                  xmlns="http://www.w3.org/2000/svg">
@@ -227,18 +227,18 @@
         </div>
 
         <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="deleteAddressModal" tabindex="-1" aria-labelledby="deleteAddressModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">{{ __('translate.Delete Confirmation') }}</h5>
+                        <h5 class="modal-title" id="deleteAddressModalLabel">{{ __('translate.Delete Confirmation') }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p>{{ __('translate.Are you realy want to delete this item?') }}</p>
                     </div>
                     <div class="modal-footer">
-                        <form action="" id="item_delect_confirmation" class="delet_modal_form" method="POST">
+                        <form action="" id="address_delete_form" method="POST">
                             @csrf
                             @method('DELETE')
 
@@ -332,8 +332,11 @@
     <script>
         "use strict";
 
+        function itemDeleteConfirmation(id){
+            $("#address_delete_form").attr("action", '<?php echo e(url("user/address-delete")); ?>' + "/" + id);
+        }
         function itemDeleteConfrimation(id){
-            $("#item_delect_confirmation").attr("action",'<?php echo e(url("user/address-delete/")); ?>'+"/"+id)
+            itemDeleteConfirmation(id);
         }
 
         $(document).ready(function() {
