@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Modules\GlobalSetting\App\Models\GlobalSetting;
@@ -14,10 +15,12 @@ use Modules\PaymentWithdraw\App\Models\SellerWithdraw;
 
 class RestaurantDashboardController extends Controller
 {
-    public function dashboard(): Factory|Application|View
+    public function dashboard(): Factory|Application|View|RedirectResponse
     {
-
         $user = Auth::guard('restaurant')->user();
+        if (!$user) {
+            return redirect()->route('restaurant.login');
+        }
 
         $active_orders = Order::where('restaurant_id', $user->id)->where('payment_status', 'success')->whereBetween('order_status', [2, 4])->latest()->count();
 
@@ -29,10 +32,10 @@ class RestaurantDashboardController extends Controller
 
         $withdraw_list = SellerWithdraw::where('seller_id', $user->id)->get();
         $total_without_reject_withdraw = SellerWithdraw::where('seller_id', $user->id)->where('status', '!=','rejected')->get();
-        $total_income = Order::where('restaurant_id', $user->id)->where('payment_status', 'success')->where('order_status', 5)->sum('grand_total');
+        $total_income = (float) Order::where('restaurant_id', $user->id)->where('payment_status', 'success')->where('order_status', 5)->sum('grand_total');
 
         $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
-        $commission_per_sale = GlobalSetting::where('key', 'commission_per_sale')->value('value');
+        $commission_per_sale = (float) (GlobalSetting::where('key', 'commission_per_sale')->value('value') ?? 0);
         $total_commission = 0.00;
         $net_income = $total_income;
         if($commission_type == 'commission'){
@@ -40,11 +43,11 @@ class RestaurantDashboardController extends Controller
             $net_income = $total_income - $total_commission;
         }
 
-        $total_withdraw_amount = $total_without_reject_withdraw->sum('total_amount');
+        $total_withdraw_amount = (float) $total_without_reject_withdraw->sum('total_amount');
 
         $current_balance = $net_income - $total_withdraw_amount;
 
-        $pending_withdraw = SellerWithdraw::where('seller_id', $user->id)->where('status', 'pending')->sum('total_amount');
+        $pending_withdraw = (float) SellerWithdraw::where('seller_id', $user->id)->where('status', 'pending')->sum('total_amount');
 
         return view('paymentwithdraw::seller.dashboard', [
             'withdraw_list' => $withdraw_list,
@@ -59,6 +62,5 @@ class RestaurantDashboardController extends Controller
             'complete_orders' => $complete_orders,
             'cancel_orders' => $cancel_orders,
         ]);
-
     }
 }

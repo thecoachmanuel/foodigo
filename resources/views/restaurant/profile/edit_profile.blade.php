@@ -625,12 +625,12 @@
             const map = L.map('google_map_area', {
                 center: [defaultLat, defaultLng],
                 zoom: 15,
-                zoomControl: true
+                zoomControl: true,
+                attributionControl: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
+                maxZoom: 19
             }).addTo(map);
 
             const marker = L.marker([defaultLat, defaultLng], {

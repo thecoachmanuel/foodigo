@@ -64,7 +64,7 @@ class RestaurantLoginController extends Controller
 
         $this->validate($request, $rules, $custom_errors);
 
-        $restaurant = Restaurant::withoutGlobalScope(\App\Models\Scopes\RestaurantLocationScope::class)->where('email', $request->email)->first();
+        $restaurant = Restaurant::withoutGlobalScopes()->where('email', $request->email)->first();
 
         if (!$restaurant) {
             return $this->redirectWithError(trans('translate.Email not found'), $request);
@@ -74,21 +74,35 @@ class RestaurantLoginController extends Controller
             return $this->redirectWithError(trans('translate.Credentials do not match'), $request);
         }
 
-        if ($restaurant->admin_approval !== 'enable') {
+        if ($restaurant->admin_approval !== 'enable' && $restaurant->admin_approval != '1' && $restaurant->admin_approval !== 'approved') {
             return $this->redirectWithError(trans('translate.Your account is not approved yet'), $request);
         }
 
-        if ($restaurant->is_banned === 'enable') {
+        if ($restaurant->is_banned === 'enable' || $restaurant->is_banned == '1') {
             return $this->redirectWithError(trans('translate.Your account is banned'), $request);
         }
 
-        Auth::guard('restaurant')->login($restaurant, $request->boolean('remember'));
-        $request->session()->regenerate();
+        try {
+            Auth::guard('restaurant')->login($restaurant, $request->boolean('remember'));
+            $request->session()->regenerate();
 
-        return redirect()->route('restaurant.dashboard')->with([
-            'message' => trans('translate.Login successfully'),
-            'alert-type' => 'success'
-        ]);
+            return redirect()->route('restaurant.dashboard')->with([
+                'message' => trans('translate.Login successfully'),
+                'alert-type' => 'success'
+            ]);
+        } catch (\Throwable $e) {
+            try {
+                Auth::guard('restaurant')->login($restaurant, false);
+                $request->session()->regenerate();
+
+                return redirect()->route('restaurant.dashboard')->with([
+                    'message' => trans('translate.Login successfully'),
+                    'alert-type' => 'success'
+                ]);
+            } catch (\Throwable $ex) {
+                return $this->redirectWithError($ex->getMessage(), $request);
+            }
+        }
     }
 
     /**

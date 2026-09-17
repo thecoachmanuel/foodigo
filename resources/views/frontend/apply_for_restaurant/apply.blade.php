@@ -231,9 +231,11 @@
                                                 </div>
 
                                                 <div class="edit_profile_form_inner">
-                                                    <label for="password" class="form-label  mb-2 mt-2">{{__('translate.password *')}}</label>
-                                                    <input type="password" class="form-control" id="password"
-                                                        name="password" >
+                                                    <label for="password" class="form-label mb-2 mt-2">{{__('translate.password *')}}</label>
+                                                    <div class="position-relative">
+                                                        <input type="password" class="form-control" id="password" name="password" required style="padding-right: 42px;">
+                                                        <span class="toggle-password" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 15px; z-index: 10;"><i class="fa-solid fa-eye-slash"></i></span>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -512,12 +514,12 @@
             const map = L.map('google_map_area', {
                 center: [defaultLat, defaultLng],
                 zoom: 14,
-                zoomControl: true
+                zoomControl: true,
+                attributionControl: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
+                maxZoom: 19
             }).addTo(map);
 
             const marker = L.marker([defaultLat, defaultLng], {

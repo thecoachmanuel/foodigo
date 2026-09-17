@@ -56,18 +56,21 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-12">
-                                                    <div class="crancy__item-form--group mg-top-form-20">
-                                                        <label class="crancy__item-label">{{ __('translate.SMTP Password') }} / API Key </label>
-                                                        <input class="crancy__item-input" type="password" name="smtp_password" id="smtp_password" value="{{ $email_setting->smtp_password }}" placeholder="Google App Password or Provider API Key">
-                                                        <small class="text-muted" style="font-size: 12px; margin-top: 5px; display: block;">
-                                                            <strong>Google:</strong> 16-char App Password &bull; 
-                                                            <strong>Resend:</strong> API Key (re_...) &bull; 
-                                                            <strong>SendGrid:</strong> API Key (SG....) &bull; 
-                                                            <strong>Brevo:</strong> SMTP Key
-                                                        </small>
-                                                    </div>
-                                                </div>
+                                                 <div class="col-12">
+                                                     <div class="crancy__item-form--group mg-top-form-20">
+                                                         <label class="crancy__item-label">{{ __('translate.SMTP Password') }} / API Key </label>
+                                                         <div class="position-relative">
+                                                             <input class="crancy__item-input has-password-toggle" type="password" name="smtp_password" id="smtp_password" value="{{ $email_setting->smtp_password }}" placeholder="Google App Password or Provider API Key">
+                                                             <span class="toggle-password"><i class="fa-solid fa-eye-slash"></i></span>
+                                                         </div>
+                                                         <small class="text-muted" style="font-size: 12px; margin-top: 5px; display: block;">
+                                                             <strong>Google:</strong> 16-char App Password &bull; 
+                                                             <strong>Resend:</strong> API Key (re_...) &bull; 
+                                                             <strong>SendGrid:</strong> API Key (SG....) &bull; 
+                                                             <strong>Brevo:</strong> SMTP Key
+                                                         </small>
+                                                     </div>
+                                                 </div>
 
                                                 <div class="col-12">
                                                     <div class="crancy__item-form--group mg-top-form-20">

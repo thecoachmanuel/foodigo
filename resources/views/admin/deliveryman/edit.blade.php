@@ -87,7 +87,10 @@
 
                                             <div class="crancy__item-form--group mg-top-25">
                                                 <label class="crancy__item-label crancy__item-label-product">{{ __('translate.Password') }} ({{ __('translate.Leave blank to keep current password') }})</label>
-                                                <input class="crancy__item-input" type="password" name="password" placeholder="{{ __('translate.Enter new password') }}">
+                                                <div class="position-relative">
+                                                    <input class="crancy__item-input has-password-toggle" type="password" name="password" placeholder="{{ __('translate.Enter new password') }}">
+                                                    <span class="toggle-password"><i class="fa-solid fa-eye-slash"></i></span>
+                                                </div>
                                             </div>
 
                                             <button class="crancy-btn mg-top-25" type="submit">{{ __('translate.Update') }}</button>

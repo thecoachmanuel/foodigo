@@ -19,6 +19,47 @@
     <link rel="stylesheet" href="{{ asset('frontend/css/cookie_consent.css')}}">
 
     <style>
+        /* Hide Leaflet & OpenStreetMap attribution watermarks everywhere */
+        .leaflet-control-attribution,
+        .leaflet-control-attribution.leaflet-control,
+        .leaflet-container .leaflet-control-attribution {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            height: 0 !important;
+            width: 0 !important;
+        }
+
+        /* Universal Password Visibility Toggle Styling */
+        .password-toggle-wrapper {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+        .password-toggle-wrapper input {
+            padding-right: 42px !important;
+        }
+        .password-toggle-wrapper .toggle-password,
+        .edit_profile_form_inner .toggle-password,
+        .crancy__item-form--group .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 15px;
+            z-index: 10;
+            transition: color 0.2s ease;
+            user-select: none;
+        }
+        .password-toggle-wrapper .toggle-password:hover,
+        .edit_profile_form_inner .toggle-password:hover,
+        .crancy__item-form--group .toggle-password:hover {
+            color: #ea580c;
+        }
+
         /* Anti-FOUC & Anti-Layout Shift for Sliders on Initial Load */
         .banner_slick:not(.slick-initialized),
         .categories_slick:not(.slick-initialized),
@@ -645,12 +686,12 @@
             leafletMap = L.map('header_leaflet_map', {
                 center: [defaultLat, defaultLng],
                 zoom: 14,
-                zoomControl: true
+                zoomControl: true,
+                attributionControl: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
+                maxZoom: 19
             }).addTo(leafletMap);
 
             leafletMarker = L.marker([defaultLat, defaultLng], {
@@ -852,6 +893,31 @@
 
         // Run silent location detection in background
         detectUserLocationSilently();
+    });
+
+    // Universal Password Visibility Toggle Handler
+    $(document).on('click', '.toggle-password, .password_view, .placeholder_icon, .crancy-wc__toggle', function(e) {
+        e.preventDefault();
+        const $this = $(this);
+        const $container = $this.closest('.password-toggle-wrapper, .sign-up-from-inner, .edit_profile_form_inner, .change_password_form_inner, .form-group__input, .crancy__item-form--group, div');
+        const $input = $container.find('input[type="password"], input[type="text"]').filter(function() {
+            const name = ($(this).attr('name') || '').toLowerCase();
+            const id = ($(this).attr('id') || '').toLowerCase();
+            return name.includes('pass') || id.includes('pass') || $(this).data('is-pass') === true;
+        }).first();
+
+        if ($input.length) {
+            const isCurrentlyPassword = $input.attr('type') === 'password';
+            $input.attr('type', isCurrentlyPassword ? 'text' : 'password');
+            $input.data('is-pass', true);
+
+            const $icon = $this.find('i');
+            if (isCurrentlyPassword) {
+                $icon.removeClass('fa-eye-slash fa-regular fa-solid fas far').addClass('fa-solid fa-eye');
+            } else {
+                $icon.removeClass('fa-eye fa-solid fas far').addClass('fa-solid fa-eye-slash');
+            }
+        }
     });
 </script>
 

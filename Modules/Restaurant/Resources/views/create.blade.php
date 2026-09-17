@@ -299,7 +299,10 @@
                                             <div class="col-12">
                                                 <div class="crancy__item-form--group mg-top-form-20">
                                                     <label class="crancy__item-label">{{ __('translate.Password') }} * </label>
-                                                    <input class="crancy__item-input" type="password" name="password" id="password" value="{{ old('password') }}">
+                                                    <div class="position-relative">
+                                                        <input class="crancy__item-input has-password-toggle" type="password" name="password" id="password" value="{{ old('password') }}" required>
+                                                        <span class="toggle-password"><i class="fa-solid fa-eye-slash"></i></span>
+                                                    </div>
                                                 </div>
                                             </div>
 

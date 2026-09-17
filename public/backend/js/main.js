@@ -14,46 +14,47 @@ if (fullscreenButton) {
     });
 }
 
-/* Password Field */
+/* Universal Password Field Toggle */
 document.addEventListener('DOMContentLoaded', function() {
-    const passwordField = document.getElementById('password-field');
-    const toggleIcon = document.getElementById('toggle-icon');
-    const togglePassword = () => {
-        if (passwordField.type === 'password') {
-            passwordField.type = 'text';
-            toggleIcon.classList.remove('fa-eye-slash');
-            toggleIcon.classList.add('fa-eye');
-        } else {
-            passwordField.type = 'password';
-            toggleIcon.classList.remove('fa-eye');
-            toggleIcon.classList.add('fa-eye-slash');
+    document.addEventListener('click', function(e) {
+        const toggleBtn = e.target.closest('.toggle-password, .crancy-wc__toggle, .password_view, .password-toggle-btn, [id="toggle-icon"], [id="confirm-toggle-icon"]');
+        if (!toggleBtn) return;
+
+        // Try finding closest form input container
+        const container = toggleBtn.closest('.position-relative, .form-group__input, .crancy__item-form--group, .edit_profile_form_inner, .change_password_form_inner, .form-group, div');
+        let input = null;
+        if (container) {
+            input = container.querySelector('input[type="password"], input[type="text"][data-is-password="true"]');
         }
-    };
 
-    if (toggleIcon) {
-        toggleIcon.addEventListener('click', togglePassword);
-    }
-});
-
-/* Confirm Password Field */
-document.addEventListener('DOMContentLoaded', function() {
-    const confirmPasswordField = document.getElementById('confirm-password-field');
-    const confirmToggleIcon = document.getElementById('confirm-toggle-icon');
-    const togglePassword = () => {
-        if (confirmPasswordField.type === 'password') {
-            confirmPasswordField.type = 'text';
-            confirmToggleIcon.classList.remove('fa-eye-slash');
-            confirmToggleIcon.classList.add('fa-eye');
-        } else {
-            confirmPasswordField.type = 'password';
-            confirmToggleIcon.classList.remove('fa-eye');
-            confirmToggleIcon.classList.add('fa-eye-slash');
+        // Fallbacks for ID-based toggles
+        if (!input) {
+            if (toggleBtn.id === 'toggle-icon' || toggleBtn.querySelector('#toggle-icon')) {
+                input = document.getElementById('password-field');
+            } else if (toggleBtn.id === 'confirm-toggle-icon' || toggleBtn.querySelector('#confirm-toggle-icon')) {
+                input = document.getElementById('confirm-password-field');
+            }
         }
-    };
 
-    if (confirmToggleIcon) {
-        confirmToggleIcon.addEventListener('click', togglePassword);
-    }
+        if (input) {
+            const icon = toggleBtn.tagName === 'I' ? toggleBtn : toggleBtn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                input.setAttribute('data-is-password', 'true');
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            } else {
+                input.type = 'password';
+                input.removeAttribute('data-is-password');
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            }
+        }
+    });
 });
 
 

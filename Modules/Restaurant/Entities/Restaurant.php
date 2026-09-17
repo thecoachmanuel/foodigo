@@ -17,7 +17,18 @@ class Restaurant extends Authenticatable
 {
     use HasFactory, HasApiTokens;
 
-    protected $fillable = [];
+    protected $guarded = ['id'];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'forget_password_token',
+    ];
+
+    public function getRememberTokenName()
+    {
+        return 'remember_token';
+    }
 
     public function city(){
         return $this->belongsTo(City::class);

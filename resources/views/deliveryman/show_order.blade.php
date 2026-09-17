@@ -456,12 +456,12 @@
             const map = L.map('order_delivery_map', {
                 center: [initialLat, initialLng],
                 zoom: 14,
-                zoomControl: true
+                zoomControl: true,
+                attributionControl: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
+                maxZoom: 19
             }).addTo(map);
 
             const destPin = L.divIcon({

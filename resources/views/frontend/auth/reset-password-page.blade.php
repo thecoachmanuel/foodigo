@@ -201,7 +201,10 @@
                     <div class="sign-up-from-inner">
                         <label for="new_pass" class="form-label">{{ __('translate.New Password') }}</label>
                         <input type="password" class="form-control" id="new_pass"
-                               placeholder="{{ __('translate.Enter new password') }}" name="password">
+                               placeholder="{{ __('translate.Enter new password') }}" name="password" required>
+                        <div class="icon password_view" id="new_pass_view">
+                            <span><i class="fa-regular fa-eye-slash"></i></span>
+                        </div>
                     </div>
                 </div>
 
@@ -209,7 +212,10 @@
                     <div class="sign-up-from-inner">
                         <label for="password_confirmation" class="form-label">{{ __('translate.Confirm Password') }}</label>
                         <input type="password" class="form-control" id="password_confirmation"
-                               placeholder="{{ __('translate.Enter confirm password') }}" name="password_confirmation">
+                               placeholder="{{ __('translate.Enter confirm password') }}" name="password_confirmation" required>
+                        <div class="icon password_view" id="password_confirmation_view">
+                            <span><i class="fa-regular fa-eye-slash"></i></span>
+                        </div>
                     </div>
                 </div>
 
@@ -262,6 +268,19 @@
     if (validation_errors.length > 0) {
         validation_errors.forEach(error => toastr.error(error));
     }
+
+    $(document).on('click', '.password_view', function(e) {
+        const $container = $(this).closest('.sign-up-from-inner');
+        const $input = $container.find('input');
+        const $icon = $(this).find('i');
+        if ($input.attr('type') === 'password') {
+            $input.attr('type', 'text');
+            $icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        } else {
+            $input.attr('type', 'password');
+            $icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        }
+    });
 </script>
 
 

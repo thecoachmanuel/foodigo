@@ -129,7 +129,7 @@
 
                                                 <!-- Header Author -->
                                             <div class="crancy-header__single">
-                                                <a href=""><div class="crancy-header__author-img"><img src="{{ asset($auth_restaurant->logo) }}" alt="#"></div></a>
+                                                <a href="{{ route('restaurant.edit-profile') }}"><div class="crancy-header__author-img"><img src="{{ asset($auth_restaurant?->logo ?: 'backend/images/avatar.png') }}" alt="#"></div></a>
                                                 <!-- crancy Profile Hover -->
 
                                                 <!-- Dropdown List -->

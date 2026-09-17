@@ -2120,3 +2120,48 @@ img#view_img {
     width: 100%;
 }
 /*dashboard end*/
+
+/* Leaflet Attribution Watermark Hide */
+.leaflet-control-attribution,
+.leaflet-control-attribution.leaflet-control,
+.leaflet-container .leaflet-control-attribution {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    width: 0 !important;
+}
+
+/* Universal Password Field Eye Icon Toggle */
+.password-toggle-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+.password-toggle-wrapper input,
+.crancy__item-form--group input.has-password-toggle {
+    padding-right: 42px !important;
+}
+.toggle-password,
+.crancy-wc__toggle {
+    cursor: pointer;
+    user-select: none;
+}
+.password-toggle-wrapper .toggle-password,
+.crancy__item-form--group .toggle-password {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 15px;
+    z-index: 10;
+    transition: color 0.2s ease;
+}
+.password-toggle-wrapper .toggle-password:hover,
+.crancy__item-form--group .toggle-password:hover {
+    color: var(--theme-color, #e94222);
+}
+
