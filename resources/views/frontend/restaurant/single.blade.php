@@ -36,12 +36,11 @@
                         <div class="profile_informetion_bg_main">
                             <div class="profile_informetion_bg">
                                 <img src="{{asset($restaurant->cover_image)}}" alt="thumb">
-                            </div>
-                            <div class="profile_informetion_main">
                                 <div class="company_logo">
                                     <img src="{{asset($restaurant->logo)}}" alt="logo">
                                 </div>
-
+                            </div>
+                            <div class="profile_informetion_main">
                                 <div class="company_name">
                                     <h6>{{html_decode($restaurant->restaurant_name)}}</h6>
                                     @if($restaurant->is_trusted == 1)
@@ -524,60 +523,58 @@
 @push('style_section')
     <style>
         .profile_bg {
-            padding: 120px 0 16px 0 !important;
+            padding: 110px 0 14px 0 !important;
         }
         .profile_informetion_bg_main {
             border-radius: 16px !important;
-            overflow: hidden !important;
+            overflow: visible !important;
             background: #ffffff !important;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
             position: relative !important;
         }
-        /* Banner height expanded so cover photo extends downwards generously without cropping */
+        /* Reduced banner height with centralized image */
         .profile_informetion_bg {
-            height: 500px !important;
-            max-height: 500px !important;
-            min-height: 500px !important;
+            height: 280px !important;
+            max-height: 280px !important;
+            min-height: 280px !important;
             width: 100% !important;
-            overflow: hidden !important;
             position: relative !important;
             background-color: #f1f5f9 !important;
             border-radius: 16px 16px 0 0 !important;
+            overflow: visible !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
-        .profile_informetion_bg img {
+        .profile_informetion_bg > img {
             width: 100% !important;
             height: 100% !important;
             min-width: 100% !important;
             min-height: 100% !important;
             object-fit: cover !important;
-            object-position: center !important;
+            object-position: center center !important;
             display: block !important;
+            border-radius: 16px 16px 0 0 !important;
         }
-        .profile_informetion_main {
-            padding: 0 28px 24px 28px !important;
-            position: relative !important;
-            background-color: #ffffff !important;
-            border-radius: 0 0 16px 16px !important;
-        }
-        /* Circular restaurant logo profile picture overlaps directly onto the banner image */
-        .profile_informetion_main .company_logo {
-            margin-top: -105px !important;
-            margin-bottom: 20px !important;
-            height: 140px !important;
-            width: 140px !important;
-            min-width: 140px !important;
+        /* Profile picture sits directly ON the banner image overlapping the bottom edge */
+        .profile_informetion_bg .company_logo {
+            position: absolute !important;
+            bottom: -45px !important;
+            left: 32px !important;
+            height: 130px !important;
+            width: 130px !important;
+            min-width: 130px !important;
             border-radius: 50% !important;
             border: 5px solid #ffffff !important;
             box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22), 0 3px 8px rgba(0, 0, 0, 0.1) !important;
             background: #ffffff !important;
-            position: relative !important;
-            z-index: 20 !important;
+            z-index: 30 !important;
             overflow: hidden !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
         }
-        .profile_informetion_main .company_logo img {
+        .profile_informetion_bg .company_logo img {
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
@@ -585,38 +582,63 @@
             border-radius: 50% !important;
             display: block !important;
         }
+        .profile_informetion_main {
+            padding: 55px 30px 24px 30px !important;
+            position: relative !important;
+            background-color: #ffffff !important;
+            border-radius: 0 0 16px 16px !important;
+        }
+        .profile_informetion_main .company_name {
+            margin-top: 0px !important;
+        }
         @media (max-width: 991px) {
             .profile_bg {
-                padding: 100px 0 12px 0 !important;
+                padding: 95px 0 12px 0 !important;
             }
             .profile_informetion_bg {
-                height: 350px !important;
-                max-height: 350px !important;
-                min-height: 350px !important;
+                height: 220px !important;
+                max-height: 220px !important;
+                min-height: 220px !important;
+            }
+            .profile_informetion_bg .company_logo {
+                height: 100px !important;
+                width: 100px !important;
+                min-width: 100px !important;
+                bottom: -38px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                border-width: 4px !important;
             }
             .profile_informetion_main {
-                padding: 0 16px 18px 16px !important;
+                padding: 48px 16px 18px 16px !important;
+                text-align: center !important;
             }
-            .profile_informetion_main .company_logo {
-                margin: -80px auto 16px auto !important;
-                height: 110px !important;
-                width: 110px !important;
-                min-width: 110px !important;
-                border-width: 4px !important;
+            .profile_informetion_main .company_name {
+                justify-content: center !important;
+            }
+            .profile_other_informetion {
+                justify-content: center !important;
+            }
+            .profile_other_informetion_item {
+                justify-content: center !important;
+                flex-wrap: wrap !important;
             }
         }
         @media (max-width: 576px) {
             .profile_informetion_bg {
-                height: 260px !important;
-                max-height: 260px !important;
-                min-height: 260px !important;
+                height: 175px !important;
+                max-height: 175px !important;
+                min-height: 175px !important;
             }
-            .profile_informetion_main .company_logo {
-                margin: -65px auto 14px auto !important;
-                height: 90px !important;
-                width: 90px !important;
-                min-width: 90px !important;
+            .profile_informetion_bg .company_logo {
+                height: 84px !important;
+                width: 84px !important;
+                min-width: 84px !important;
+                bottom: -30px !important;
                 border-width: 3.5px !important;
+            }
+            .profile_informetion_main {
+                padding: 40px 14px 16px 14px !important;
             }
         }
     </style>
