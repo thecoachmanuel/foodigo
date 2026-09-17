@@ -354,7 +354,7 @@
                         <div class="col-xxl-12">
                             <div class="cuisine_item_main">
                                 @forelse($cuisines as $cuisine)
-                                    <div class="cuisine_item" data-aos="fade-right" data-aos-delay="50">
+                                    <div class="cuisine_item" data-aos="fade-up" data-aos-delay="50">
                                         <div class="cuisine_item_thumb_main">
                                             <div class="cuisine_item_thumb">
                                                 <img src="{{ asset($cuisine->icon) }}" alt="thumb">

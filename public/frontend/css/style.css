@@ -1507,44 +1507,87 @@ a {
     background-color: var(--color-slate-50);
 }
 
+.cuisine_item_main {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 24px;
+    width: 100%;
+}
+
 .cuisine_item {
-    padding: 32px 60px;
+    padding: 24px 16px;
     background-color: var(--color-white);
-    box-shadow: 0px 4px 100px 0px rgba(0, 0, 0, 0.0784313725);
-    border-radius: 8px;
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.cuisine_item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.1);
 }
 
 .cuisine_item:hover .cuisine_item_thumb_main .cuisine_item_thumb img {
-    transform: scale(1.1);
+    transform: scale(1.08);
+}
+
+.cuisine_item_thumb_main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 12px;
+    width: 100%;
 }
 
 .cuisine_item_thumb_main .cuisine_item_thumb {
-    height: 132px;
-    width: 132px;
+    height: 110px;
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
     overflow: hidden;
     border-radius: 50%;
+    margin: 0 auto;
+    background: #fff8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cuisine_item_thumb_main .cuisine_item_thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
     transition: var(--transition-easi);
 }
 
 .cuisine_item_txt_main {
     text-align: center;
+    width: 100%;
 }
 
 .cuisine_item_txt_main .cuisine_item_txt {
     margin-top: 3px;
+    display: block;
 }
 
 .cuisine_item_txt_main .cuisine_item_txt h4 {
     color: var(--color-balck);
     transition: var(--all-transition);
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .cuisine_item_txt_main .cuisine_item_txt h4:hover {
@@ -1552,19 +1595,22 @@ a {
 }
 
 .cuisine_item_txt_main p {
-    gap: 2px;
-    margin-top: 3px;
-    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 2px;
+    font-size: 14px;
     font-weight: 400;
-    line-height: 24px;
+    line-height: 20px;
     color: var(--color-slate-600);
 }
 
 .cuisine_item_txt_main p span {
-    height: 4px;
-    width: 4px;
+    height: 5px;
+    width: 5px;
     background: var(--gradients-orange);
-    display: block;
+    display: inline-block;
     border-radius: 50%;
 }
 
@@ -1574,12 +1620,13 @@ a {
 }
 
 .cuisine_two .cuisine_item_main {
-    flex-wrap: wrap;
-    gap: 30px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 24px;
 }
 
 .cuisine_two .cuisine_item {
-    width: 18%;
+    width: 100%;
 }
 
 .categories {
@@ -6621,7 +6668,6 @@ a {
 .comment_item_txt_item,
 .blog_details_sarch,
 .blog_details_catagory li a,
-.cuisine_item_main,
 .order_summery_box .order_summery_list li,
 .order_summery_box .promo_code_inner,
 .contact_us_form .contact_us_form_item,
