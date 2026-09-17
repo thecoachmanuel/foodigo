@@ -524,7 +524,7 @@
 @push('style_section')
     <style>
         .profile_bg {
-            padding: 135px 0 20px 0 !important;
+            padding: 120px 0 16px 0 !important;
         }
         .profile_informetion_bg_main {
             border-radius: 16px !important;
@@ -533,11 +533,11 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
             position: relative !important;
         }
-        /* Banner occupies the entire banner container cleanly */
+        /* Banner height expanded so cover photo is clearly visible without harsh cropping */
         .profile_informetion_bg {
-            height: 380px !important;
-            max-height: 380px !important;
-            min-height: 380px !important;
+            height: 480px !important;
+            max-height: 480px !important;
+            min-height: 480px !important;
             width: 100% !important;
             overflow: hidden !important;
             position: relative !important;
@@ -559,10 +559,10 @@
             background-color: #ffffff !important;
             border-radius: 0 0 16px 16px !important;
         }
-        /* Circle with restaurant logo overlaps from the circle diameter upward onto the banner */
+        /* Circular restaurant logo overlaps 50% (from its center diameter) across the banner bottom edge */
         .profile_informetion_main .company_logo {
-            margin-top: -140px !important;
-            margin-bottom: 24px !important;
+            margin-top: -70px !important;
+            margin-bottom: 16px !important;
             height: 140px !important;
             width: 140px !important;
             min-width: 140px !important;
@@ -587,18 +587,18 @@
         }
         @media (max-width: 768px) {
             .profile_bg {
-                padding: 110px 0 15px 0 !important;
+                padding: 100px 0 12px 0 !important;
             }
             .profile_informetion_bg {
-                height: 240px !important;
-                max-height: 240px !important;
-                min-height: 240px !important;
+                height: 300px !important;
+                max-height: 300px !important;
+                min-height: 300px !important;
             }
             .profile_informetion_main {
                 padding: 0 16px 18px 16px !important;
             }
             .profile_informetion_main .company_logo {
-                margin: -100px auto 18px auto !important;
+                margin: -50px auto 14px auto !important;
                 height: 100px !important;
                 width: 100px !important;
                 min-width: 100px !important;
@@ -607,12 +607,12 @@
         }
         @media (max-width: 480px) {
             .profile_informetion_bg {
-                height: 200px !important;
-                max-height: 200px !important;
-                min-height: 200px !important;
+                height: 240px !important;
+                max-height: 240px !important;
+                min-height: 240px !important;
             }
             .profile_informetion_main .company_logo {
-                margin: -86px auto 14px auto !important;
+                margin: -43px auto 12px auto !important;
                 height: 86px !important;
                 width: 86px !important;
                 min-width: 86px !important;
