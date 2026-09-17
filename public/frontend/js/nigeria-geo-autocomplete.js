@@ -1,13 +1,12 @@
 /**
- * Live OpenStreetMap Leaflet Address Autocomplete & Geocoding Engine for Foodigo
- * 100% Free, Unlimited Multi-User Checkout Support
- * Fully Real-Time OpenStreetMap Nominatim with Instant Coordinate Auto-Resolution
- * High-Contrast Black on White Typography (#000000 on #ffffff)
+ * Live OpenStreetMap & Photon Geocoding + Leaflet Interactive Map Engine for Foodigo
+ * 100% Free, Unlimited Real-Time Location Search, Auto-Locate & Pin Draggable Mapping
+ * High-Contrast Black on White Dropdown (#000000 on #ffffff)
  */
 (function (window, document) {
     'use strict';
 
-    // High-Contrast CSS styles for autocomplete dropdown
+    // High-Contrast CSS styles for autocomplete dropdown and interactive maps
     const CSS_STYLES = `
         .nga-geo-wrapper {
             position: relative !important;
@@ -84,7 +83,7 @@
             text-shadow: none !important;
         }
         .nga-geo-subtitle {
-            font-size: 13.5px !important;
+            font-size: 13px !important;
             color: #1e293b !important;
             -webkit-text-fill-color: #1e293b !important;
             font-weight: 600 !important;
@@ -104,18 +103,10 @@
             background: #e2e8f0 !important;
             color: #1e293b !important;
         }
-        .nga-geo-badge-lagos {
-            background: #dbeafe !important;
-            color: #1d4ed8 !important;
-        }
-        .nga-geo-badge-oyo {
-            background: #fef3c7 !important;
-            color: #b45309 !important;
-        }
-        .nga-geo-badge-fct {
-            background: #dcfce7 !important;
-            color: #15803d !important;
-        }
+        .nga-geo-badge-lagos { background: #dbeafe !important; color: #1d4ed8 !important; }
+        .nga-geo-badge-oyo { background: #fef3c7 !important; color: #b45309 !important; }
+        .nga-geo-badge-fct { background: #dcfce7 !important; color: #15803d !important; }
+
         .nga-geo-loading, .nga-geo-empty {
             padding: 16px !important;
             font-size: 14px !important;
@@ -125,6 +116,66 @@
             text-align: center !important;
             background: #ffffff !important;
             background-color: #ffffff !important;
+        }
+
+        /* Interactive Map Container Styles */
+        .foodigo-interactive-map-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            margin-top: 14px;
+            margin-bottom: 16px;
+        }
+        .foodigo-interactive-map-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #334155;
+        }
+        .foodigo-interactive-map-header .locate-btn {
+            background: #ffffff;
+            border: 1.5px solid #000000;
+            color: #000000;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .foodigo-interactive-map-header .locate-btn:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+        .foodigo-map-element {
+            height: 250px;
+            width: 100%;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+        .foodigo-map-footer-hint {
+            padding: 8px 14px;
+            font-size: 12px;
+            color: #64748b;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .foodigo-leaflet-div-icon {
+            background: transparent;
+            border: none;
         }
     `;
 
@@ -137,16 +188,16 @@
         document.head.appendChild(style);
     }
 
-    // Real-time Free Geocoding API search via OpenStreetMap Live Engine
-    async function searchOnlineOsm(query) {
+    // Real-time Free Geocoding API search
+    async function searchOnlineOsm(query, userLat = 7.44, userLng = 3.90) {
         if (!query || query.trim().length < 2) return [];
         const cleanQuery = query.trim();
 
-        // 1. Fast server proxy endpoint with built-in caching & OSM connection
+        // 1. Fast server proxy endpoint with built-in multi-pass engine (Photon + Nominatim)
         try {
             const proxyController = new AbortController();
-            const proxyTimeout = setTimeout(() => proxyController.abort(), 3000);
-            const proxyRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(cleanQuery)}`, {
+            const proxyTimeout = setTimeout(() => proxyController.abort(), 3500);
+            const proxyRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(cleanQuery)}&lat=${userLat}&lng=${userLng}`, {
                 signal: proxyController.signal
             });
             clearTimeout(proxyTimeout);
@@ -167,14 +218,14 @@
                 }
             }
         } catch (err) {
-            // Fallback to direct client-side OSM query if proxy fails
+            // Fallback to client-side Photon query if proxy has network error
         }
 
-        // 2. Direct OpenStreetMap Nominatim query fallback
+        // 2. Direct Komoot Photon API fallback (client-side)
         try {
             const directController = new AbortController();
-            const directTimeout = setTimeout(() => directController.abort(), 3000);
-            const directRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanQuery)}&countrycodes=ng&addressdetails=1&limit=8`, {
+            const directTimeout = setTimeout(() => directController.abort(), 3500);
+            const directRes = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(cleanQuery)}&lat=${userLat}&lon=${userLng}&limit=8`, {
                 headers: { 'Accept': 'application/json' },
                 signal: directController.signal
             });
@@ -182,47 +233,78 @@
 
             if (directRes.ok) {
                 const data = await directRes.json();
-                if (Array.isArray(data) && data.length > 0) {
-                    return data.map(item => {
-                        const addr = item.address || {};
-                        const name = item.name || '';
-                        const road = addr.road || addr.neighbourhood || addr.suburb || '';
-                        const city = addr.city || addr.town || addr.county || addr.city_district || '';
-                        const state = addr.state || 'Nigeria';
-
-                        const nameParts = [name, road, city, state].filter(Boolean);
-                        const uniqueParts = [...new Set(nameParts)];
-                        const formattedName = uniqueParts.length > 0 ? uniqueParts.join(', ') : (item.display_name || 'Nigeria');
+                const features = data.features || [];
+                if (features.length > 0) {
+                    return features.filter(f => {
+                        const p = f.properties || {};
+                        const coords = f.geometry ? f.geometry.coordinates : [0,0];
+                        const lat = coords[1];
+                        const lng = coords[0];
+                        const cc = (p.countrycode || '').toLowerCase();
+                        return (cc === 'ng' || (lat >= 4.0 && lat <= 14.0 && lng >= 2.5 && lng <= 15.0));
+                    }).map(f => {
+                        const p = f.properties || {};
+                        const coords = f.geometry ? f.geometry.coordinates : [0,0];
+                        const name = p.name || p.street || '';
+                        const street = p.street || '';
+                        const district = p.district || p.locality || '';
+                        const city = p.city || p.county || '';
+                        const state = p.state || 'Oyo';
+                        const parts = [name, street, district, city, state].filter(Boolean);
+                        const unique = [...new Set(parts)];
+                        const formatted = unique.length > 0 ? unique.join(', ') : name;
 
                         return {
-                            name: formattedName,
-                            display_name: item.display_name || formattedName,
-                            city: city || state,
+                            name: formatted,
+                            display_name: formatted,
+                            city: city || district,
                             state: state,
-                            lat: parseFloat(item.lat),
-                            lng: parseFloat(item.lon),
-                            type: item.type || 'osm'
+                            lat: coords[1],
+                            lng: coords[0],
+                            type: p.osm_key || 'landmark'
                         };
                     });
                 }
             }
         } catch (err) {
-            // Network error
+            // Fallback
         }
 
         return [];
     }
 
-    // Resolve address text into coordinates via live OpenStreetMap reverse/search
-    async function resolveLocationAsync(addressText) {
-        if (!addressText || typeof addressText !== 'string' || addressText.trim().length < 2) {
-            return { lat: 7.4250, lng: 3.9050, name: 'Bodija, Ibadan, Oyo State', city: 'Ibadan', state: 'Oyo' };
+    // Real-time reverse geocode (lat, lng -> clean address string)
+    async function reverseGeocodeOnline(lat, lng) {
+        if (!lat || !lng || parseFloat(lat) === 0) {
+            return 'Bodija, Ibadan, Oyo State';
         }
-        const results = await searchOnlineOsm(addressText);
-        if (results && results.length > 0) {
-            return results[0];
-        }
-        return { lat: 7.4250, lng: 3.9050, name: addressText, city: 'Ibadan', state: 'Oyo' };
+        try {
+            const res = await fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.address) {
+                    return data.address;
+                }
+            }
+        } catch (e) {}
+
+        try {
+            const resNom = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+            if (resNom.ok) {
+                const d = await resNom.json();
+                const a = d.address || {};
+                const name = a.amenity || a.building || a.shop || '';
+                const road = a.road || a.pedestrian || a.suburb || '';
+                const city = a.city || a.town || a.county || '';
+                const state = a.state || 'Nigeria';
+                const parts = [name, road, city, state].filter(Boolean);
+                const u = [...new Set(parts)];
+                if (u.length > 0) return u.join(', ');
+                if (d.display_name) return d.display_name.split(', ').slice(0, 4).join(', ');
+            }
+        } catch (e) {}
+
+        return 'Bodija, Ibadan, Oyo State';
     }
 
     // Synchronous fallback for instant form submission resolution
@@ -252,6 +334,7 @@
                 lngField: '#new_longitude, #longitude, .longitude',
                 plainAddressField: '#new_plain_address, #plain_address, .plain_address',
                 onSelect: null,
+                mapInstance: null,
                 placeholder: 'Enter area, estate, or street name...',
             }, options);
 
@@ -294,7 +377,6 @@
             });
 
             this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
-            this.input.addEventListener('blur', () => this.handleBlur());
 
             // Close dropdown on click outside
             document.addEventListener('click', (e) => {
@@ -313,39 +395,26 @@
                 return;
             }
 
-            // Step 1: Show Loading State (Pure Black text on Pure White background)
-            this.dropdown.innerHTML = `<div class="nga-geo-loading" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; padding: 14px; font-weight: 700; text-align: center;"><i class="fa-solid fa-spinner fa-spin me-2" style="color: #ea580c;"></i> Searching map locations...</div>`;
+            // Show Loading State (Pure Black text on Pure White background)
+            this.dropdown.innerHTML = `<div class="nga-geo-loading" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; background: #ffffff !important; background-color: #ffffff !important; padding: 14px; font-weight: 700; text-align: center;"><i class="fa-solid fa-spinner fa-spin me-2" style="color: #ea580c;"></i> Searching live locations...</div>`;
             this.dropdown.style.display = 'block';
 
-            // Step 2: Fetch Live Real-Time OpenStreetMap locations
+            // Fetch Live Real-Time Multi-Source Locations
             this.debounceTimer = setTimeout(async () => {
                 const onlineResults = await searchOnlineOsm(query);
                 this.renderResults(onlineResults, false);
 
-                // Step 3: AUTO-RESOLVE ON MAP WHILE TYPING
+                // Auto-resolve top match on typing
                 if (onlineResults && onlineResults.length > 0) {
                     const top = onlineResults[0];
-                    
-                    // Update hidden coordinates
-                    document.querySelectorAll(this.options.latField).forEach(el => {
-                        el.value = top.lat;
-                    });
-                    document.querySelectorAll(this.options.lngField).forEach(el => {
-                        el.value = top.lng;
-                    });
+                    document.querySelectorAll(this.options.latField).forEach(el => { el.value = top.lat; });
+                    document.querySelectorAll(this.options.lngField).forEach(el => { el.value = top.lng; });
                     document.querySelectorAll(this.options.plainAddressField).forEach(el => {
-                        if (el !== this.input) {
-                            el.value = top.name;
-                        }
+                        if (el !== this.input) el.value = top.name;
                     });
 
-                    // Update Leaflet map marker and position
-                    if (window.foodigoMap && typeof window.foodigoMap.updatePosition === 'function') {
-                        window.foodigoMap.updatePosition(top.lat, top.lng, top.name);
-                    }
-
-                    if (typeof window.calculateDeliveryCharge === 'function') {
-                        window.calculateDeliveryCharge(top.lat, top.lng);
+                    if (this.options.mapInstance && typeof this.options.mapInstance.setMarker === 'function') {
+                        this.options.mapInstance.setMarker(top.lat, top.lng, top.name, false);
                     }
                 }
             }, 300);
@@ -358,9 +427,9 @@
 
             if (this.currentResults.length === 0) {
                 if (isSearching) {
-                    this.dropdown.innerHTML = `<div class="nga-geo-loading" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; background: #ffffff !important; padding: 14px; font-weight: 700; text-align: center;">Searching map locations...</div>`;
+                    this.dropdown.innerHTML = `<div class="nga-geo-loading" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; background: #ffffff !important; padding: 14px; font-weight: 700; text-align: center;">Searching live locations...</div>`;
                 } else {
-                    this.dropdown.innerHTML = `<div class="nga-geo-empty" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; background: #ffffff !important; padding: 14px; font-weight: 700; text-align: center;">No exact location found. Enter your street or landmark directly.</div>`;
+                    this.dropdown.innerHTML = `<div class="nga-geo-empty" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; background: #ffffff !important; padding: 14px; font-weight: 700; text-align: center;">No exact match found. You can pinpoint your location on the map.</div>`;
                 }
                 this.dropdown.style.display = 'block';
                 return;
@@ -373,8 +442,8 @@
                 div.style.cssText = 'background: #ffffff !important; background-color: #ffffff !important; color: #000000 !important; padding: 12px 15px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; min-height: 48px;';
 
                 let iconChar = '📍';
-                if (item.type === 'landmark' || item.type === 'amenity') iconChar = '🏛️';
-                if (item.type === 'estate' || item.type === 'residential') iconChar = '🏡';
+                if (item.type === 'landmark' || item.type === 'amenity' || item.type === 'university' || item.type === 'building') iconChar = '🏛️';
+                if (item.type === 'estate' || item.type === 'residential' || item.type === 'house') iconChar = '🏡';
                 if (item.type === 'street' || item.type === 'highway' || item.type === 'primary') iconChar = '🛣️';
                 if (item.type === 'city' || item.type === 'town') iconChar = '🏙️';
 
@@ -399,11 +468,8 @@
                     div.style.backgroundColor = '#f1f5f9';
                 });
                 div.addEventListener('mouseleave', () => {
-                    if (this.activeIdx !== idx) {
-                        div.style.backgroundColor = '#ffffff';
-                    }
+                    div.style.backgroundColor = '#ffffff';
                 });
-
                 div.addEventListener('mousedown', (e) => {
                     e.preventDefault();
                     this.selectItem(item);
@@ -415,8 +481,34 @@
             this.dropdown.style.display = 'block';
         }
 
+        selectItem(item) {
+            this.input.value = item.name;
+
+            document.querySelectorAll(this.options.latField).forEach(el => { el.value = item.lat; });
+            document.querySelectorAll(this.options.lngField).forEach(el => { el.value = item.lng; });
+            document.querySelectorAll(this.options.plainAddressField).forEach(el => {
+                if (el !== this.input) el.value = item.name;
+            });
+
+            if (this.options.mapInstance && typeof this.options.mapInstance.setMarker === 'function') {
+                this.options.mapInstance.setMarker(item.lat, item.lng, item.name, true);
+            }
+
+            if (typeof this.options.onSelect === 'function') {
+                this.options.onSelect(item);
+            }
+
+            if (typeof window.calculateDeliveryCharge === 'function') {
+                window.calculateDeliveryCharge(item.lat, item.lng);
+            }
+
+            this.closeDropdown();
+        }
+
         handleKeydown(e) {
             const items = this.dropdown.querySelectorAll('.nga-geo-item');
+            if (items.length === 0 || this.dropdown.style.display === 'none') return;
+
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 this.activeIdx = (this.activeIdx + 1) % items.length;
@@ -426,14 +518,9 @@
                 this.activeIdx = (this.activeIdx - 1 + items.length) % items.length;
                 this.updateActiveItem(items);
             } else if (e.key === 'Enter') {
-                if (this.activeIdx >= 0 && this.currentResults[this.activeIdx]) {
+                if (this.activeIdx >= 0 && this.activeIdx < this.currentResults.length) {
                     e.preventDefault();
                     this.selectItem(this.currentResults[this.activeIdx]);
-                } else if (this.currentResults.length > 0) {
-                    e.preventDefault();
-                    this.selectItem(this.currentResults[0]);
-                } else {
-                    this.autoResolveCurrentValue();
                 }
             } else if (e.key === 'Escape') {
                 this.closeDropdown();
@@ -441,139 +528,190 @@
         }
 
         updateActiveItem(items) {
-            items.forEach((it, i) => {
-                if (i === this.activeIdx) {
-                    it.classList.add('active');
-                    it.style.backgroundColor = '#f1f5f9';
-                    it.scrollIntoView({ block: 'nearest' });
+            items.forEach((item, idx) => {
+                if (idx === this.activeIdx) {
+                    item.classList.add('active');
+                    item.style.backgroundColor = '#f1f5f9';
+                    item.scrollIntoView({ block: 'nearest' });
                 } else {
-                    it.classList.remove('active');
-                    it.style.backgroundColor = '#ffffff';
+                    item.classList.remove('active');
+                    item.style.backgroundColor = '#ffffff';
                 }
             });
-        }
-
-        handleBlur() {
-            setTimeout(() => {
-                this.closeDropdown();
-                this.autoResolveCurrentValue();
-            }, 200);
-        }
-
-        autoResolveCurrentValue() {
-            const val = this.input.value.trim();
-            if (!val) return;
-
-            // Check if coordinates are already filled
-            const latEls = document.querySelectorAll(this.options.latField);
-            const lngEls = document.querySelectorAll(this.options.lngField);
-            const hasCoords = Array.from(latEls).some(el => el.value && parseFloat(el.value) !== 0);
-
-            if (!hasCoords) {
-                // Try resolving via online OSM or fallback
-                searchOnlineOsm(val).then(results => {
-                    if (results && results.length > 0) {
-                        this.populateFields(results[0], false);
-                        if (window.foodigoMap && typeof window.foodigoMap.updatePosition === 'function') {
-                            window.foodigoMap.updatePosition(results[0].lat, results[0].lng, results[0].name);
-                        }
-                    } else {
-                        const resolved = resolveLocationSync(val);
-                        this.populateFields(resolved, false);
-                        if (window.foodigoMap && typeof window.foodigoMap.updatePosition === 'function') {
-                            window.foodigoMap.updatePosition(resolved.lat, resolved.lng, resolved.name);
-                        }
-                    }
-                });
-            }
-        }
-
-        selectItem(item) {
-            this.input.value = item.name;
-            this.populateFields(item, true);
-            this.closeDropdown();
-
-            // Locate immediately on Leaflet Map
-            if (window.foodigoMap && typeof window.foodigoMap.updatePosition === 'function') {
-                window.foodigoMap.updatePosition(item.lat, item.lng, item.name);
-            }
-
-            // Record manual selection
-            try {
-                localStorage.setItem('foodigo_user_location_set', 'manual');
-            } catch (e) {}
-        }
-
-        populateFields(item, userExplicit = true) {
-            // Latitude fields
-            document.querySelectorAll(this.options.latField).forEach(el => {
-                el.value = item.lat;
-            });
-
-            // Longitude fields
-            document.querySelectorAll(this.options.lngField).forEach(el => {
-                el.value = item.lng;
-            });
-
-            // Plain address fields
-            document.querySelectorAll(this.options.plainAddressField).forEach(el => {
-                if (el !== this.input) {
-                    el.value = item.name;
-                }
-            });
-
-            // Trigger global delivery charge calculation
-            if (typeof window.calculateDeliveryCharge === 'function') {
-                window.calculateDeliveryCharge(item.lat, item.lng);
-            }
-
-            if (typeof this.options.onSelect === 'function') {
-                this.options.onSelect(item, userExplicit);
-            }
         }
 
         closeDropdown() {
             if (this.dropdown) {
                 this.dropdown.style.display = 'none';
             }
+            this.activeIdx = -1;
         }
     }
 
-    // Expose Global Helper API
-    window.NigeriaGeo = {
-        attach: function (selector, options) {
-            const elements = document.querySelectorAll(selector);
-            const instances = [];
-            elements.forEach(el => {
-                instances.push(new NigeriaGeoAutocomplete(el, options));
-            });
-            return instances;
-        },
-        resolve: resolveLocationSync,
-        resolveAsync: resolveLocationAsync,
-        searchOnline: searchOnlineOsm
-    };
+    // Leaflet Interactive Map Helper
+    class FoodigoInteractiveMap {
+        constructor(containerId, options = {}) {
+            this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+            if (!this.container) return;
 
-    // Auto-initialize on common location input IDs when DOM is ready
-    function autoInitInputs() {
-        const commonSelectors = [
-            '#searchMapInput',
-            '#new_plain_address',
-            '#plain_address',
-            '#checkout_modal_address',
-            '#guest_address_input'
-        ];
-        commonSelectors.forEach(sel => {
-            if (document.querySelector(sel)) {
-                window.NigeriaGeo.attach(sel);
+            this.options = Object.assign({
+                initialLat: 7.4250,
+                initialLng: 3.9050,
+                initialZoom: 15,
+                inputSelector: '#guest_address_input',
+                latSelector: '#latitude',
+                lngSelector: '#longitude',
+                locateBtnSelector: null,
+                onChange: null,
+            }, options);
+
+            this.map = null;
+            this.marker = null;
+            this.isDragging = false;
+
+            this.init();
+        }
+
+        init() {
+            injectStyles();
+            if (!window.L) {
+                console.warn('Leaflet is not loaded yet');
+                return;
             }
-        });
+
+            // Create custom icon
+            const customIcon = L.divIcon({
+                className: 'foodigo-leaflet-div-icon',
+                html: `<div style="background: #ea580c; width: 34px; height: 34px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer;"><div style="width: 10px; height: 10px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div></div>`,
+                iconSize: [34, 34],
+                iconAnchor: [17, 34],
+                popupAnchor: [0, -34]
+            });
+
+            // Initialize Leaflet Map
+            this.map = L.map(this.container, {
+                zoomControl: true,
+                scrollWheelZoom: true,
+                attributionControl: false
+            }).setView([this.options.initialLat, this.options.initialLng], this.options.initialZoom);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+            }).addTo(this.map);
+
+            // Add Draggable Marker
+            this.marker = L.marker([this.options.initialLat, this.options.initialLng], {
+                draggable: true,
+                icon: customIcon
+            }).addTo(this.map);
+
+            // Map Drag Event
+            this.marker.on('dragend', async (e) => {
+                const pos = e.target.getLatLng();
+                await this.handleCoordinateChange(pos.lat, pos.lng, true);
+            });
+
+            // Map Click Event
+            this.map.on('click', async (e) => {
+                this.marker.setLatLng(e.latlng);
+                await this.handleCoordinateChange(e.latlng.lat, e.latlng.lng, true);
+            });
+
+            // Bind "Locate Me" button if specified
+            if (this.options.locateBtnSelector) {
+                const btn = document.querySelector(this.options.locateBtnSelector);
+                if (btn) {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.locateUser();
+                    });
+                }
+            }
+
+            // Invalidate size on load / modal open
+            setTimeout(() => {
+                if (this.map) this.map.invalidateSize();
+            }, 400);
+        }
+
+        async handleCoordinateChange(lat, lng, doReverse = true) {
+            // Update inputs
+            if (this.options.latSelector) {
+                document.querySelectorAll(this.options.latSelector).forEach(el => { el.value = lat; });
+            }
+            if (this.options.lngSelector) {
+                document.querySelectorAll(this.options.lngSelector).forEach(el => { el.value = lng; });
+            }
+
+            if (doReverse) {
+                const address = await reverseGeocodeOnline(lat, lng);
+                if (this.options.inputSelector) {
+                    const inp = document.querySelector(this.options.inputSelector);
+                    if (inp) inp.value = address;
+                }
+                this.marker.bindPopup(`<b>${address}</b>`).openPopup();
+            }
+
+            if (typeof this.options.onChange === 'function') {
+                this.options.onChange(lat, lng);
+            }
+
+            if (typeof window.calculateDeliveryCharge === 'function') {
+                window.calculateDeliveryCharge(lat, lng);
+            }
+        }
+
+        setMarker(lat, lng, label = '', panMap = true) {
+            if (!this.map || !this.marker) return;
+            const pos = [parseFloat(lat), parseFloat(lng)];
+            this.marker.setLatLng(pos);
+            if (panMap) {
+                this.map.setView(pos, 16);
+            }
+            if (label) {
+                this.marker.bindPopup(`<b>${label}</b>`).openPopup();
+            }
+        }
+
+        locateUser() {
+            if (!navigator.geolocation) {
+                if (window.toastr) toastr.error('Geolocation is not supported by your browser.');
+                return;
+            }
+
+            if (window.toastr) toastr.info('Detecting your live GPS location...');
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    this.setMarker(lat, lng, 'Your Location', true);
+                    await this.handleCoordinateChange(lat, lng, true);
+                    if (window.toastr) toastr.success('Location detected!');
+                },
+                (err) => {
+                    if (window.toastr) toastr.warning('Please allow location permission in your browser or search your street manually.');
+                },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+            );
+        }
+
+        invalidateSize() {
+            if (this.map) this.map.invalidateSize();
+        }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', autoInitInputs);
-    } else {
-        autoInitInputs();
-    }
+    // Export to Window
+    window.NigeriaGeo = {
+        attach: function (inputSelector, options = {}) {
+            return new NigeriaGeoAutocomplete(inputSelector, options);
+        },
+        createMap: function (containerId, options = {}) {
+            return new FoodigoInteractiveMap(containerId, options);
+        },
+        searchOnline: searchOnlineOsm,
+        reverseGeocode: reverseGeocodeOnline,
+        resolve: resolveLocationSync,
+    };
 
 })(window, document);

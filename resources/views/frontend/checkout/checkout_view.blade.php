@@ -481,10 +481,29 @@
 
                                 <div class="address_form_item">
                                     <div class="address_form_inner">
-                                        <label for="checkout_modal_address"
-                                            class="form-label">{{ __('translate.Delivery Address') }} *</label>
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label for="checkout_modal_address"
+                                                class="form-label mb-0">{{ __('translate.Delivery Address') }} *</label>
+                                            <button type="button" id="modal_locate_me_btn" class="btn btn-sm btn-outline-dark py-1 px-2" style="font-size: 12.5px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+                                                {{ __('translate.Auto Locate') }}
+                                            </button>
+                                        </div>
                                         <input type="text" class="form-control" id="checkout_modal_address"
-                                            placeholder="{{ __('translate.Enter your delivery address, street, estate, or area in Ibadan / Nigeria...') }}" name="address" required autocomplete="off">
+                                            placeholder="{{ __('translate.Type any landmark, building, street, or hall in Nigeria...') }}" name="address" required autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <!-- Live Interactive Leaflet Map for Modal -->
+                                <div class="foodigo-interactive-map-card">
+                                    <div class="foodigo-interactive-map-header">
+                                        <span><i class="fa-solid fa-map-location-dot me-1 text-primary"></i> {{ __('translate.Pinpoint Delivery Location') }}</span>
+                                        <span class="badge bg-light text-dark border">{{ __('translate.Drag marker to adjust') }}</span>
+                                    </div>
+                                    <div id="checkout_modal_map" class="foodigo-map-element" style="height: 220px;"></div>
+                                    <div class="foodigo-map-footer-hint">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                        {{ __('translate.Drag marker or click map to set exact delivery address.') }}
                                     </div>
                                 </div>
 
@@ -617,14 +636,39 @@
         let restaurantLng = {{ (float)($restaurant->longitude ?? $product->restaurant->longitude ?? 0) }};
 
         $(document).ready(function() {
+            var modalMap = null;
+
+            // When modal opens, initialize or invalidateSize on the map
+            $('#exampleModal7').on('shown.bs.modal', function () {
+                if (!modalMap && window.NigeriaGeo && document.getElementById('checkout_modal_map')) {
+                    var initLat = parseFloat($('#new_latitude').val()) || (restaurantLat || 7.4250);
+                    var initLng = parseFloat($('#new_longitude').val()) || (restaurantLng || 3.9050);
+
+                    modalMap = window.NigeriaGeo.createMap('checkout_modal_map', {
+                        initialLat: initLat,
+                        initialLng: initLng,
+                        inputSelector: '#checkout_modal_address',
+                        latSelector: '#new_latitude',
+                        lngSelector: '#new_longitude',
+                        locateBtnSelector: '#modal_locate_me_btn',
+                    });
+                } else if (modalMap) {
+                    modalMap.invalidateSize();
+                }
+            });
+
             // Attach Nigerian Geo Autocomplete to single address input in modal
             if (window.NigeriaGeo) {
                 window.NigeriaGeo.attach('#checkout_modal_address', {
                     latField: '#new_latitude',
                     lngField: '#new_longitude',
+                    mapInstance: modalMap,
                     onSelect: function(item) {
                         $('#new_latitude').val(item.lat);
                         $('#new_longitude').val(item.lng);
+                        if (modalMap) {
+                            modalMap.setMarker(item.lat, item.lng, item.name, true);
+                        }
                     }
                 });
             }

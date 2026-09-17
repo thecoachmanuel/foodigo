@@ -1093,14 +1093,15 @@
     }
 
     .profile_informetion_bg {
-        height: 210px !important;
+        height: 230px !important;
     }
 
     .profile_informetion_main .company_logo {
-        margin-top: -45px;
-        height: 90px;
-        width: 90px;
-        min-width: 90px;
+        margin-top: -50px;
+        height: 100px;
+        width: 100px;
+        min-width: 100px;
+        border-width: 4px;
     }
     .informetion_sarch_link a {
         padding: 4px 8px;

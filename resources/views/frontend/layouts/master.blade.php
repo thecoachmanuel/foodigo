@@ -12,10 +12,8 @@
     <link rel="stylesheet" href="{{ asset('global/toastr/toastr.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/nouislider.min.css')}}">
     <link rel="stylesheet" href="{{ asset('frontend/css/aos.css')}}">
-    @if(!Route::is('view.checkout*') && !Route::is('user.address*'))
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-        <link rel="stylesheet" href="{{ asset('frontend/css/googlemap.css')}}">
-    @endif
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="{{ asset('frontend/css/googlemap.css')}}">
     <link rel="stylesheet" href="{{ asset('frontend/css/style.css')}}">
     <link rel="stylesheet" href="{{ asset('frontend/css/responsive.css')}}">
     <link rel="stylesheet" href="{{ asset('frontend/css/cookie_consent.css')}}">

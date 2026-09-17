@@ -194,11 +194,30 @@
 
                                                         <div class="pickup_item_from_item">
                                                             <div class="pickup_item_from_inner">
-                                                                <label class="form-label">{{ __('translate.Delivery Address') }} *</label>
+                                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                    <label class="form-label mb-0">{{ __('translate.Delivery Address') }} *</label>
+                                                                    <button type="button" id="guest_locate_me_btn" class="btn btn-sm btn-outline-dark py-1 px-2" style="font-size: 12.5px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+                                                                        {{ __('translate.Auto Locate') }}
+                                                                    </button>
+                                                                </div>
                                                                 <input id="guest_address_input" class="form-control" type="text"
-                                                                    placeholder="{{ __('translate.Enter delivery address, street, estate, or area in Ibadan / Nigeria...') }}"
+                                                                    placeholder="{{ __('translate.Type any landmark, building, street, or hall in Nigeria...') }}"
                                                                     name="address"
                                                                     value="{{ Session::get('address') ?? '' }}" required autocomplete="off">
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Live Interactive Leaflet Map for Guest Checkout -->
+                                                        <div class="foodigo-interactive-map-card">
+                                                            <div class="foodigo-interactive-map-header">
+                                                                <span><i class="fa-solid fa-map-location-dot me-1 text-primary"></i> {{ __('translate.Pinpoint Delivery Location') }}</span>
+                                                                <span class="badge bg-light text-dark border">{{ __('translate.Drag marker to adjust') }}</span>
+                                                            </div>
+                                                            <div id="guest_checkout_map" class="foodigo-map-element" style="height: 240px;"></div>
+                                                            <div class="foodigo-map-footer-hint">
+                                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                                                {{ __('translate.Drag the orange pin or click anywhere on the map to set your exact doorstep.') }}
                                                             </div>
                                                         </div>
 
@@ -560,22 +579,43 @@
         let restaurantLng = {{ (float)($restaurant->longitude ?? $product->restaurant->longitude ?? 0) }};
 
         $(document).ready(function() {
-            // Attach Nigerian Geo Autocomplete to single guest address input
+            var initLat = parseFloat($('#latitude').val()) || (restaurantLat || 7.4250);
+            var initLng = parseFloat($('#longitude').val()) || (restaurantLng || 3.9050);
+
+            // Initialize Interactive Leaflet Map for Guest Checkout
+            var guestMap = null;
+            if (window.NigeriaGeo && document.getElementById('guest_checkout_map')) {
+                guestMap = window.NigeriaGeo.createMap('guest_checkout_map', {
+                    initialLat: initLat,
+                    initialLng: initLng,
+                    inputSelector: '#guest_address_input',
+                    latSelector: '#latitude, .latitude',
+                    lngSelector: '#longitude, .longitude',
+                    locateBtnSelector: '#guest_locate_me_btn',
+                    onChange: function(lat, lng) {
+                        calculateDeliveryCharge(lat, lng);
+                    }
+                });
+            }
+
+            // Attach Nigerian Geo Autocomplete to guest address input linked to the map
             if (window.NigeriaGeo) {
                 window.NigeriaGeo.attach('#guest_address_input', {
                     latField: '#latitude, .latitude',
                     lngField: '#longitude, .longitude',
+                    mapInstance: guestMap,
                     onSelect: function(item) {
                         $('#latitude').val(item.lat);
                         $('#longitude').val(item.lng);
+                        if (guestMap) {
+                            guestMap.setMarker(item.lat, item.lng, item.name, true);
+                        }
                         calculateDeliveryCharge(item.lat, item.lng);
                     }
                 });
             }
 
-            // Initial calculation if coordinates already exist in session
-            var initLat = $('#latitude').val();
-            var initLng = $('#longitude').val();
+            // Initial delivery fee calculation
             if (initLat && initLng) {
                 calculateDeliveryCharge(initLat, initLng);
             }
