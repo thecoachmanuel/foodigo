@@ -37,6 +37,10 @@ use Illuminate\Support\Facades\Artisan;
 use Modules\GlobalSetting\App\Models\GlobalSetting;
 use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
 
+Route::get('/health', function () {
+    return response('OK', 200)->header('Content-Type', 'text/plain');
+});
+
 Route::group(['as' => 'payment-api.', 'prefix' => 'payment-api', 'middleware' => ['web']], function () {
 
     Route::get('/pay-with-stripe', [APIPaymentController::class, 'pay_with_stripe'])->name('pay-with-stripe');
