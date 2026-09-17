@@ -187,7 +187,7 @@ class HomeController extends Controller
      */
     public function privacy_policy(): Renderable
     {
-        $privacy_policy = PrivacyPolicy::where('lang_code', front_lang())->first();
+        $privacy_policy = PrivacyPolicy::getForLanguage(front_lang());
 
         $seo_setting = SeoSetting::where('id', 10)->first();
 
@@ -201,7 +201,7 @@ class HomeController extends Controller
      */
     public function terms_and_conditions(): Renderable
     {
-        $terms_and_conditions = TermAndCondition::where('lang_code', front_lang())->first();
+        $terms_and_conditions = TermAndCondition::getForLanguage(front_lang());
 
         $seo_setting = SeoSetting::where('id', 6)->first();
 

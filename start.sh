@@ -25,8 +25,9 @@ mkdir -p storage/framework/sessions storage/framework/views storage/framework/ca
 rm -f bootstrap/cache/*.php 2>/dev/null || true
 chmod -R 777 storage/framework storage/logs bootstrap/cache 2>/dev/null || true
 
-# 3. Fast Laravel Initialization (Migrations run during preDeployCommand)
+# 3. Fast Laravel Initialization & Migrations
 php artisan storage:link --force 2>/dev/null || true
+php artisan migrate --force 2>/dev/null || true
 php artisan optimize:clear 2>/dev/null || true
 
 # 4. Start PHP-FPM Early in Background

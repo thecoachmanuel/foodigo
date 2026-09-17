@@ -1,4 +1,4 @@
-const CACHE_NAME = 'foodigo-cache-v2';
+const CACHE_NAME = 'nectar-cache-v3';
 
 // Install event - activate immediately
 self.addEventListener('install', function(event) {

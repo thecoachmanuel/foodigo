@@ -244,7 +244,7 @@ class HomeController extends BaseController
     public function getPrivacyPolicy(): JsonResponse
     {
         try {
-            $privacy_policy = PrivacyPolicy::where('lang_code', front_lang())->first();
+            $privacy_policy = PrivacyPolicy::getForLanguage(front_lang());
 
             if (!$privacy_policy) {
                 return $this->sendError('Privacy policy not found', [], 404);
@@ -262,7 +262,7 @@ class HomeController extends BaseController
     public function getTermsAndConditions(): JsonResponse
     {
         try {
-            $terms_and_conditions = TermAndCondition::where('lang_code', front_lang())->first();
+            $terms_and_conditions = TermAndCondition::getForLanguage(front_lang());
 
             if (!$terms_and_conditions) {
                 return $this->sendError('Terms and conditions not found', [], 404);
