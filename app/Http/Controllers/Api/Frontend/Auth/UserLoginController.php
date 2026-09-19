@@ -105,7 +105,8 @@ class UserLoginController extends Controller
 
         \Config::set('services.google.client_id', $gmail_client_id->value);
         \Config::set('services.google.client_secret', $gmail_secret_id->value);
-        \Config::set('services.google.redirect', $gmail_redirect_url->value);
+        $google_redirect = ($gmail_redirect_url && !str_contains($gmail_redirect_url->value, 'localhost')) ? $gmail_redirect_url->value : url('/callback/google');
+        \Config::set('services.google.redirect', $google_redirect);
 
         if (request()->has('mobile') || request()->has('source')) {
             session(['social_login_source' => 'mobile']);
@@ -124,7 +125,8 @@ class UserLoginController extends Controller
 
         \Config::set('services.google.client_id', $gmail_client_id->value);
         \Config::set('services.google.client_secret', $gmail_secret_id->value);
-        \Config::set('services.google.redirect', $gmail_redirect_url->value);
+        $google_redirect = ($gmail_redirect_url && !str_contains($gmail_redirect_url->value, 'localhost')) ? $gmail_redirect_url->value : url('/callback/google');
+        \Config::set('services.google.redirect', $google_redirect);
 
         $user = Socialite::driver('google')->user();
         $user = $this->create_user($user,'google');
@@ -162,7 +164,8 @@ class UserLoginController extends Controller
 
         \Config::set('services.facebook.client_id', $facebook_client_id->value);
         \Config::set('services.facebook.client_secret', $facebook_secret_id->value);
-        \Config::set('services.facebook.redirect', $facebook_redirect_url->value);
+        $fb_redirect = ($facebook_redirect_url && !str_contains($facebook_redirect_url->value, 'localhost')) ? $facebook_redirect_url->value : url('/callback/facebook');
+        \Config::set('services.facebook.redirect', $fb_redirect);
 
         return Socialite::driver('facebook')->redirect();
     }
@@ -175,7 +178,8 @@ class UserLoginController extends Controller
 
         \Config::set('services.facebook.client_id', $facebook_client_id->value);
         \Config::set('services.facebook.client_secret', $facebook_secret_id->value);
-        \Config::set('services.facebook.redirect', $facebook_redirect_url->value);
+        $fb_redirect = ($facebook_redirect_url && !str_contains($facebook_redirect_url->value, 'localhost')) ? $facebook_redirect_url->value : url('/callback/facebook');
+        \Config::set('services.facebook.redirect', $fb_redirect);
 
         $user = Socialite::driver('facebook')->user();
         $user = $this->create_user($user,'facebook');
