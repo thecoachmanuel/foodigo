@@ -778,6 +778,13 @@ class HomeController extends BaseController
                 'delivery_charge' => $deliveryCharge,
                 'delivery_charge_per_km' => $deliveryCharge,
                 'vat_percentage' => $vatPercentage,
+                'default_avatar' => ($defaultAvatarSetting = GlobalSetting::where('key', 'default_avatar')->first()) ? $defaultAvatarSetting->value : null,
+                'social_login' => [
+                    'is_gmail' => (bool)(($g = GlobalSetting::where('key', 'is_gmail')->first()) && ($g->value == 1 || $g->value == '1')),
+                    'gmail_client_id' => ($gId = GlobalSetting::where('key', 'gmail_client_id')->first()) ? $gId->value : null,
+                    'is_facebook' => (bool)(($f = GlobalSetting::where('key', 'is_facebook')->first()) && ($f->value == 1 || $f->value == '1')),
+                    'facebook_client_id' => ($fId = GlobalSetting::where('key', 'facebook_client_id')->first()) ? $fId->value : null,
+                ],
                 'language_list' => $language_list,
                 'currency_list' => $currency_list,
                 'lang_code' => $lang_code,

@@ -107,6 +107,9 @@ class UserLoginController extends Controller
         \Config::set('services.google.client_secret', $gmail_secret_id->value);
         \Config::set('services.google.redirect', $gmail_redirect_url->value);
 
+        if (request()->has('mobile') || request()->has('source')) {
+            session(['social_login_source' => 'mobile']);
+        }
         return Socialite::driver('google')->redirect();
 
     }
@@ -131,6 +134,21 @@ class UserLoginController extends Controller
         $notify_message= trans('translate.Login Successfully');
         $notify_message=array('message'=>$notify_message,'alert-type'=>'success');
 
+        if (session('social_login_source') === 'mobile' || request()->has('mobile')) {
+            session()->forget('social_login_source');
+            $token = $user->createToken('api-token')->plainTextToken;
+            $userData = urlencode(json_encode([
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'username' => $user->username,
+                'phone' => $user->phone,
+                'image' => $user->image,
+                'address' => $user->address,
+                'status' => $user->status,
+            ]));
+            return redirect("nectar://auth-callback?token={$token}&user={$userData}");
+        }
         return redirect()->route('user.dashboard')->with($notify_message);
 
     }

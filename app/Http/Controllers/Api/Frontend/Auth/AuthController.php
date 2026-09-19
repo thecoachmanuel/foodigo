@@ -661,4 +661,84 @@ public function resetPassword(Request $request): JsonResponse
         
 
     }
+
+    /**
+     * Social login (Google, Facebook, Apple)
+     */
+    public function socialLogin(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'provider' => 'required|string|in:google,facebook,apple,gmail',
+            'email' => 'required|email',
+            'name' => 'required|string',
+            'provider_id' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendValidationError($validator->errors()->toArray());
+        }
+
+        try {
+            $provider = ($request->provider === 'gmail') ? 'google' : $request->provider;
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'name' => $request->name,
+                    'username' => Str::slug($request->name) . '-' . date('Ymdhis'),
+                    'email' => $request->email,
+                    'phone' => $request->phone ?? null,
+                    'provider' => $provider,
+                    'provider_id' => $request->provider_id,
+                    'image' => $request->avatar ?? null,
+                    'status' => 'enable',
+                    'is_banned' => 'disable',
+                    'email_verified_at' => now(),
+                    'verification_token' => null,
+                    'password' => Hash::make(Str::random(24)),
+                ]);
+            } else {
+                if ($user->status !== 'enable') {
+                    return $this->sendError('Your account is inactive', [], 401);
+                }
+                if ($user->is_banned === 'enable') {
+                    return $this->sendError('Your account is banned', [], 401);
+                }
+                if (!$user->provider) {
+                    $user->provider = $provider;
+                    $user->provider_id = $request->provider_id;
+                }
+                if ($request->avatar && !$user->image) {
+                    $user->image = $request->avatar;
+                }
+                if ($user->email_verified_at === null) {
+                    $user->email_verified_at = now();
+                }
+                $user->save();
+            }
+
+            // Create API token
+            $token = $user->createToken('api-token')->plainTextToken;
+
+            $data = [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'username' => $user->username,
+                    'phone' => $user->phone,
+                    'image' => $user->image,
+                    'address' => $user->address,
+                    'status' => $user->status,
+                ],
+                'token' => $token,
+                'token_type' => 'Bearer'
+            ];
+
+            return $this->sendResponse($data, 'Social login successful');
+        } catch (\Exception $e) {
+            Log::error('Social login error: ' . $e->getMessage());
+            return $this->sendError('Social login failed: ' . $e->getMessage(), [], 500);
+        }
+    }
 }

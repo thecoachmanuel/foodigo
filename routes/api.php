@@ -56,6 +56,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/reset-otp-match', [AuthController::class, 'reset_otp_match'])->name('reset-otp-match');
         Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
         Route::post('/resend-verification', [AuthController::class, 'resendVerificationEmail']);
+        Route::post('/social-login', [AuthController::class, 'socialLogin']);
     });
 
     // Public home/general routes
