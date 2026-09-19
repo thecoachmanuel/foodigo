@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Currency\App\Models\Currency;
 use Modules\Restaurant\Entities\Restaurant;
 use Modules\PaymentGateway\App\Models\PaymentGateway;
+use Modules\GlobalSetting\App\Models\GlobalSetting;
 
 class CheckoutController extends BaseController
 {
@@ -70,7 +71,13 @@ class CheckoutController extends BaseController
 
             // Calculate cart totals
             $subtotal = $cartItems->sum('total_price');
-            $deliveryFee = $this->calculateDeliveryFee($cartItems, $request);
+            $defaultAddress = $addresses->where('is_default', 1)->first() ?? $addresses->first();
+            $restaurant = $cartItems->first()->restaurant;
+            $deliveryFee = 0;
+            if ($defaultAddress && $defaultAddress->lat && $defaultAddress->lon && $restaurant && $restaurant->latitude && $restaurant->longitude) {
+                $distance = $this->calculateDistance($restaurant->latitude, $restaurant->longitude, $defaultAddress->lat, $defaultAddress->lon);
+                $deliveryFee = $this->calculateDeliveryFee($restaurant, (float)$distance);
+            }
             $tax = $this->calculateTax($subtotal);
             $total = $subtotal + $deliveryFee + $tax;
 
@@ -285,6 +292,7 @@ class CheckoutController extends BaseController
                 ],
                 'delivery_info' => $request->order_type === 'delivery' ? [
                     'distance_km' => round($distance, 2),
+                    'delivery_charge_per_km' => $chargePerKm,
                     'max_delivery_distance' => $restaurant->max_delivery_distance ?? 10,
                     'delivery_available' => $deliveryAvailable,
                     'estimated_delivery_time' => $this->calculateEstimatedDeliveryTime($distance),
@@ -293,6 +301,7 @@ class CheckoutController extends BaseController
                 'pricing_breakdown' => [
                     'subtotal' => round($subtotal, 2),
                     'delivery_fee' => round($deliveryFee, 2),
+                    'delivery_charge_per_km' => $chargePerKm,
                     'tax_amount' => round($tax, 2),
                     'tax_rate' => round($this->getTaxRate() * 100, 1) . '%',
                     'coupon_discount' => round($couponDiscount, 2),
@@ -461,15 +470,15 @@ class CheckoutController extends BaseController
      */
     private function calculateDeliveryFee($restaurant, float $distance): float
     {
-        $baseDeliveryFee = $restaurant->delivery_fee ?? 0;
-        
-        // Add distance-based fee
-        if ($distance > 5) { // 5km base distance
-            $extraDistance = $distance - 5;
-            $baseDeliveryFee += ($extraDistance * 0.5); // $0.50 per extra km
+        $chargeSetting = GlobalSetting::where('key', 'delivery_charge')->first();
+        $chargePerKm = $chargeSetting ? (float)$chargeSetting->value : 0;
+
+        if ($distance <= 0) {
+            return 0;
         }
 
-        return round($baseDeliveryFee, 2);
+        $billableDistance = max(1.0, (float)$distance);
+        return round($billableDistance * $chargePerKm, 2);
     }
 
     /**

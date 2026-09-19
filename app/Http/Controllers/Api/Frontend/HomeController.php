@@ -764,9 +764,14 @@ class HomeController extends BaseController
             }
 
 
+            $deliveryChargeSetting = GlobalSetting::where('key', 'delivery_charge')->first();
+            $deliveryCharge = $deliveryChargeSetting ? (float)$deliveryChargeSetting->value : 0;
+
             $data = [
                 'splash_screens' => $userAllData,
                 'deliveryman_splash_screen' => $deliveryManAllData,
+                'delivery_charge' => $deliveryCharge,
+                'delivery_charge_per_km' => $deliveryCharge,
                 'language_list' => $language_list,
                 'currency_list' => $currency_list,
                 'lang_code' => $lang_code,
