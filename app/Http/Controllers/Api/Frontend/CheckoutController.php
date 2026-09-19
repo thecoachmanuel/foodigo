@@ -72,7 +72,7 @@ class CheckoutController extends BaseController
             // Calculate cart totals
             $subtotal = $cartItems->sum('total_price');
             $defaultAddress = $addresses->where('is_default', 1)->first() ?? $addresses->first();
-            $restaurant = $cartItems->first()->restaurant;
+            $restaurant = $cartItems->first()->restaurant ?? $cartItems->first()->product?->restaurant;
             $deliveryFee = 0;
             if ($defaultAddress && $defaultAddress->lat && $defaultAddress->lon && $restaurant && $restaurant->latitude && $restaurant->longitude) {
                 $distance = $this->calculateDistance($restaurant->latitude, $restaurant->longitude, $defaultAddress->lat, $defaultAddress->lon);
@@ -225,9 +225,12 @@ class CheckoutController extends BaseController
             }
 
             // Get restaurant information
-            $restaurant = $cartItems->first()->restaurant;
+            $restaurant = $cartItems->first()->restaurant ?? $cartItems->first()->product?->restaurant;
             
             // Check delivery availability if delivery order
+            $chargeSetting = GlobalSetting::where('key', 'delivery_charge')->first();
+            $chargePerKm = ($chargeSetting && is_numeric($chargeSetting->value)) ? (float)$chargeSetting->value : 0.0;
+
             $deliveryAvailable = false;
             $distance = 0;
             $deliveryFee = 0;
@@ -339,8 +342,9 @@ class CheckoutController extends BaseController
 
             return $this->sendResponse($response, 'Checkout validation successful');
 
-        } catch (\Exception $e) {
-            return $this->sendError('Failed to validate checkout', [], 500);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to validate checkout: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+            return $this->sendError('Failed to validate checkout: ' . $e->getMessage(), [], 500);
         }
     }
 
@@ -495,9 +499,13 @@ class CheckoutController extends BaseController
      */
     private function getTaxRate(): float
     {
-        // This should come from your global settings
-        // For now, using a default value
-        return 0.08; // 8% tax rate
+        // Read vat/tax rate from admin GlobalSetting (key: vat_percentage or tax_percentage)
+        $vatSetting = GlobalSetting::where('key', 'vat_percentage')->first()
+            ?? GlobalSetting::where('key', 'tax_percentage')->first();
+        if ($vatSetting && is_numeric($vatSetting->value)) {
+            return (float)$vatSetting->value / 100;
+        }
+        return 0.0; // No VAT configured by admin
     }
 
     /**
