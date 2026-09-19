@@ -665,6 +665,10 @@ public function resetPassword(Request $request): JsonResponse
     /**
      * Social login (Google, Facebook, Apple)
      */
+
+    /**
+     * Social login (Google, Facebook, Apple)
+     */
     public function socialLogin(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -682,21 +686,29 @@ public function resetPassword(Request $request): JsonResponse
             $provider = ($request->provider === 'gmail') ? 'google' : $request->provider;
             $user = User::where('email', $request->email)->first();
 
+            $hasProviderCol = \Illuminate\Support\Facades\Schema::hasColumn('users', 'provider');
+            $hasProviderIdCol = \Illuminate\Support\Facades\Schema::hasColumn('users', 'provider_id');
+
             if (!$user) {
-                $user = User::create([
+                $userData = [
                     'name' => $request->name,
                     'username' => Str::slug($request->name) . '-' . date('Ymdhis'),
                     'email' => $request->email,
                     'phone' => $request->phone ?? null,
-                    'provider' => $provider,
-                    'provider_id' => $request->provider_id,
                     'image' => $request->avatar ?? null,
                     'status' => 'enable',
                     'is_banned' => 'disable',
                     'email_verified_at' => now(),
                     'verification_token' => null,
                     'password' => Hash::make(Str::random(24)),
-                ]);
+                ];
+                if ($hasProviderCol) {
+                    $userData['provider'] = $provider;
+                }
+                if ($hasProviderIdCol) {
+                    $userData['provider_id'] = $request->provider_id;
+                }
+                $user = User::create($userData);
             } else {
                 if ($user->status !== 'enable') {
                     return $this->sendError('Your account is inactive', [], 401);
@@ -704,8 +716,10 @@ public function resetPassword(Request $request): JsonResponse
                 if ($user->is_banned === 'enable') {
                     return $this->sendError('Your account is banned', [], 401);
                 }
-                if (!$user->provider) {
+                if ($hasProviderCol && empty($user->provider)) {
                     $user->provider = $provider;
+                }
+                if ($hasProviderIdCol && empty($user->provider_id)) {
                     $user->provider_id = $request->provider_id;
                 }
                 if ($request->avatar && !$user->image) {
