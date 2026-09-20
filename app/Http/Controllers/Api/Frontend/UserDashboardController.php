@@ -71,7 +71,7 @@ class UserDashboardController extends BaseController
             $user = $request->user();
 
             $orders = Order::where('user_id', $user->id)
-                ->with(['restaurant', 'items'])
+                ->with(['restaurant', 'items.products'])
                 ->latest()
                 ->paginate(10);
 

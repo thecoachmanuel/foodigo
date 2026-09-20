@@ -154,6 +154,17 @@ class HomeController extends BaseController
                 $cuisine->total_restaurant = $restaurant_count;
             }
 
+            $app_b1 = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_one')->value('value');
+            $app_b2 = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_two')->value('value');
+            if ($app_b1 && $homepage) {
+                $homepage->promotional_banner_one = $app_b1;
+                $homepage->promotional_banner_one_url = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_one_url')->value('value') ?? $homepage->promotional_banner_one_url;
+            }
+            if ($app_b2 && $homepage) {
+                $homepage->promotional_banner_two = $app_b2;
+                $homepage->promotional_banner_two_url = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_two_url')->value('value') ?? $homepage->promotional_banner_two_url;
+            }
+
             $data = [
                 'homepage' => $homepage,
                 'home_translate' => $home_translate,
@@ -488,12 +499,16 @@ class HomeController extends BaseController
                 return $this->sendError('Restaurant not found', [], 404);
             }
 
-            $categories = Category::with(['products' => function ($query) use ($restaurant) {
-                $query->where('restaurant_id', $restaurant->id)
-                    ->where('status', 'enable')
-                    ->withAvg('reviews', 'rating')
-                    ->withCount('reviews');
-            }])
+            $categories = Category::whereHas('products', function ($query) use ($restaurant) {
+                    $query->where('restaurant_id', $restaurant->id)
+                        ->where('status', 'enable');
+                })
+                ->with(['products' => function ($query) use ($restaurant) {
+                    $query->where('restaurant_id', $restaurant->id)
+                        ->where('status', 'enable')
+                        ->withAvg('reviews', 'rating')
+                        ->withCount('reviews');
+                }])
                 ->withCount(['products as filtered_products_count' => function ($query) use ($restaurant) {
                     $query->where('restaurant_id', $restaurant->id)->where('status', 'enable');
                 }])
@@ -794,6 +809,35 @@ class HomeController extends BaseController
             return $this->sendResponse($data, 'Splash Screens and Website Setup retrieved successfully');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong', [], 500);
+        }
+    }
+
+    public function getFaqs(): JsonResponse
+    {
+        try {
+            $faqs = \App\Models\Faq::where('status', 1)->orderBy('serial', 'asc')->get();
+            return $this->sendResponse($faqs, 'FAQs retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Failed to retrieve FAQs', [], 500);
+        }
+    }
+
+    public function getAppPromotionalBanners(): JsonResponse
+    {
+        try {
+            $banner_one = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_one')->value('value');
+            $banner_two = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_two')->value('value');
+            $banner_one_url = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_one_url')->value('value') ?? '';
+            $banner_two_url = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_two_url')->value('value') ?? '';
+
+            return $this->sendResponse([
+                'promotional_banner_one' => $banner_one,
+                'promotional_banner_one_url' => $banner_one_url,
+                'promotional_banner_two' => $banner_two,
+                'promotional_banner_two_url' => $banner_two_url,
+            ], 'App promotional banners retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Failed to retrieve banners', [], 500);
         }
     }
 }

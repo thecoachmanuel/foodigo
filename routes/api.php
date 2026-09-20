@@ -72,6 +72,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/blogs/{slug}', [HomeController::class, 'getBlogDetails']);
         Route::post('/blogs/{id}/comment', [HomeController::class, 'submitBlogComment']);
         Route::get('/cuisines', [HomeController::class, 'getAllCuisines']);
+        Route::get('/faqs', [HomeController::class, 'getFaqs']);
+        Route::get('/app-promotional-banners', [HomeController::class, 'getAppPromotionalBanners']);
         Route::get('/search', [HomeController::class, 'search']);
         Route::get('/splash-screen', [HomeController::class, 'websiteSetup']);
     });

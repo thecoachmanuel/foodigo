@@ -93,8 +93,19 @@ class PaymentController extends BaseController
          $order_info['vat'] = $request->order_data['vat'] ?? 0;
          $order_info['subtotal'] = $cart->sum('total_price');
          $order_info['new_total'] = $order_info['subtotal'] + $order_info['delivery_charge'] + $order_info['vat'] - $order_info['discount_amount'];
-         $order_info['payment_method'] = 'Bank Transfer';
-         $order_info['payment_status'] = 'pending';
+
+         $req_payment_method = $request->input('payment_method') ?? $request->input('order_data.payment_method') ?? 'Bank Transfer';
+         $req_payment_status = $request->input('payment_status') ?? $request->input('order_data.payment_status') ?? 'pending';
+
+         $instant_methods = ['paystack', 'stripe', 'flutterwave', 'razorpay', 'paypal', 'mollie', 'instamojo', 'card'];
+         if (in_array(strtolower($req_payment_method), $instant_methods) || strtolower($req_payment_status) == 'success' || strtolower($req_payment_status) == 'paid') {
+             $order_info['payment_method'] = ucfirst($req_payment_method);
+             $order_info['payment_status'] = 'success';
+         } else {
+             $order_info['payment_method'] = $req_payment_method;
+             $order_info['payment_status'] = 'pending';
+         }
+
          $order_info['tnx_info'] = $request->transaction_info;
  
  

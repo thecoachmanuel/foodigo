@@ -218,4 +218,49 @@ class BannerController extends Controller
         return redirect()->back()->with(['message' => $notify_message, 'alert-type' => 'success']);
     }
 
+
+    public function app_promotional_banner_edit()
+    {
+        $banner_one = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_one')->value('value');
+        $banner_two = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_two')->value('value');
+        $banner_one_url = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_one_url')->value('value') ?? '';
+        $banner_two_url = \Modules\GlobalSetting\App\Models\GlobalSetting::where('key', 'app_promotional_banner_two_url')->value('value') ?? '';
+
+        return view('admin.banner.app_promotional_banner', compact('banner_one', 'banner_two', 'banner_one_url', 'banner_two_url'));
+    }
+
+    public function app_promotional_banner_update(Request $request)
+    {
+        if ($request->hasFile('app_promotional_banner_one')) {
+            $file = $request->file('app_promotional_banner_one');
+            $ext = $file->getClientOriginalExtension();
+            $image_name = 'app-banner-1-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
+            $image_path = 'uploads/custom-images/' . $image_name;
+            Image::make($file)->encode('webp', 80)->save(public_path($image_path));
+            \Modules\GlobalSetting\App\Models\GlobalSetting::updateOrCreate(['key' => 'app_promotional_banner_one'], ['value' => $image_path]);
+        }
+
+        if ($request->hasFile('app_promotional_banner_two')) {
+            $file = $request->file('app_promotional_banner_two');
+            $ext = $file->getClientOriginalExtension();
+            $image_name = 'app-banner-2-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
+            $image_path = 'uploads/custom-images/' . $image_name;
+            Image::make($file)->encode('webp', 80)->save(public_path($image_path));
+            \Modules\GlobalSetting\App\Models\GlobalSetting::updateOrCreate(['key' => 'app_promotional_banner_two'], ['value' => $image_path]);
+        }
+
+        if ($request->filled('app_promotional_banner_one_url')) {
+            \Modules\GlobalSetting\App\Models\GlobalSetting::updateOrCreate(['key' => 'app_promotional_banner_one_url'], ['value' => $request->app_promotional_banner_one_url]);
+        }
+
+        if ($request->filled('app_promotional_banner_two_url')) {
+            \Modules\GlobalSetting\App\Models\GlobalSetting::updateOrCreate(['key' => 'app_promotional_banner_two_url'], ['value' => $request->app_promotional_banner_two_url]);
+        }
+
+        $notification = trans('translate.Updated Successfully');
+        return redirect()->back()->with([
+            'message' => $notification,
+            'alert-type' => 'success'
+        ]);
+    }
 }

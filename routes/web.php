@@ -281,6 +281,14 @@ Route::group(['as'=> 'admin.', 'prefix' => 'admin'],function (){
             Route::put('user-update/{id}', 'update')->name('user-update');
         });
 
+        Route::controller(\App\Http\Controllers\Admin\FaqController::class)->group(function () {
+            Route::get('faq', 'index')->name('faq');
+            Route::post('faq-store', 'store')->name('faq.store');
+            Route::post('faq-update/{id}', 'update')->name('faq.update');
+            Route::delete('faq-delete/{id}', 'destroy')->name('faq.delete');
+            Route::get('faq-status/{id}', 'change_status')->name('faq.status');
+        });
+
         Route::controller(BannerController::class)->group(function () {
             Route::get('banner', 'index')->name('banner');
             Route::get('banner-create', 'create')->name('banner.create');
@@ -291,6 +299,9 @@ Route::group(['as'=> 'admin.', 'prefix' => 'admin'],function (){
 
             Route::get('promotional-banner-edit', 'promotional_banner_edit')->name('promotional.banner.edit');
             Route::Post('promotional-banner-update', 'promotional_banner_update')->name('promotional.banner.update');
+
+            Route::get('app-promotional-banner-edit', 'app_promotional_banner_edit')->name('app.promotional.banner.edit');
+            Route::post('app-promotional-banner-update', 'app_promotional_banner_update')->name('app.promotional.banner.update');
 
         });
 

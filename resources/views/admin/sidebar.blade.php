@@ -274,6 +274,8 @@
                                         class="menu-bar__name">{{ __('translate.Offer Deals') }}</span></span></a></li>
                         <li><a href="{{ route('admin.promotional.banner.edit') }}" class="{{ Route::is('admin.promotional.banner.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Promotional Banner') }}</span></span></a></li>
+                        <li><a href="{{ route('admin.app.promotional.banner.edit') }}" class="{{ Route::is('admin.app.promotional.banner.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
+                                        class="menu-bar__name">{{ __('translate.App Promotional Banners') }}</span></span></a></li>
 
                     </ul>
                 </div>
@@ -487,6 +489,9 @@
                         <li><a href="{{ route('admin.contact-us', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.contact-us') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Contact Us') }}</span></span></a></li>
+                        <li><a href="{{ route('admin.faq') }}" class="{{ Route::is('admin.faq*') ? 'active' : '' }}"><span
+                                    class="menu-bar__text"><span
+                                        class="menu-bar__name">{{ __('translate.Manage FAQs') }}</span></span></a></li>
 
                         <li><a href="{{ route('admin.login-image') }}" class="{{ Route::is('admin.login-image') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Login Page') }}</span></span></a></li>

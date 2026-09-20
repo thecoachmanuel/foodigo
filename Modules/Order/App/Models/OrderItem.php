@@ -20,7 +20,7 @@ class OrderItem extends Model
     /**
      * The accessors to append to the model's array form.
      */
-    protected $appends = ['addon_details'];
+    protected $appends = ['addon_details', 'product_name'];
     
     /**
      * The attributes that should be hidden for arrays.
@@ -30,6 +30,16 @@ class OrderItem extends Model
     public function products()
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function getProductNameAttribute()
+    {
+        return $this->products?->name;
     }
     
     /**
