@@ -90,7 +90,7 @@ class UserDashboardController extends BaseController
             $user = $request->user();
             $order = Order::where('user_id', $user->id)
                 ->where('id', $orderId)
-                ->with(['restaurant', 'items.products', 'deliveryMan'])
+                ->with(['restaurant', 'items.products.translate_product', 'items.products.product_translate_lang', 'deliveryMan'])
                 ->first();
             if (!$order) {
                 return $this->sendError('Order not found', [], 404);

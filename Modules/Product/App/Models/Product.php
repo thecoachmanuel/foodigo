@@ -121,15 +121,15 @@ class Product extends Model
 
     public function getNameAttribute()
     {
-        return $this->product_translate_lang->name;
+        return $this->product_translate_lang?->name ?? $this->translate_product?->name ?? $this->attributes['name'] ?? '';
     }
     public function getShortDescriptionAttribute()
     {
-        return $this->product_translate_lang->long_description;
+        return $this->product_translate_lang?->long_description ?? $this->translate_product?->long_description ?? '';
     }
     public function getSizeAttribute()
     {
-        return $this->product_translate_lang->size;
+        return $this->product_translate_lang?->size ?? $this->translate_product?->size ?? '';
     }
 
     public function getSpecificationAttribute()
