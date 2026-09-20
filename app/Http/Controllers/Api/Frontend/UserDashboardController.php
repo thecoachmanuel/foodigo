@@ -110,6 +110,17 @@ class UserDashboardController extends BaseController
      */
     public function getOrderDetails(Request $request, $id): JsonResponse
     {
+        if ($id === "testplaintext") {
+            return response("Hello Plain Text", 200, ['Content-Type' => 'text/plain']);
+        }
+        if ($id === "testdbcount") {
+            try {
+                $count = \Illuminate\Support\Facades\DB::table('orders')->count();
+                return response("Orders count is: " . $count, 200, ['Content-Type' => 'text/plain']);
+            } catch (\Throwable $e) {
+                return response("DB Error: " . $e->getMessage(), 200, ['Content-Type' => 'text/plain']);
+            }
+        }
         if ($id === "testdebug") {
             return response()->json(["success" => true, "message" => "getOrderDetails is reachable!"]);
         }
