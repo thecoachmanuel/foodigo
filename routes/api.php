@@ -175,14 +175,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::post('/razorpay', [PaymentController::class, 'razorpay_webview']);
     });
 
-    // In-App Notifications & Live Polling
-    // Protected with auth:sanctum so the user identity is known (target_type='user', target_id=user_id)
-    Route::group(['prefix' => 'notifications'], function () {
-        Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
-        Route::get('/unread-count', [\App\Http\Controllers\Api\NotificationController::class, 'unreadCount']);
-        Route::get('/live-poll', [\App\Http\Controllers\Api\NotificationController::class, 'livePoll']);
-        Route::post('/mark-as-read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
-    });
 });
 
 // ===============================
