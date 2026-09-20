@@ -113,6 +113,54 @@ class UserDashboardController extends BaseController
         if ($id === "testdebug") {
             return response()->json(["success" => true, "message" => "getOrderDetails is reachable!"]);
         }
+        if ($id === "step1") {
+            try {
+                $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
+                return response()->json(["step" => 1, "user" => $user ? $user->id : null]);
+            } catch (\Throwable $e) {
+                return response()->json(["step" => 1, "error" => $e->getMessage()]);
+            }
+        }
+        if ($id === "step2") {
+            try {
+                $order = Order::where('id', 999999)->first();
+                return response()->json(["step" => 2, "order" => $order]);
+            } catch (\Throwable $e) {
+                return response()->json(["step" => 2, "error" => $e->getMessage()]);
+            }
+        }
+        if ($id === "step3") {
+            try {
+                $order = Order::with(['restaurant'])->where('id', 999999)->first();
+                return response()->json(["step" => 3, "order" => $order]);
+            } catch (\Throwable $e) {
+                return response()->json(["step" => 3, "error" => $e->getMessage()]);
+            }
+        }
+        if ($id === "step4") {
+            try {
+                $order = Order::with(['items'])->where('id', 999999)->first();
+                return response()->json(["step" => 4, "order" => $order]);
+            } catch (\Throwable $e) {
+                return response()->json(["step" => 4, "error" => $e->getMessage()]);
+            }
+        }
+        if ($id === "step5") {
+            try {
+                $order = Order::with(['deliveryman'])->where('id', 999999)->first();
+                return response()->json(["step" => 5, "order" => $order]);
+            } catch (\Throwable $e) {
+                return response()->json(["step" => 5, "error" => $e->getMessage()]);
+            }
+        }
+        if ($id === "step6") {
+            try {
+                $firstOrder = Order::latest()->first();
+                return response()->json(["step" => 6, "firstOrder_id" => $firstOrder ? $firstOrder->id : null]);
+            } catch (\Throwable $e) {
+                return response()->json(["step" => 6, "error" => $e->getMessage()]);
+            }
+        }
         try {
             $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
 
