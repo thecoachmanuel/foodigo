@@ -76,7 +76,7 @@ class UserDashboardController extends BaseController
 
             $isRestaurant = str_contains(get_class($user), 'Restaurant');
 
-            $query = Order::with(['restaurant', 'items', 'deliveryman'])->latest();
+            $query = Order::with(['restaurant', 'deliveryman'])->latest();
 
             if ($isRestaurant) {
                 $query->where('restaurant_id', $user->id);
