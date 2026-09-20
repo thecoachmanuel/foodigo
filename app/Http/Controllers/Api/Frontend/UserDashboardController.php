@@ -68,16 +68,44 @@ class UserDashboardController extends BaseController
     public function getOrders(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
+            $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
 
-            $orders = Order::where('user_id', $user->id)
-                ->with(['restaurant', 'items.products'])
-                ->latest()
-                ->paginate(10);
+            if (!$user) {
+                return $this->sendPaginatedResponse(new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20), 'Orders retrieved successfully');
+            }
+
+            $isRestaurant = str_contains(get_class($user), 'Restaurant');
+
+            $query = Order::with([
+                'restaurant',
+                'items.products.translate_product',
+                'items.product.translate_product'
+            ])->latest();
+
+            if ($isRestaurant) {
+                $query->where('restaurant_id', $user->id);
+            } else {
+                $query->where(function($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                    if (!empty($user->email)) {
+                        $q->orWhere(function($sub) use ($user) {
+                            $sub->where('is_guest', 1)
+                                ->where('delivery_address', 'like', '%' . $user->email . '%');
+                        });
+                    }
+                });
+            }
+
+            if ($request->has('status') && !empty($request->status)) {
+                $query->where('order_status', $request->status);
+            }
+
+            $perPage = (int) $request->get('per_page', 50);
+            $orders = $query->paginate($perPage);
 
             return $this->sendPaginatedResponse($orders, 'Orders retrieved successfully');
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong', [], 500);
+            return $this->sendError('Something went wrong: ' . $e->getMessage(), [], 500);
         }
     }
 
@@ -87,20 +115,36 @@ class UserDashboardController extends BaseController
     public function getOrderDetails(Request $request, $orderId): JsonResponse
     {
         try {
-            $user = $request->user();
-            $query = Order::where('id', $orderId)
-                ->with(['restaurant', 'items.products.translate_product', 'items.products.product_translate_lang', 'deliveryman', 'deliveryMan']);
-            
-            if ($user) {
-                $query->where(function($q) use ($user) {
-                    $q->where('user_id', $user->id)->orWhere('is_guest', 1);
-                });
+            $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
+
+            // Extract numeric order ID if any prefix exists (e.g. #12 or order-12)
+            $cleanId = preg_replace('/[^0-9]/', '', (string)$orderId);
+            if (empty($cleanId)) {
+                $cleanId = $orderId;
             }
 
-            $order = $query->first();
+            $order = Order::with([
+                'restaurant',
+                'items.products.translate_product',
+                'items.product.translate_product',
+                'deliveryman',
+                'deliveryMan'
+            ])->where('id', $cleanId)->first();
+
+            if (!$order && !empty($orderId)) {
+                $order = Order::with([
+                    'restaurant',
+                    'items.products.translate_product',
+                    'items.product.translate_product',
+                    'deliveryman',
+                    'deliveryMan'
+                ])->where('tnx_info', $orderId)->first();
+            }
+
             if (!$order) {
                 return $this->sendError('Order not found', [], 404);
             }
+
             return $this->sendResponse($order, 'Order details retrieved successfully');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong: ' . $e->getMessage(), [], 500);

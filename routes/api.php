@@ -99,6 +99,10 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/{id}', [HomeController::class, 'getSingleProduct']);
     });
 
+    // Public order details & tracking (with optional Sanctum bearer token support)
+    Route::get('/orders/{id}', [UserDashboardController::class, 'getOrderDetails']);
+    Route::get('/dashboard/orders/{id}', [UserDashboardController::class, 'getOrderDetails']);
+
     // Language and Currency (with session support)
     Route::group(['middleware' => ['web']], function () {
         Route::post('/set-language/{lang_code}', [HomeController::class, 'setLanguage']);
