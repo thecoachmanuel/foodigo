@@ -79,6 +79,14 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/splash-screen', [HomeController::class, 'websiteSetup']);
     });
 
+    // In-App Notifications & Live Polling (Customers & Restaurants)
+    Route::group(['prefix' => 'notifications'], function () {
+        Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+        Route::get('/unread-count', [\App\Http\Controllers\Api\NotificationController::class, 'unreadCount']);
+        Route::get('/live-poll', [\App\Http\Controllers\Api\NotificationController::class, 'livePoll']);
+        Route::post('/mark-as-read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
+    });
+
     // Restaurants
     Route::group(['prefix' => 'restaurants'], function () {
         Route::get('/', [HomeController::class, 'getAllRestaurants']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Exception;
 use App\Models\User;
+use App\Models\AppNotification;
 use Razorpay\Api\Api;
 use App\Helper\EmailHelper;
 use App\Models\UserAddress;
@@ -491,6 +492,14 @@ class PaymentController extends BaseController
             $orderItem->qty = $food['qty'];
             $orderItem->total = $food['total_price'];
             $orderItem->save();
+        }
+
+                // In-app notifications for restaurant and customer
+        try {
+            AppNotification::createNewOrderNotificationForRestaurant($order, $order->restaurant_id, currency($order->grand_total));
+            AppNotification::createOrderStatusNotification($order, 1, 'Pending');
+        } catch (\Throwable $t) {
+            \Illuminate\Support\Facades\Log::info('AppNotification new order error: ' . $t->getMessage());
         }
 
         session()->forget('order_data');

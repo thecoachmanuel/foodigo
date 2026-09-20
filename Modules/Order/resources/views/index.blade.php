@@ -191,10 +191,12 @@
             $("#item_delect_confirmation").attr("action",'{{ url("admin/restaurant/product/") }}'+"/"+id)
         }
 
+        var activeOrderRequests = {};
+
         $(document).on('change', '.table-order-status-select', function() {
             var $select = $(this);
             var orderId = $select.data('order-id');
-            var prevStatus = $select.data('prev-status');
+            var prevStatus = $select.attr('data-prev-status') || $select.data('prev-status');
             var newStatus = $select.val();
 
             // Client-side instant optimistic status map for zero-latency real-time response
@@ -207,12 +209,21 @@
                 '6': { label: "{{ __('translate.Cancel') }}", tagClass: 'tag denger' }
             };
 
-            // Immediately update the State tag in real-time
+            // Immediately update the State tag in real-time without delay
             if (statusMap[newStatus]) {
                 $('#order-tag-' + orderId).attr('class', statusMap[newStatus].tagClass).text(statusMap[newStatus].label);
             }
 
-            $.ajax({
+            // Immediately update prev-status tracking so subsequent changes can happen instantly
+            $select.data('prev-status', newStatus).attr('data-prev-status', newStatus);
+
+            // Abort any previous pending request on this order so rapid consecutive changes never collide
+            if (activeOrderRequests[orderId] && activeOrderRequests[orderId].readyState !== 4) {
+                activeOrderRequests[orderId].abort();
+            }
+
+            // Fire fast AJAX request without disabling select element
+            activeOrderRequests[orderId] = $.ajax({
                 url: '{{ url("admin/order-status-change") }}/' + orderId,
                 type: 'POST',
                 data: {
@@ -220,32 +231,32 @@
                     order_status: newStatus
                 },
                 dataType: 'json',
-                beforeSend: function() {
-                    $select.prop('disabled', true);
-                },
                 success: function(res) {
-                    $select.prop('disabled', false);
+                    delete activeOrderRequests[orderId];
                     if (res && res.status === 'success') {
-                        $select.data('prev-status', newStatus);
                         if (res.tag_class && res.state_label) {
                             $('#order-tag-' + orderId).attr('class', res.tag_class).text(res.state_label);
                         }
                         if (typeof toastr !== 'undefined') {
+                            toastr.clear();
                             toastr.success(res.message);
                         }
                     } else {
                         if (typeof toastr !== 'undefined') {
                             toastr.error((res && res.message) ? res.message : 'Failed to update order status');
                         }
-                        $select.val(prevStatus);
+                        $select.val(prevStatus).data('prev-status', prevStatus).attr('data-prev-status', prevStatus);
                         if (statusMap[prevStatus]) {
                             $('#order-tag-' + orderId).attr('class', statusMap[prevStatus].tagClass).text(statusMap[prevStatus].label);
                         }
                     }
                 },
-                error: function() {
-                    $select.prop('disabled', false);
-                    $select.val(prevStatus);
+                error: function(xhr, status) {
+                    delete activeOrderRequests[orderId];
+                    if (status === 'abort') {
+                        return; // Intentionally aborted for a faster newer change
+                    }
+                    $select.val(prevStatus).data('prev-status', prevStatus).attr('data-prev-status', prevStatus);
                     if (statusMap[prevStatus]) {
                         $('#order-tag-' + orderId).attr('class', statusMap[prevStatus].tagClass).text(statusMap[prevStatus].label);
                     }

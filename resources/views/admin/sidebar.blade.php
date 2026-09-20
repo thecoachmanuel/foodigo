@@ -213,7 +213,7 @@
 
 
             @php
-                $is_promo_active = Route::is('admin.coupon.*') || Route::is('admin.offer*');
+                $is_promo_active = Route::is('admin.coupon.*') || Route::is('admin.offer*') || Route::is('admin.broadcast-promos.*');
             @endphp
             <li class="{{ $is_promo_active ? 'active' : '' }}"><a href="#!"
                                                                           class="{{ $is_promo_active ? '' : 'collapsed' }}"
@@ -243,6 +243,8 @@
                                         class="menu-bar__name">{{ __('translate.Offer') }}</span></span></a></li>
                         <li><a href="{{ route('admin.offer-product') }}" class="{{ Route::is('admin.offer-product') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Offer Product') }}</span></span></a></li>
+                        <li><a href="{{ route('admin.broadcast-promos.index') }}" class="{{ Route::is('admin.broadcast-promos.*') ? 'active' : '' }}"><span class="menu-bar__text"><span
+                                        class="menu-bar__name">{{ __('translate.Broadcast & Promos') }}</span></span></a></li>
 
                     </ul>
                 </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\BroadcastNotificationController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -312,6 +313,12 @@ Route::group(['as'=> 'admin.', 'prefix' => 'admin'],function (){
         Route::post('store-offer-product', [OfferController::class, 'store'])->name('store-offer-product');
         Route::post('offer-product-status/{id}', [OfferController::class, 'changeStatus'])->name('offer-product-status');
         Route::delete('delete-offer-product/{id}', [OfferController::class,'destroy'])->name('delete-offer-product');
+
+        Route::controller(BroadcastNotificationController::class)->group(function () {
+            Route::get('broadcast-promos', 'index')->name('broadcast-promos.index');
+            Route::post('broadcast-promos', 'store')->name('broadcast-promos.store');
+            Route::delete('broadcast-promos/{id}', 'destroy')->name('broadcast-promos.destroy');
+        });
 
         Route::get('deliveryman-index', [DeliveryManController::class, 'deliveryman_index'])->name('deliveryman-index');
         Route::get('deliveryman-show/{id}', [DeliveryManController::class, 'deliveryman_show'])->name('deliveryman-show');
