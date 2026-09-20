@@ -825,6 +825,17 @@ class PaymentController extends Controller
         if($payment_status == 'success'){
             $order->order_status = 1;
         }
+        $delivery_instructions = $order_info['delivery_instructions'] ?? $order_info['additional_notes'] ?? $order_info['order_note'] ?? null;
+        if (!empty($delivery_instructions)) {
+            $order->order_note = $delivery_instructions;
+        }
+        if (is_array($address_info)) {
+            $address_info['delivery_instructions'] = $delivery_instructions;
+        } elseif (is_object($address_info)) {
+            $address_array = method_exists($address_info, 'toArray') ? $address_info->toArray() : (array) $address_info;
+            $address_array['delivery_instructions'] = $delivery_instructions;
+            $address_info = $address_array;
+        }
         $order->delivery_address = json_encode($address_info);
         $order->save();
 

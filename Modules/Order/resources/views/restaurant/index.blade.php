@@ -80,7 +80,17 @@
 
                                                     <td class="crancy-table__column-2 crancy-table__data-2">
                                                         <h4 class="crancy-table__product-title">
-                                                            {{ $order->created_at->format('F j, Y') }}</h4>
+                                                            {{ $order->created_at->format('F j, Y') }}
+                                                        @php
+                                                            $itemAddr = is_string($order->delivery_address) ? json_decode($order->delivery_address) : (object)($order->delivery_address ?? []);
+                                                            $orderNoteText = $order->order_note ?? $itemAddr?->delivery_instructions ?? $itemAddr?->additional_notes ?? null;
+                                                        @endphp
+                                                        @if(!empty($orderNoteText))
+                                                            <span class="badge bg-warning text-dark ms-1" style="font-size: 10px; cursor: help;" title="{{ $orderNoteText }}" data-bs-toggle="tooltip">
+                                                                <i class="fa fa-sticky-note"></i> {{ __('translate.Note') }}
+                                                            </span>
+                                                        @endif
+                                                        </h4>
                                                     </td>
 
                                                     <td class="crancy-table__column-2 crancy-table__data-2">

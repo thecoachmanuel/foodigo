@@ -21,6 +21,22 @@ class Order extends Model
      */
     protected $fillable = [];
 
+    protected $appends = ['special_instructions'];
+
+    public function getSpecialInstructionsAttribute()
+    {
+        if (!empty($this->order_note)) {
+            return $this->order_note;
+        }
+        if (!empty($this->delivery_address)) {
+            $addr = is_string($this->delivery_address) ? json_decode($this->delivery_address, true) : (array) $this->delivery_address;
+            return $addr['delivery_instructions'] ?? $addr['additional_notes'] ?? null;
+        }
+        return null;
+    }
+
+
+
     public function restaurant(): BelongsTo
     {
         return $this->belongsTo(Restaurant::class);

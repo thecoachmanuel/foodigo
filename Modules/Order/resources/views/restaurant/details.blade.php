@@ -21,6 +21,31 @@
                                 class="fa fa-list"></i> {{ __('translate.Order List') }}</a>
                     </div>
 
+                    
+                    {{-- Kitchen Special Instructions / Order Note Card --}}
+                    @php
+                        $specialNote = $order->order_note ?? $address?->delivery_instructions ?? $address?->additional_notes ?? null;
+                    @endphp
+                    @if(!empty($specialNote))
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="alert alert-warning border-warning d-flex align-items-center gap-3 p-3 shadow-sm rounded-3" role="alert" style="background-color: #fff9db; border-left: 5px solid #f59f00; margin-bottom: 0;">
+                                    <div class="fs-4 text-warning" style="font-size: 24px;">
+                                        <i class="fa fa-utensils"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="alert-heading mb-1 text-dark fw-bold" style="font-size: 15px;">
+                                            <i class="fa fa-exclamation-circle text-warning me-1"></i> {{ __('translate.Kitchen Special Instructions / Preparation Note') }}
+                                        </h5>
+                                        <p class="mb-0 text-dark fw-semibold" style="font-size: 14px; line-height: 1.5; color: #1e293b;">
+                                            {{ $specialNote }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="row mb-5">
                         <div class="col-lg-4 col-md-6">
                             <div class="zum_icvoice_item_main">

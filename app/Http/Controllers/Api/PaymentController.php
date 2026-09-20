@@ -187,6 +187,7 @@ class PaymentController extends BaseController
             $order_info['delivery_charge'] = $request->delivery_charge ?? 0;
             $order_info['vat'] = $request->vat ?? 0;
             $order_info['order_type'] = $request->order_type;
+            $order_info['delivery_instructions'] = $request->delivery_instructions ?? $request->input('order_data.delivery_instructions') ?? '';
             $order_info['subtotal'] = $cart->sum('total_price');
             $order_info['new_total'] = $order_info['subtotal'] + $order_info['delivery_charge'] + $order_info['vat'] - $order_info['discount_amount'];
             $order_info['payment_method'] = 'Stripe';
@@ -467,6 +468,17 @@ class PaymentController extends BaseController
         $order->tnx_info = $tnx_info;
         $order->is_guest = $order_info['is_guest'];
         $order->order_status = 1;
+        $delivery_instructions = $order_info['delivery_instructions'] ?? $order_info['additional_notes'] ?? $order_info['order_note'] ?? null;
+        if (!empty($delivery_instructions)) {
+            $order->order_note = $delivery_instructions;
+        }
+        if (is_array($address_info)) {
+            $address_info['delivery_instructions'] = $delivery_instructions;
+        } elseif (is_object($address_info)) {
+            $address_array = method_exists($address_info, 'toArray') ? $address_info->toArray() : (array) $address_info;
+            $address_array['delivery_instructions'] = $delivery_instructions;
+            $address_info = $address_array;
+        }
         $order->delivery_address = json_encode($address_info);
         $order->save();
 

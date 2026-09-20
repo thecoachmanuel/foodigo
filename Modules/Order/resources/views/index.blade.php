@@ -116,13 +116,13 @@
                                                         </span>
                                                     </h4>
                                                     <div class="mt-1 mb-1">
-                                                        <select class="form-select form-select-sm table-order-status-select" data-order-id="{{ $order->id }}" data-prev-status="{{ $order->order_status }}" style="font-size: 11px; padding: 2px 6px; height: auto; width: 125px; border-radius: 6px; display: inline-block;">
-                                                            <option value="1" {{ $order->order_status == 1 ? 'selected' : '' }}>{{ __('translate.Pending') }}</option>
-                                                            <option value="2" {{ $order->order_status == 2 ? 'selected' : '' }}>{{ __('translate.Confirmed') }}</option>
-                                                            <option value="3" {{ $order->order_status == 3 ? 'selected' : '' }}>{{ __('translate.Processing') }}</option>
-                                                            <option value="4" {{ $order->order_status == 4 ? 'selected' : '' }}>{{ __('translate.Food on the way') }}</option>
-                                                            <option value="5" {{ $order->order_status == 5 ? 'selected' : '' }}>{{ __('translate.Delivered') }}</option>
-                                                            <option value="6" {{ $order->order_status == 6 ? 'selected' : '' }}>{{ __('translate.Cancel') }}</option>
+                                                        <select class="form-select form-select-sm table-order-status-select" data-order-id="{{ $order->id }}" data-prev-status="{{ $order->order_status }}" style="font-size: 11px; font-weight: 700; padding: 2px 4px; height: 28px; width: 95px; max-width: 95px; border-radius: 6px; display: inline-block; cursor: pointer; color: #1e293b; background-color: #ffffff; border: 1px solid #cbd5e1;">
+                                                            <option value="1" style="font-weight: 700;" {{ $order->order_status == 1 ? 'selected' : '' }}>{{ __('translate.Pending') }}</option>
+                                                            <option value="2" style="font-weight: 700;" {{ $order->order_status == 2 ? 'selected' : '' }}>{{ __('translate.Confirmed') }}</option>
+                                                            <option value="3" style="font-weight: 700;" {{ $order->order_status == 3 ? 'selected' : '' }}>{{ __('translate.Processing') }}</option>
+                                                            <option value="4" style="font-weight: 700;" {{ $order->order_status == 4 ? 'selected' : '' }}>{{ __('translate.Food on the way') }}</option>
+                                                            <option value="5" style="font-weight: 700;" {{ $order->order_status == 5 ? 'selected' : '' }}>{{ __('translate.Delivered') }}</option>
+                                                            <option value="6" style="font-weight: 700;" {{ $order->order_status == 6 ? 'selected' : '' }}>{{ __('translate.Cancel') }}</option>
                                                         </select>
                                                     </div>
                                                     <div class="text-capitalize opacity-7">
@@ -194,6 +194,21 @@
             var prevStatus = $select.data('prev-status');
             var newStatus = $select.val();
 
+            // Client-side instant optimistic status map for zero-latency real-time response
+            var statusMap = {
+                '1': { label: "{{ __('translate.Pending') }}", tagClass: 'tag denger' },
+                '2': { label: "{{ __('translate.Confirmed') }}", tagClass: 'tag' },
+                '3': { label: "{{ __('translate.Processing') }}", tagClass: 'tag' },
+                '4': { label: "{{ __('translate.Food on the way') }}", tagClass: 'tag' },
+                '5': { label: "{{ __('translate.Delivered') }}", tagClass: 'tag' },
+                '6': { label: "{{ __('translate.Cancel') }}", tagClass: 'tag denger' }
+            };
+
+            // Immediately update the State tag in real-time
+            if (statusMap[newStatus]) {
+                $('#order-tag-' + orderId).attr('class', statusMap[newStatus].tagClass).text(statusMap[newStatus].label);
+            }
+
             $.ajax({
                 url: '{{ url("admin/order-status-change") }}/' + orderId,
                 type: 'POST',
@@ -209,17 +224,31 @@
                     $select.prop('disabled', false);
                     if (res && res.status === 'success') {
                         $select.data('prev-status', newStatus);
-                        $('#order-tag-' + orderId).attr('class', res.tag_class).text(res.state_label);
-                        toastr.success(res.message);
+                        if (res.tag_class && res.state_label) {
+                            $('#order-tag-' + orderId).attr('class', res.tag_class).text(res.state_label);
+                        }
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(res.message);
+                        }
                     } else {
-                        toastr.error((res && res.message) ? res.message : 'Failed to update order status');
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error((res && res.message) ? res.message : 'Failed to update order status');
+                        }
                         $select.val(prevStatus);
+                        if (statusMap[prevStatus]) {
+                            $('#order-tag-' + orderId).attr('class', statusMap[prevStatus].tagClass).text(statusMap[prevStatus].label);
+                        }
                     }
                 },
                 error: function() {
                     $select.prop('disabled', false);
                     $select.val(prevStatus);
-                    toastr.error('Error updating order status. Please check your connection.');
+                    if (statusMap[prevStatus]) {
+                        $('#order-tag-' + orderId).attr('class', statusMap[prevStatus].tagClass).text(statusMap[prevStatus].label);
+                    }
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error('Error updating order status. Please check your connection.');
+                    }
                 }
             });
         });
