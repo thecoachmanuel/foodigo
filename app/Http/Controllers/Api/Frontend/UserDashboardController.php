@@ -110,6 +110,9 @@ class UserDashboardController extends BaseController
      */
     public function getOrderDetails(Request $request, $id): JsonResponse
     {
+        if ($id === "testdebug") {
+            return response()->json(["success" => true, "message" => "getOrderDetails is reachable!"]);
+        }
         try {
             $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
 
@@ -223,7 +226,7 @@ class UserDashboardController extends BaseController
 
             return $this->sendResponse(['order' => $orderArray], 'Order details retrieved successfully');
         } catch (\Throwable $e) {
-            return $this->sendError('Could not retrieve order: ' . $e->getMessage(), [], 500);
+            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage(), 'file' => $e->getFile() . ':' . $e->getLine()], 200);
         }
     }
 
