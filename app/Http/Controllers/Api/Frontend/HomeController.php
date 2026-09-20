@@ -794,6 +794,9 @@ class HomeController extends BaseController
                 'delivery_charge_per_km' => $deliveryCharge,
                 'vat_percentage' => $vatPercentage,
                 'default_avatar' => ($defaultAvatarSetting = GlobalSetting::where('key', 'default_avatar')->first()) ? $defaultAvatarSetting->value : null,
+                'app_logo' => (GlobalSetting::where('key', 'logo')->value('value')),
+                'app_favicon' => (GlobalSetting::where('key', 'favicon')->value('value')),
+                'app_name' => (GlobalSetting::where('key', 'app_name')->value('value')),
                 'social_login' => [
                     'is_gmail' => (bool)(($g = GlobalSetting::where('key', 'is_gmail')->first()) && ($g->value == 1 || $g->value == '1')),
                     'gmail_client_id' => ($gId = GlobalSetting::where('key', 'gmail_client_id')->first()) ? $gId->value : null,
