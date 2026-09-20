@@ -78,8 +78,9 @@ class UserDashboardController extends BaseController
 
             $query = Order::with([
                 'restaurant',
-                'items.products.translate_product',
-                'items.product.translate_product'
+                'items.product',
+                'items.products',
+                'deliveryman',
             ])->latest();
 
             if ($isRestaurant) {
@@ -104,7 +105,7 @@ class UserDashboardController extends BaseController
             $orders = $query->paginate($perPage);
 
             return $this->sendPaginatedResponse($orders, 'Orders retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->sendError('Something went wrong: ' . $e->getMessage(), [], 500);
         }
     }
@@ -125,19 +126,21 @@ class UserDashboardController extends BaseController
 
             $order = Order::with([
                 'restaurant',
-                'items.products.translate_product',
-                'items.product.translate_product',
+                'items.product',
+                'items.products',
                 'deliveryman',
-                'deliveryMan'
+                'user',
+                'address',
             ])->where('id', $cleanId)->first();
 
             if (!$order && !empty($orderId)) {
                 $order = Order::with([
                     'restaurant',
-                    'items.products.translate_product',
-                    'items.product.translate_product',
+                    'items.product',
+                    'items.products',
                     'deliveryman',
-                    'deliveryMan'
+                    'user',
+                    'address',
                 ])->where('tnx_info', $orderId)->first();
             }
 
@@ -146,7 +149,7 @@ class UserDashboardController extends BaseController
             }
 
             return $this->sendResponse($order, 'Order details retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->sendError('Something went wrong: ' . $e->getMessage(), [], 500);
         }
     }
@@ -177,6 +180,285 @@ class UserDashboardController extends BaseController
             return $this->sendResponse($order, 'Order cancelled successfully');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong', [], 500);
+        }
+    }
+
+    /**
+     * Get user reviews
+     */
+    public function getReviews(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+
+            $reviews = Review::where('user_id', $user->id)
+                ->with(['product'])
+                ->latest()
+                ->paginate(10);
+
+            return $this->sendPaginatedResponse($reviews, 'Reviews retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong', [], 500);
+        }
+    }
+
+    /**
+     * Submit product/restaurant review
+     */
+    public function submitReview(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|max:1000',
+            'product_id' => 'nullable|exists:products,id',
+            'restaurant_id' => 'nullable|exists:restaurants,id',
+            'order_id' => 'required|exists:orders,id',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendValidationError($validator->errors()->toArray());
+        }
+
+        try {
+            $user = $request->user();
+
+            // Verify order belongs to user
+            $order = Order::where('id', $request->order_id)
+                ->where('user_id', $user->id)
+                ->where('order_status', 5)
+                ->first();
+
+            if (!$order) {
+                return $this->sendError('Invalid order or order not delivered', [], 400);
+            }
+
+            // Check if review already exists
+            $existingReview = Review::where('user_id', $user->id)
+                ->where('order_id', $request->order_id)
+                ->where('product_id', $request->product_id)
+                ->where('restaurant_id', $request->restaurant_id)
+                ->first();
+
+            if ($existingReview) {
+                return $this->sendError('Review already submitted for this item', [], 400);
+            }
+
+            $review = Review::create([
+                'user_id' => $user->id,
+                'product_id' => $request->product_id,
+                'restaurant_id' => $request->restaurant_id,
+                'order_id' => $request->order_id,
+                'rating' => $request->rating,
+                'review' => $request->comment,
+                'status' => '0',
+            ]);
+
+            return $this->sendResponse($review, 'Review submitted successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong', [], 500);
+        }
+    }
+
+    /**
+     * Get user addresses
+     */
+    public function getAddresses(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+
+            $addresses = UserAddress::where('user_id', $user->id)->get();
+
+            return $this->sendResponse($addresses, 'Addresses retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong', [], 500);
+        }
+    }
+
+    /**
+     * Add new address
+     */
+    public function addAddress(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|string|in:home,office,other',
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+            'landmark' => 'nullable|string|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendValidationError($validator->errors()->toArray());
+        }
+
+        try {
+            $user = $request->user();
+
+            $address = UserAddress::create([
+                'user_id' => $user->id,
+                'delivery_type' => $request->type,
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'address' => $request->address,
+                'lat' => $request->latitude,
+                'lon' => $request->longitude,
+            ]);
+
+            return $this->sendResponse($address, 'Address added successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong', [], 500);
+        }
+    }
+
+    /**
+     * Update address
+     */
+    public function updateAddress(Request $request, $addressId): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|string|in:home,office,other',
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendValidationError($validator->errors()->toArray());
+        }
+
+        try {
+            $user = $request->user();
+
+            $address = UserAddress::where('user_id', $user->id)
+                ->where('id', $addressId)
+                ->first();
+
+            if (!$address) {
+                return $this->sendError('Address not found', [], 404);
+            }
+
+            $address->update([
+                'delivery_type' => $request->type,
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'address' => $request->address,
+                'lat' => $request->latitude,
+                'lon' => $request->longitude,
+            ]);
+
+            return $this->sendResponse($address, 'Address updated successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong', [], 500);
+        }
+    }
+
+    /**
+     * Delete address
+     */
+    public function deleteAddress(Request $request, $addressId): JsonResponse
+    {
+        try {
+            $user = $request->user();
+
+            $address = UserAddress::where('user_id', $user->id)
+                ->where('id', $addressId)
+                ->first();
+
+            if (!$address) {
+                return $this->sendError('Address not found', [], 404);
+            }
+
+            $address->delete();
+
+            return $this->sendResponse([], 'Address deleted successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong', [], 500);
+        }
+    }
+
+    /**
+     * Track order real-time
+     */
+    public function trackOrder(Request $request, $orderId): JsonResponse
+    {
+        try {
+            $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
+            $cleanId = preg_replace('/[^0-9]/', '', (string)$orderId) ?: $orderId;
+
+            $query = Order::where('id', $cleanId)
+                ->with(['restaurant', 'deliveryman', 'deliveryMan']);
+
+            if ($user && !str_contains(get_class($user), 'Restaurant')) {
+                $query->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)->orWhere('is_guest', 1);
+                });
+            }
+
+            $order = $query->first();
+
+            if (!$order && !empty($orderId)) {
+                $order = Order::where('tnx_info', $orderId)
+                    ->with(['restaurant', 'deliveryman', 'deliveryMan'])
+                    ->first();
+            }
+
+            if (!$order) {
+                return $this->sendError('Order not found', [], 404);
+            }
+
+            $deliveryMan = $order->deliveryman ?? $order->deliveryMan;
+            $deliveryManData = null;
+            if ($deliveryMan) {
+                $img = $deliveryMan->profile_image ?: $deliveryMan->man_image;
+                $imageUrl = null;
+                if ($img) {
+                    $imageUrl = (str_starts_with($img, 'http://') || str_starts_with($img, 'https://')) ? $img : asset($img);
+                }
+
+                $deliveryManData = [
+                    'id' => $deliveryMan->id,
+                    'name' => trim(($deliveryMan->fname ?? '') . ' ' . ($deliveryMan->lname ?? '')),
+                    'fname' => $deliveryMan->fname,
+                    'lname' => $deliveryMan->lname,
+                    'phone' => $deliveryMan->phone,
+                    'email' => $deliveryMan->email,
+                    'image' => $imageUrl,
+                    'vehicle_number' => $deliveryMan->vehicle_number ?? null,
+                    'rating' => '4.8 (100+ deliveries)',
+                    'latitude' => $deliveryMan->latitude,
+                    'longitude' => $deliveryMan->longitude,
+                ];
+            }
+
+            $data = [
+                'order_id' => $order->id,
+                'order_status' => $order->order_status,
+                'payment_status' => $order->payment_status,
+                'delivery_man' => $deliveryManData,
+                'restaurant' => $order->restaurant ? [
+                    'id' => $order->restaurant->id,
+                    'name' => $order->restaurant->restaurant_name ?? $order->restaurant->name,
+                    'address' => $order->restaurant->address,
+                    'latitude' => $order->restaurant->latitude,
+                    'longitude' => $order->restaurant->longitude,
+                    'phone' => $order->restaurant->phone ?? $order->restaurant->owner_phone,
+                    'logo' => $order->restaurant->logo,
+                ] : null,
+                'delivery_address' => $order->delivery_address,
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at,
+            ];
+
+            return $this->sendResponse($data, 'Order tracking data retrieved successfully');
+        } catch (\Throwable $e) {
+            return $this->sendError('Something went wrong: ' . $e->getMessage(), [], 500);
         }
     }
 

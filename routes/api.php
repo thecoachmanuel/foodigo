@@ -99,9 +99,13 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/{id}', [HomeController::class, 'getSingleProduct']);
     });
 
-    // Public order details & tracking (with optional Sanctum bearer token support)
+    // Orders & Tracking (supports both authenticated users and guests/notifications)
+    Route::get('/orders', [UserDashboardController::class, 'getOrders']);
     Route::get('/orders/{id}', [UserDashboardController::class, 'getOrderDetails']);
+    Route::get('/orders/{id}/track', [UserDashboardController::class, 'trackOrder']);
+    Route::get('/dashboard/orders', [UserDashboardController::class, 'getOrders']);
     Route::get('/dashboard/orders/{id}', [UserDashboardController::class, 'getOrderDetails']);
+    Route::get('/dashboard/orders/{id}/track', [UserDashboardController::class, 'trackOrder']);
 
     // Language and Currency (with session support)
     Route::group(['middleware' => ['web']], function () {
@@ -127,10 +131,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/', [UserDashboardController::class, 'getDashboard']);
 
         // Orders
-        Route::get('/orders', [UserDashboardController::class, 'getOrders']);
-        Route::get('/orders/{id}', [UserDashboardController::class, 'getOrderDetails']);
         Route::post('/orders/{id}/cancel', [UserDashboardController::class, 'cancelOrder']);
-        Route::get('/orders/{id}/track', [UserDashboardController::class, 'trackOrder']);
 
         // Reviews
         Route::get('/reviews', [UserDashboardController::class, 'getReviews']);
