@@ -110,11 +110,46 @@ class UserDashboardController extends BaseController
      */
     public function getOrderDetails(Request $request, $id): JsonResponse
     {
-        if ($id === "testplaintext") {
-            return response("Hello Plain Text", 200, ['Content-Type' => 'text/plain']);
-        }
-        if ($id === "testdbcount") {
+        if ($id === "checkclass") {
+            $classExists = class_exists('\Modules\Order\App\Models\Order');
+            $dbConnected = false;
+            $orderCount = null;
+            $dbError = null;
             try {
+                $orderCount = \Illuminate\Support\Facades\DB::table('orders')->count();
+                $dbConnected = true;
+            } catch (\Throwable $e) {
+                $dbError = $e->getMessage();
+            }
+
+            $orderModelError = null;
+            $firstOrderRaw = null;
+            try {
+                $firstOrderRaw = \Illuminate\Support\Facades\DB::table('orders')->select('id', 'order_status', 'grand_total')->latest('id')->first();
+            } catch (\Throwable $e) {
+                $orderModelError = $e->getMessage();
+            }
+
+            $eloquentError = null;
+            $eloquentFirst = null;
+            try {
+                $eloquentFirst = \Modules\Order\App\Models\Order::select('id', 'order_status', 'grand_total')->latest('id')->first();
+            } catch (\Throwable $e) {
+                $eloquentError = $e->getMessage();
+            }
+
+            return response()->json([
+                'success' => true,
+                'class_exists' => $classExists,
+                'db_connected' => $dbConnected,
+                'order_count' => $orderCount,
+                'db_error' => $dbError,
+                'first_raw' => $firstOrderRaw,
+                'eloquent_first_id' => $eloquentFirst ? $eloquentFirst->id : null,
+                'eloquent_error' => $eloquentError,
+            ]);
+        }
+        try {
                 $count = \Illuminate\Support\Facades\DB::table('orders')->count();
                 return response("Orders count is: " . $count, 200, ['Content-Type' => 'text/plain']);
             } catch (\Throwable $e) {
