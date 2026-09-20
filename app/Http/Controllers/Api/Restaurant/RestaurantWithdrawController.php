@@ -76,17 +76,24 @@ class RestaurantWithdrawController extends BaseController
 
     public function store(Request $request): JsonResponse
     {
+        $amount = $request->amount ?? $request->withdraw_amount;
+        $description = $request->description ?? $request->account_info ?? $request->bank_info;
+
         $validator = Validator::make(
-            $request->all(),
             [
-                'method_id' => 'required',
-                'amount' => 'required|numeric',
+                'method_id'   => $request->method_id,
+                'amount'      => $amount,
+                'description' => $description,
+            ],
+            [
+                'method_id'   => 'required',
+                'amount'      => 'required|numeric',
                 'description' => 'required',
             ],
             [
-                'method_id.required' => trans('translate.Method is required'),
-                'amount.required' => trans('translate.Amount is required'),
-                'amount.numeric' => trans('translate.Amount should be numeric'),
+                'method_id.required'   => trans('translate.Method is required'),
+                'amount.required'      => trans('translate.Amount is required'),
+                'amount.numeric'       => trans('translate.Amount should be numeric'),
                 'description.required' => trans('translate.Bank Information is required'),
             ]
         );
@@ -107,7 +114,6 @@ class RestaurantWithdrawController extends BaseController
                 ->where('order_status', 5)
                 ->sum(DB::raw('COALESCE(total, 0) - COALESCE(discount_amount, 0)'));
 
-
             $commission_type = GlobalSetting::where('key', 'commission_type')->value('value');
             $commission_per_sale = GlobalSetting::where('key', 'commission_per_sale')->value('value');
 
@@ -120,26 +126,26 @@ class RestaurantWithdrawController extends BaseController
 
             $current_balance = $net_income - $already_withdraw_amount;
 
-            if ($request->amount > $current_balance) {
-                return $this->sendResponse(trans('translate.You do not have enough balance for withdraw'));
+            if ($amount > $current_balance) {
+                return $this->sendError(trans('translate.You do not have enough balance for withdraw'), [], 400);
             }
 
-            if ($request->amount > $method->max_amount) {
-                return $this->sendResponse(trans('translate.You can not withdraw more than') . ' ' . $method->max_amount);
+            if ($method->max_amount > 0 && $amount > $method->max_amount) {
+                return $this->sendError(trans('translate.You can not withdraw more than') . ' ' . $method->max_amount, [], 400);
             }
 
-
-            $charge_amount = ($method->withdraw_charge / 100) * $request->amount;
-            $withdraw_amount = $request->amount - $charge_amount;
+            $charge_amount = ($method->withdraw_charge / 100) * $amount;
+            $withdraw_amount = $amount - $charge_amount;
 
             $new_withdraw = new SellerWithdraw();
             $new_withdraw->seller_id = $user->id;
             $new_withdraw->withdraw_method_id = $request->method_id;
             $new_withdraw->withdraw_method_name = $method->method_name;
-            $new_withdraw->total_amount = $request->amount;
+            $new_withdraw->total_amount = $amount;
             $new_withdraw->withdraw_amount = $withdraw_amount;
             $new_withdraw->charge_amount = $charge_amount;
-            $new_withdraw->description = $request->description;
+            $new_withdraw->description = $description;
+            $new_withdraw->status = 'pending';
             $new_withdraw->save();
 
             $data = [

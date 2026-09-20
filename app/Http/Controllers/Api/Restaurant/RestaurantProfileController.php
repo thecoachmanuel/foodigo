@@ -42,42 +42,29 @@ class RestaurantProfileController extends BaseController
         $validator = Validator::make(
             $request->all(),
             [
-                'restaurant_name'      => 'required|max:255',
-                'city_id'              => 'required',
-                'cuisines'             => 'required',
-                'whatsapp'             => 'required|max:255',
-                'address'              => 'required|max:255',
-                'latitude'             => 'required',
-                'longitude'            => 'required',
-                'max_delivery_distance' => 'required|numeric',
-                'owner_name'           => 'required|max:255',
-                'owner_email'          => 'required|max:255',
-                'owner_phone'          => 'required|max:255',
-                'name'                 => 'required|max:255',
-                'opening_hour'         => 'required|max:255',
-                'closing_hour'         => 'required|max:255',
-                'min_processing_time'  => 'required|numeric|max:255',
-                'max_processing_time'  => 'required|numeric|max:255',
-                'time_slot_separate'   => 'required|numeric|max:255',
-            ],
-            [
-                'restaurant_name.required'   => __('translate.Restaurant name is required'),
-                'city_id.required'           => __('translate.City is required'),
-                'cuisines.required'          => __('translate.Cuisine is required'),
-                'whatsapp.required'          => __('translate.Whatsapp is required'),
-                'address.required'           => __('translate.Address is required'),
-                'latitude.required'          => __('translate.Latitude is required'),
-                'longitude.required'         => __('translate.Longitude is required'),
-                'max_delivery_distance.required' => __('translate.Maximum delivery distance is required'),
-                'owner_name.required'        => __('translate.Owner name is required'),
-                'owner_email.required'       => __('translate.Owner email is required'),
-                'owner_phone.required'       => __('translate.Owner phone is required'),
-                'name.required'              => __('translate.Name is required'),
-                'opening_hour.required'      => __('translate.Openning hour is required'),
-                'closing_hour.required'      => __('translate.Closing hour is required'),
-                'min_processing_time.required' => __('translate.Minimum processing time is required'),
-                'max_processing_time.required' => __('translate.Maximum processing time is required'),
-                'time_slot_separate.required' => __('translate.Time slot separate is required'),
+                'restaurant_name'       => 'nullable|max:255',
+                'name'                  => 'nullable|max:255',
+                'email'                 => 'nullable|email|max:255',
+                'phone'                 => 'nullable|max:255',
+                'address'               => 'nullable|max:255',
+                'city_id'               => 'nullable',
+                'cuisines'              => 'nullable',
+                'whatsapp'              => 'nullable|max:255',
+                'latitude'              => 'nullable',
+                'longitude'             => 'nullable',
+                'max_delivery_distance' => 'nullable|numeric',
+                'owner_name'            => 'nullable|max:255',
+                'owner_email'           => 'nullable|max:255',
+                'owner_phone'           => 'nullable|max:255',
+                'opening_hour'          => 'nullable|max:255',
+                'closing_hour'          => 'nullable|max:255',
+                'min_processing_time'   => 'nullable|numeric|max:255',
+                'max_processing_time'   => 'nullable|numeric|max:255',
+                'time_slot_separate'    => 'nullable|numeric|max:255',
+                'min_order_amount'      => 'nullable|numeric',
+                'is_featured'           => 'nullable',
+                'pickup_order'          => 'nullable',
+                'delivery_order'        => 'nullable',
             ]
         );
 
@@ -88,69 +75,111 @@ class RestaurantProfileController extends BaseController
         try {
             $restaurant = $request->user();
 
-            $restaurant->restaurant_name = $request->restaurant_name;
-            $restaurant->city_id = $request->city_id;
-            $restaurant->cuisines = $request->cuisines;
+            if ($request->filled('restaurant_name')) {
+                $restaurant->restaurant_name = $request->restaurant_name;
+            }
+            if ($request->filled('city_id')) {
+                $restaurant->city_id = $request->city_id;
+            }
+            if ($request->filled('cuisines')) {
+                $restaurant->cuisines = $request->cuisines;
+            }
+            if ($request->filled('whatsapp')) {
+                $restaurant->whatsapp = $request->whatsapp;
+            }
+            if ($request->filled('address')) {
+                $restaurant->address = $request->address;
+            }
+            if ($request->filled('latitude')) {
+                $restaurant->latitude = $request->latitude;
+            }
+            if ($request->filled('longitude')) {
+                $restaurant->longitude = $request->longitude;
+            }
+            if ($request->filled('max_delivery_distance')) {
+                $restaurant->max_delivery_distance = $request->max_delivery_distance;
+            }
+            if ($request->filled('owner_name')) {
+                $restaurant->owner_name = $request->owner_name;
+            }
+            if ($request->filled('owner_email')) {
+                $restaurant->owner_email = $request->owner_email;
+            }
+            if ($request->filled('owner_phone')) {
+                $restaurant->owner_phone = $request->owner_phone;
+            }
+            if ($request->filled('name')) {
+                $restaurant->name = $request->name;
+            }
+            if ($request->filled('email')) {
+                $restaurant->email = $request->email;
+            }
+            if ($request->filled('phone')) {
+                $restaurant->phone = $request->phone;
+            }
+            if ($request->filled('min_order_amount')) {
+                $restaurant->min_order_amount = $request->min_order_amount;
+            }
+            if ($request->filled('opening_hour')) {
+                $restaurant->opening_hour = $request->opening_hour;
+            }
+            if ($request->filled('closing_hour')) {
+                $restaurant->closing_hour = $request->closing_hour;
+            }
+            if ($request->filled('min_processing_time')) {
+                $restaurant->min_processing_time = $request->min_processing_time;
+            }
+            if ($request->filled('max_processing_time')) {
+                $restaurant->max_processing_time = $request->max_processing_time;
+            }
+            if ($request->filled('time_slot_separate')) {
+                $restaurant->time_slot_separate = $request->time_slot_separate;
+            }
+            if ($request->has('tags')) {
+                $restaurant->tags = $request->tags;
+            }
+            if ($request->has('is_featured')) {
+                $v = $request->is_featured;
+                $restaurant->is_featured = ($v === 'enable' || $v === '1' || $v === 1 || $v === true) ? 'enable' : 'disable';
+            }
+            if ($request->has('pickup_order') || $request->has('is_pickup_order')) {
+                $v = $request->pickup_order ?? $request->is_pickup_order;
+                $restaurant->is_pickup_order = ($v === 'enable' || $v === '1' || $v === 1 || $v === true) ? 'enable' : 'disable';
+            }
+            if ($request->has('delivery_order') || $request->has('is_delivery_order')) {
+                $v = $request->delivery_order ?? $request->is_delivery_order;
+                $restaurant->is_delivery_order = ($v === 'enable' || $v === '1' || $v === 1 || $v === true) ? 'enable' : 'disable';
+            }
 
-            if ($request->logo) {
+            if ($request->hasFile('logo') || ($request->logo && !is_string($request->logo))) {
                 $old_image = $restaurant->logo;
                 $image_name = 'restaurant-logo-' . date('-Y-m-d-h-i-s-') . rand(999, 9999) . '.webp';
                 $image_name = 'uploads/custom-images/' . $image_name;
-                Image::make($request->logo)
+                Image::make($request->file('logo') ?? $request->logo)
                     ->encode('webp', 80)
                     ->save(public_path() . '/' . $image_name);
                 $restaurant->logo = $image_name;
-                $restaurant->save();
 
-                if ($old_image) {
-                    if (File::exists(public_path() . '/' . $old_image)) unlink(public_path() . '/' . $old_image);
+                if ($old_image && File::exists(public_path() . '/' . $old_image)) {
+                    @unlink(public_path() . '/' . $old_image);
                 }
             }
 
-            if ($request->cover_image) {
+            if ($request->hasFile('cover_image') || ($request->cover_image && !is_string($request->cover_image))) {
                 $old_image = $restaurant->cover_image;
                 $image_name = 'restaurant-cover-' . date('-Y-m-d-h-i-s-') . rand(999, 9999) . '.webp';
                 $image_name = 'uploads/custom-images/' . $image_name;
-                Image::make($request->cover_image)
+                Image::make($request->file('cover_image') ?? $request->cover_image)
                     ->encode('webp', 80)
                     ->save(public_path() . '/' . $image_name);
                 $restaurant->cover_image = $image_name;
-                $restaurant->save();
-                if ($old_image) {
-                    if (File::exists(public_path() . '/' . $old_image)) unlink(public_path() . '/' . $old_image);
+
+                if ($old_image && File::exists(public_path() . '/' . $old_image)) {
+                    @unlink(public_path() . '/' . $old_image);
                 }
             }
 
-            // set address info
-            $restaurant->whatsapp = $request->whatsapp;
-            $restaurant->address = $request->address;
-            $restaurant->latitude = $request->latitude;
-            $restaurant->longitude = $request->longitude;
-            $restaurant->max_delivery_distance = $request->max_delivery_distance;
-            // end address info
-
-            // set owner info
-            $restaurant->owner_name = $request->owner_name;
-            $restaurant->owner_email = $request->owner_email;
-            $restaurant->owner_phone = $request->owner_phone;
-            // end owner info
-
-            // set account info
-            $restaurant->name = $request->name;
-            // end account info
-
-            // set other info
-            $restaurant->opening_hour = $request->opening_hour;
-            $restaurant->closing_hour = $request->closing_hour;
-            $restaurant->min_processing_time = $request->min_processing_time;
-            $restaurant->max_processing_time = $request->max_processing_time;
-            $restaurant->time_slot_separate = $request->time_slot_separate;
-            $restaurant->tags = $request->tags;
-            $restaurant->is_featured = $request->is_featured ? 'enable' : 'disable';
-            $restaurant->is_pickup_order = $request->is_pickup_order ? 'enable' : 'disable';
-            $restaurant->is_delivery_order = $request->is_delivery_order ? 'enable' : 'disable';
             $restaurant->save();
-            // end other info
 
             $data = [
                 'restaurant' => $restaurant,
@@ -158,10 +187,9 @@ class RestaurantProfileController extends BaseController
 
             return $this->sendResponse($data, 'Profile data updated successfully');
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong', [], 500);
+            return $this->sendError('Something went wrong: ' . $e->getMessage(), [], 500);
         }
     }
-
 
     public function updatePassword(Request $request): JsonResponse
     {

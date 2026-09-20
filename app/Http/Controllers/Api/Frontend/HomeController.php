@@ -815,11 +815,68 @@ class HomeController extends BaseController
     public function getFaqs(): JsonResponse
     {
         try {
-            $faqs = \App\Models\Faq::where('status', 1)->orderBy('serial', 'asc')->get();
+            if (!\Illuminate\Support\Facades\Schema::hasTable('faqs')) {
+                return $this->sendResponse(self::getDefaultUserFaqs(), 'FAQs retrieved successfully');
+            }
+            $faqs = \App\Models\Faq::where('status', 1)
+                ->where(function ($q) {
+                    $q->where('type', 'user')->orWhereNull('type');
+                })
+                ->orderBy('serial', 'asc')
+                ->get();
+
+            if ($faqs->isEmpty()) {
+                $faqs = self::getDefaultUserFaqs();
+            }
+
             return $this->sendResponse($faqs, 'FAQs retrieved successfully');
         } catch (\Exception $e) {
-            return $this->sendError('Failed to retrieve FAQs', [], 500);
+            return $this->sendResponse(self::getDefaultUserFaqs(), 'FAQs retrieved successfully');
         }
+    }
+
+    public function getPartnerFaqs(): JsonResponse
+    {
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('faqs')) {
+                return $this->sendResponse(self::getDefaultPartnerFaqs(), 'Partner FAQs retrieved successfully');
+            }
+            $faqs = \App\Models\Faq::where('status', 1)
+                ->where('type', 'partner')
+                ->orderBy('serial', 'asc')
+                ->get();
+
+            if ($faqs->isEmpty()) {
+                $faqs = self::getDefaultPartnerFaqs();
+            }
+
+            return $this->sendResponse($faqs, 'Partner FAQs retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->sendResponse(self::getDefaultPartnerFaqs(), 'Partner FAQs retrieved successfully');
+        }
+    }
+
+    protected static function getDefaultUserFaqs(): array
+    {
+        return [
+            ['id' => 1, 'question' => 'How to create an account?', 'answer' => 'Download the Nectar app, open it, and follow the sign-up prompt. Enter your name, email, phone number, and password to get started immediately.'],
+            ['id' => 2, 'question' => 'How do I track my order?', 'answer' => 'Go to the Orders tab, select your active order, and click Track Order to view real-time delivery status updates.'],
+            ['id' => 3, 'question' => 'What payment methods are supported?', 'answer' => 'We support Paystack, Flutterwave, Stripe, Card payments, and direct Bank Transfer.'],
+            ['id' => 4, 'question' => 'Can I cancel an order after placing it?', 'answer' => 'You can cancel your order while it is still in Pending status from the Order Details page. Once food preparation begins, orders cannot be cancelled.'],
+            ['id' => 5, 'question' => 'How do I apply a discount coupon?', 'answer' => 'During checkout on the order confirmation screen, enter your promo coupon code into the coupon field and click Apply.'],
+            ['id' => 6, 'question' => 'How long does delivery take?', 'answer' => 'Delivery typically takes between 25 to 45 minutes depending on restaurant preparation time, distance, and traffic conditions.']
+        ];
+    }
+
+    protected static function getDefaultPartnerFaqs(): array
+    {
+        return [
+            ['id' => 1, 'question' => 'How do I add a new menu item?', 'answer' => 'Go to the "My Menu" tab and tap the "+" floating action button. Fill in the dish title, category, regular price, discount price, variants, addons, and upload an appetising food photo.'],
+            ['id' => 2, 'question' => 'How do I request a wallet payout / withdrawal?', 'answer' => 'Navigate to Profile > My Wallet. Check your available balance and tap "Withdraw Request". Enter your withdrawal amount and bank details to submit for admin approval.'],
+            ['id' => 3, 'question' => 'Can I manage addons and extra toppings?', 'answer' => 'Yes! Open Profile > Addon Manage. You can create standalone addons like extra cheese, dipping sauces, or sides, and associate them with any menu item.'],
+            ['id' => 4, 'question' => 'How do I update opening hours & schedules?', 'answer' => 'Open Profile > Restaurant Info. Configure operating hours, minimum processing times, delivery radiuses, and pickup/delivery options.'],
+            ['id' => 5, 'question' => 'How do I advance the status of an active order?', 'answer' => 'In the Orders tab or Order Details page, move order status to Confirmed, Cooking, or On The Way to notify the customer and assign delivery couriers.']
+        ];
     }
 
     public function getAppPromotionalBanners(): JsonResponse

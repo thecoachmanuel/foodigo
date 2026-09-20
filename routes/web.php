@@ -283,6 +283,7 @@ Route::group(['as'=> 'admin.', 'prefix' => 'admin'],function (){
 
         Route::controller(\App\Http\Controllers\Admin\FaqController::class)->group(function () {
             Route::get('faq', 'index')->name('faq');
+            Route::get('partner-faq', 'partnerIndex')->name('partner.faq');
             Route::post('faq-store', 'store')->name('faq.store');
             Route::post('faq-update/{id}', 'update')->name('faq.update');
             Route::delete('faq-delete/{id}', 'destroy')->name('faq.delete');

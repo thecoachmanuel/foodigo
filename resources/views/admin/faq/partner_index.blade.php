@@ -1,6 +1,6 @@
 @extends('admin.master_layout')
 @section('title')
-    <title>{{ __('translate.Manage FAQs') }}</title>
+    <title>{{ __('translate.Partner FAQs (Restaurants)') }}</title>
 @endsection
 
 @section('body-header')
@@ -28,7 +28,7 @@
                                                         <path d="M8 1V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                                                         <path d="M1 8H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                                                     </svg>
-                                                </span> {{ __('translate.Create New FAQ') }}
+                                                </span> {{ __('translate.Create Partner FAQ') }}
                                             </a>
                                         </div>
                                     </div>
@@ -87,16 +87,16 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ __('translate.Create New FAQ') }}</h5>
+                    <h5 class="modal-title">{{ __('translate.Create Partner FAQ') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('admin.faq.store') }}" method="POST">
-                    <input type="hidden" name="type" value="user">
+                    <input type="hidden" name="type" value="partner">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group mb-3">
                             <label class="form-label">{{ __('translate.Question') }} <span class="text-danger">*</span></label>
-                            <input type="text" name="question" class="form-control" placeholder="e.g. How to track my order?" required>
+                            <input type="text" name="question" class="form-control" placeholder="e.g. How do I request a wallet payout?" required>
                         </div>
                         <div class="form-group mb-3">
                             <label class="form-label">{{ __('translate.Answer') }} <span class="text-danger">*</span></label>
@@ -116,12 +116,12 @@
         </div>
     </div>
 
-    <!-- Edit FAQ Modal -->
+    <!-- Edit Partner FAQ Modal -->
     <div class="modal fade" id="editFaqModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ __('translate.Edit FAQ') }}</h5>
+                    <h5 class="modal-title">{{ __('translate.Edit Partner FAQ') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="editFaqForm" action="" method="POST">

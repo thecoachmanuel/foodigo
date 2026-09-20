@@ -489,9 +489,12 @@
                         <li><a href="{{ route('admin.contact-us', ['lang_code' => admin_lang()]) }}" class="{{ Route::is('admin.contact-us') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Contact Us') }}</span></span></a></li>
-                        <li><a href="{{ route('admin.faq') }}" class="{{ Route::is('admin.faq*') ? 'active' : '' }}"><span
+                        <li><a href="{{ route('admin.faq') }}" class="{{ Route::is('admin.faq') ? 'active' : '' }}"><span
                                     class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Manage FAQs') }}</span></span></a></li>
+                        <li><a href="{{ route('admin.partner.faq') }}" class="{{ Route::is('admin.partner.faq*') ? 'active' : '' }}"><span
+                                    class="menu-bar__text"><span
+                                        class="menu-bar__name">{{ __('translate.Partner FAQs') }}</span></span></a></li>
 
                         <li><a href="{{ route('admin.login-image') }}" class="{{ Route::is('admin.login-image') ? 'active' : '' }}"><span class="menu-bar__text"><span
                                         class="menu-bar__name">{{ __('translate.Login Page') }}</span></span></a></li>
