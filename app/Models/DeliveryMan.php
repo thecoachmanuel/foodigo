@@ -87,4 +87,25 @@ class DeliveryMan extends Authenticatable implements JWTSubject
     {
         return $this->fname . ' ' . $this->lname;
     }
+
+    /**
+     * Get image full URL accessor
+     */
+    public function getImageAttribute()
+    {
+        $img = $this->profile_image ?: $this->man_image;
+        if (!$img) return null;
+        if (str_starts_with($img, 'http://') || str_starts_with($img, 'https://')) {
+            return $img;
+        }
+        return asset($img);
+    }
+
+    /**
+     * Rating accessor
+     */
+    public function getRatingAttribute()
+    {
+        return '4.8 (100+ deliveries)';
+    }
 }

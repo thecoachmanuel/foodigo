@@ -231,6 +231,21 @@ class OrderController extends Controller
         $order->delivery_man_id = $request->delivery_man_id;
         if ($request->delivery_man_id) {
             $order->order_request = 0;
+            if ($order->user_id) {
+                try {
+                    $dm = \App\Models\DeliveryMan::find($request->delivery_man_id);
+                    $riderName = $dm ? trim(($dm->fname ?? '') . ' ' . ($dm->lname ?? '')) : 'A delivery partner';
+                    \App\Models\AppNotification::create([
+                        'user_id' => $order->user_id,
+                        'user_type' => 'user',
+                        'title' => 'Delivery Partner Assigned!',
+                        'message' => $riderName . ' has been assigned to your order #' . ($order->order_id ?? $order->id) . '.',
+                        'order_id' => $order->id,
+                        'type' => 'order',
+                        'is_read' => 0
+                    ]);
+                } catch (\Exception $e) {}
+            }
         }
         $order->save();
 

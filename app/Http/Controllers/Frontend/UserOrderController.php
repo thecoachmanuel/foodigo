@@ -53,7 +53,9 @@ class UserOrderController extends Controller
             'address',
             'items.products.translate_product',
             'items.products.restaurant',
-            'reviews'
+            'reviews',
+            'deliveryman',
+            'deliveryMan'
         ]);
 
         if ($user) {

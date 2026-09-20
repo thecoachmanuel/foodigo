@@ -653,7 +653,7 @@ class HomeController extends BaseController
                         });
                     });
                 })
-                ->paginate(6)
+                ->paginate(max(6, min(200, (int)$request->input('per_page', 50))))
                 ->withQueryString()
                 ->onEachSide(2);
 

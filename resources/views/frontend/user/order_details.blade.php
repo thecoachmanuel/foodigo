@@ -479,6 +479,48 @@
                                 @endif
                             </ul>
 
+                            @if($order->order_type == 'delivery' || empty($order->order_type))
+                                <div class="card p-3 mb-4 rounded-3 shadow-sm border-0" style="background: #ffffff; border: 1.5px solid #e2e8f0 !important;">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                        <div class="d-flex align-items-center gap-3">
+                                            @php
+                                                $dm = $order->deliveryman ?? $order->deliveryMan;
+                                                $dmImg = $dm ? ($dm->profile_image ?: $dm->man_image) : null;
+                                                $dmImgUrl = $dmImg ? ((str_starts_with($dmImg, 'http://') || str_starts_with($dmImg, 'https://')) ? $dmImg : asset($dmImg)) : asset('frontend/images/default-avatar.png');
+                                            @endphp
+                                            @if($dm)
+                                                <img src="{{ $dmImgUrl }}" alt="Delivery Partner" class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid #e2e8f0;">
+                                                <div>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <h6 class="m-0 fw-bold" style="color: #0f172a; font-size: 15px;">{{ trim(($dm->fname ?? '') . ' ' . ($dm->lname ?? '')) }}</h6>
+                                                        <span class="badge bg-success" style="font-size: 11px;">{{ __('translate.Assigned Partner') }}</span>
+                                                    </div>
+                                                    <div class="text-muted small mt-1">
+                                                        <i class="fa-solid fa-phone me-1 text-primary"></i> <a href="tel:{{ $dm->phone }}" class="text-muted text-decoration-none">{{ $dm->phone }}</a>
+                                                        @if(!empty($dm->vehicle_number))
+                                                            <span class="mx-2">•</span> <i class="fa-solid fa-motorcycle me-1 text-primary"></i> {{ $dm->vehicle_number }}
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-light" style="width: 48px; height: 48px; border: 1.5px dashed #94a3b8;">
+                                                    <i class="fa-solid fa-motorcycle text-muted fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="m-0 fw-bold text-secondary" style="font-size: 15px;">{{ __('translate.Assigning Delivery Partner') }}</h6>
+                                                    <small class="text-muted">{{ __('translate.Our nearest driver will be assigned shortly once your order is ready.') }}</small>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        @if($dm && !empty($dm->phone))
+                                            <a href="tel:{{ $dm->phone }}" class="btn btn-sm btn-primary rounded-pill px-3 py-1">
+                                                <i class="fa-solid fa-phone me-1"></i> {{ __('translate.Call Driver') }}
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+
                             @if($destLat != 0 || $origLat != 0)
                                 <div class="card p-3 mb-4 rounded-3 shadow-sm border-0" style="background: #ffffff; border: 1.5px solid #e2e8f0 !important;">
                                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
