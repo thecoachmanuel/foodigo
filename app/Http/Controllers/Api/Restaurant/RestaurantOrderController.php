@@ -54,6 +54,22 @@ class RestaurantOrderController extends BaseController
             $order->order_status = $request->order_status;
             $order->save();
 
+            // Instantly generate in-app notification for customer
+            try {
+                $statusLabels = [
+                    1 => "Pending",
+                    2 => "Confirmed",
+                    3 => "Processing",
+                    4 => "Food on the way",
+                    5 => "Delivered",
+                    6 => "Canceled",
+                ];
+                $label = $statusLabels[(int)$order->order_status] ?? "Updated";
+                \App\Models\AppNotification::createOrderStatusNotification($order, (int)$order->order_status, $label);
+            } catch (\Throwable $ex) {
+                \Illuminate\Support\Facades\Log::info("AppNotification restaurant API notice: " . $ex->getMessage());
+            }
+
             $data = [
                 'order' => $order
             ];

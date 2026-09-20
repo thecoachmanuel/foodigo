@@ -79,13 +79,14 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/splash-screen', [HomeController::class, 'websiteSetup']);
     });
 
-    // In-App Notifications & Live Polling (Customers & Restaurants)
+    // In-App Notifications & Live Polling (Supports both Authenticated users and Guests)
     Route::group(['prefix' => 'notifications'], function () {
         Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
         Route::get('/unread-count', [\App\Http\Controllers\Api\NotificationController::class, 'unreadCount']);
         Route::get('/live-poll', [\App\Http\Controllers\Api\NotificationController::class, 'livePoll']);
         Route::post('/mark-as-read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
     });
+
 
     // Restaurants
     Route::group(['prefix' => 'restaurants'], function () {
@@ -173,6 +174,15 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::post('/bank', [PaymentController::class, 'api_bank_payment']);
         Route::post('/razorpay', [PaymentController::class, 'razorpay_webview']);
     });
+
+    // In-App Notifications & Live Polling
+    // Protected with auth:sanctum so the user identity is known (target_type='user', target_id=user_id)
+    Route::group(['prefix' => 'notifications'], function () {
+        Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+        Route::get('/unread-count', [\App\Http\Controllers\Api\NotificationController::class, 'unreadCount']);
+        Route::get('/live-poll', [\App\Http\Controllers\Api\NotificationController::class, 'livePoll']);
+        Route::post('/mark-as-read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
+    });
 });
 
 // ===============================
@@ -245,6 +255,14 @@ Route::group(['prefix' => 'v1/restaurant', 'middleware' => 'auth:sanctum'], func
         Route::get('/my-withdraw', [RestaurantWithdrawController::class, 'withdrawHistory']);
         Route::get('/create', [RestaurantWithdrawController::class, 'create']);
         Route::post('/store', [RestaurantWithdrawController::class, 'store']);
+    });
+
+    // In-App Notifications & Live Polling for Restaurants
+    Route::group(['prefix' => 'notifications'], function () {
+        Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+        Route::get('/unread-count', [\App\Http\Controllers\Api\NotificationController::class, 'unreadCount']);
+        Route::get('/live-poll', [\App\Http\Controllers\Api\NotificationController::class, 'livePoll']);
+        Route::post('/mark-as-read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
     });
 });
 

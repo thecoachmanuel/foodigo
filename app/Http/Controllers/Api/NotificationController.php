@@ -10,43 +10,39 @@ use Illuminate\Support\Facades\Auth;
 class NotificationController extends Controller
 {
     /**
-     * Resolve the current viewer (user or restaurant)
+     * Resolve the current viewer (user or restaurant) from sanctum token.
+     * Routes are now in auth:sanctum protected groups so $user is always set.
      */
-    private function resolveTarget(Request $request)
+    private function resolveTarget(Request $request): array
     {
+        $audience = $request->query('audience', $request->input('audience', 'users'));
         $user = Auth::guard('sanctum')->user();
+
         if ($user) {
-            // Check if this is a restaurant owner/manager
-            if (isset($user->restaurant_id) && !empty($user->restaurant_id)) {
-                return ['type' => 'restaurant', 'id' => $user->restaurant_id];
+            $class = get_class($user);
+            // Restaurant model authenticated via sanctum
+            if (str_contains($class, 'Restaurant')) {
+                return ['type' => 'restaurant', 'id' => (int)$user->id];
             }
-            // Check if model is Restaurant
-            if (get_class($user) === 'Modules\Restaurant\Entities\Restaurant' || get_class($user) === 'App\Models\Restaurant') {
-                return ['type' => 'restaurant', 'id' => $user->id];
-            }
-            return ['type' => 'user', 'id' => $user->id];
+            // Regular user
+            return ['type' => 'user', 'id' => (int)$user->id];
         }
 
-        // Allow fallback query params if passed explicitly (e.g. restaurant_id or user_id)
-        if ($request->filled('restaurant_id')) {
-            return ['type' => 'restaurant', 'id' => (int)$request->restaurant_id];
-        }
-        if ($request->filled('user_id')) {
-            return ['type' => 'user', 'id' => (int)$request->user_id];
+        // Fallback for unauthenticated / guest polling
+        if ($audience === 'restaurants') {
+            return ['type' => 'restaurant', 'id' => null];
         }
 
-        // Default to public audience
-        $audience = $request->query('audience', 'users');
-        return ['type' => $audience === 'restaurants' ? 'restaurant' : 'user', 'id' => null];
+        return ['type' => 'user', 'id' => null];
     }
 
     /**
-     * Get paginated notifications list for user or restaurant
+     * Get paginated notifications list for user or restaurant.
      */
     public function index(Request $request)
     {
         $target = $this->resolveTarget($request);
-        $type = $request->query('type'); // 'all', 'order_status', 'promo', 'broadcast'
+        $type   = $request->query('type'); // all, order_status, promo
 
         $query = AppNotification::latest();
 
@@ -64,26 +60,25 @@ class NotificationController extends Controller
             }
         }
 
-        $notifications = $query->paginate($request->query('per_page', 20));
+        $notifications = $query->paginate((int)$request->query('per_page', 20));
 
-        // Calculate unread count
+        // Unread count
         $unreadQuery = AppNotification::where('is_read', false);
         if ($target['type'] === 'restaurant') {
             $unreadQuery->forRestaurant($target['id']);
         } else {
             $unreadQuery->forUser($target['id']);
         }
-        $unreadCount = $unreadQuery->count();
 
         return response()->json([
             'status'        => 'success',
-            'unread_count'  => $unreadCount,
+            'unread_count'  => $unreadQuery->count(),
             'notifications' => $notifications,
         ]);
     }
 
     /**
-     * Get lightweight unread count for badge indicators
+     * Lightweight unread count for badge indicators.
      */
     public function unreadCount(Request $request)
     {
@@ -103,7 +98,8 @@ class NotificationController extends Controller
     }
 
     /**
-     * Live Polling endpoint: returns new notifications created after a given ID
+     * Live Polling: returns new notifications created after a given ID.
+     * Used by the Expo app poller every 8 seconds to check for new events.
      */
     public function livePoll(Request $request)
     {
@@ -119,23 +115,26 @@ class NotificationController extends Controller
         }
 
         $newNotifications = $query->take(10)->get();
+        $latestId = $newNotifications->isNotEmpty()
+            ? $newNotifications->first()->id
+            : $lastId;
 
         return response()->json([
             'status'            => 'success',
             'has_new'           => $newNotifications->isNotEmpty(),
             'new_count'         => $newNotifications->count(),
             'new_notifications' => $newNotifications,
-            'latest_id'         => $newNotifications->isNotEmpty() ? $newNotifications->first()->id : $lastId,
+            'latest_id'         => $latestId,
         ]);
     }
 
     /**
-     * Mark single, multiple, or all notifications as read
+     * Mark single, multiple, or all notifications as read.
      */
     public function markAsRead(Request $request)
     {
         $target = $this->resolveTarget($request);
-        $id = $request->input('id');
+        $id     = $request->input('id');
 
         if ($id) {
             $notif = AppNotification::find($id);
@@ -144,14 +143,13 @@ class NotificationController extends Controller
                 $notif->save();
             }
         } else {
-            // Mark all as read for this target
-            $query = AppNotification::where('is_read', false);
+            $q = AppNotification::where('is_read', false);
             if ($target['type'] === 'restaurant') {
-                $query->forRestaurant($target['id']);
+                $q->forRestaurant($target['id']);
             } else {
-                $query->forUser($target['id']);
+                $q->forUser($target['id']);
             }
-            $query->update(['is_read' => true]);
+            $q->update(['is_read' => true]);
         }
 
         return response()->json([
