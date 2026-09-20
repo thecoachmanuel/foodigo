@@ -81,6 +81,9 @@
                                                     <td class="crancy-table__column-2 crancy-table__data-2">
                                                         <h4 class="crancy-table__product-title">
                                                             {{ $order->created_at->format('F j, Y') }}
+                                                                <div class="text-capitalize opacity-7" style="font-size: 11px; margin-top: 3px;">
+                                                                    <i class="fa fa-clock-o"></i> {{ $order->created_at->format('g:i A') }}
+                                                                </div>
                                                         @php
                                                             $itemAddr = is_string($order->delivery_address) ? json_decode($order->delivery_address) : (object)($order->delivery_address ?? []);
                                                             $orderNoteText = $order->order_note ?? $itemAddr?->delivery_instructions ?? $itemAddr?->additional_notes ?? null;

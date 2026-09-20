@@ -79,7 +79,10 @@
                                                 </td>
 
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
-                                                    <h4 class="crancy-table__product-title">{{$order->created_at->format('F j, Y') }}</h4>
+                                                    <h4 class="crancy-table__product-title">{{$order->created_at->format('F j, Y') }}
+                                                            <div class="text-capitalize opacity-7" style="font-size: 11px; margin-top: 3px;">
+                                                                <i class="fa fa-clock-o"></i> {{$order->created_at->format('g:i A') }}
+                                                            </div></h4>
                                                 </td>
 
                                                 <td class="crancy-table__column-2 crancy-table__data-2">

@@ -148,6 +148,7 @@
                                     <h2>{{__('translate.Order Information')}}:</h2>
                                     <ul class="zum_invoice_lixt">
                                         <li>{{__('translate.Date')}} : <span>{{$order->created_at->format('F j, Y') }}</span></li>
+                                        <li>{{__('translate.Time')}} : <span style="font-weight: 600;">{{$order->created_at->format('g:i A') }}</span></li>
 
                                         <li>
                                             {{__('translate.Shipping')}} : <span> {{__('translate.Fixed Shipping')}}</span>
