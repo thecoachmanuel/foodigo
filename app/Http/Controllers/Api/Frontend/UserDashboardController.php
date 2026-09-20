@@ -113,6 +113,25 @@ class UserDashboardController extends BaseController
         if ($id === "testdebug") {
             return response()->json(["success" => true, "message" => "getOrderDetails is reachable!"]);
         }
+        if ($id === "testdb") {
+            try {
+                $count = \Illuminate\Support\Facades\DB::table('orders')->count();
+                $first = \Illuminate\Support\Facades\DB::table('orders')->first();
+                return response()->json(["success" => true, "count" => $count, "first" => $first]);
+            } catch (\Throwable $e) {
+                return response()->json(["success" => false, "error" => $e->getMessage()]);
+            }
+        }
+        if ($id === "testmodel") {
+            try {
+                $order = Order::withoutEvents(function() {
+                    return Order::first();
+                });
+                return response()->json(["success" => true, "order_id" => $order ? $order->id : null]);
+            } catch (\Throwable $e) {
+                return response()->json(["success" => false, "error" => $e->getMessage(), "file" => $e->getFile() . ':' . $e->getLine()]);
+            }
+        }
         if ($id === "step1") {
             try {
                 $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
