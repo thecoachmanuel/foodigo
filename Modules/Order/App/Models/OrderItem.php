@@ -39,7 +39,11 @@ class OrderItem extends Model
 
     public function getProductNameAttribute()
     {
-        return $this->products?->name;
+        try {
+            return $this->products?->name;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
     
     /**
@@ -81,7 +85,7 @@ class OrderItem extends Model
                 });
 
             return $addons;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return [];
         }
     }

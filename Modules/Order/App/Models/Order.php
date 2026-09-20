@@ -25,14 +25,18 @@ class Order extends Model
 
     public function getSpecialInstructionsAttribute()
     {
-        if (!empty($this->order_note)) {
-            return $this->order_note;
+        try {
+            if (!empty($this->order_note)) {
+                return $this->order_note;
+            }
+            if (!empty($this->delivery_address)) {
+                $addr = is_string($this->delivery_address) ? json_decode($this->delivery_address, true) : (array) $this->delivery_address;
+                return $addr['delivery_instructions'] ?? $addr['additional_notes'] ?? null;
+            }
+            return null;
+        } catch (\Throwable $e) {
+            return null;
         }
-        if (!empty($this->delivery_address)) {
-            $addr = is_string($this->delivery_address) ? json_decode($this->delivery_address, true) : (array) $this->delivery_address;
-            return $addr['delivery_instructions'] ?? $addr['additional_notes'] ?? null;
-        }
-        return null;
     }
 
     public function restaurant(): BelongsTo
@@ -61,38 +65,37 @@ class Order extends Model
         return $this->belongsTo(DeliveryMan::class, 'delivery_man_id', 'id');
     }
 
-    public function deliveryMan(): BelongsTo
-    {
-        return $this->belongsTo(DeliveryMan::class, 'delivery_man_id', 'id');
-    }
-
     public function getDeliveryManAttribute()
     {
-        $man = $this->relationLoaded('deliveryMan') 
-            ? $this->getRelation('deliveryMan') 
-            : ($this->relationLoaded('deliveryman') ? $this->getRelation('deliveryman') : ($this->delivery_man_id ? $this->deliveryman()->first() : null));
+        try {
+            $man = $this->relationLoaded('deliveryman') 
+                ? $this->getRelation('deliveryman') 
+                : ($this->delivery_man_id ? $this->deliveryman()->first() : null);
 
-        if (!$man) return null;
+            if (!$man) return null;
 
-        $img = $man->profile_image ?: $man->man_image;
-        $imageUrl = null;
-        if ($img) {
-            $imageUrl = (str_starts_with($img, 'http://') || str_starts_with($img, 'https://')) ? $img : asset($img);
+            $img = $man->profile_image ?: $man->man_image;
+            $imageUrl = null;
+            if ($img) {
+                $imageUrl = (str_starts_with($img, 'http://') || str_starts_with($img, 'https://')) ? $img : asset($img);
+            }
+
+            return [
+                'id' => $man->id,
+                'name' => trim(($man->fname ?? '') . ' ' . ($man->lname ?? '')),
+                'fname' => $man->fname,
+                'lname' => $man->lname,
+                'phone' => $man->phone,
+                'email' => $man->email,
+                'image' => $imageUrl,
+                'vehicle_number' => $man->vehicle_number ?? null,
+                'rating' => '4.8 (100+ deliveries)',
+                'latitude' => $man->latitude,
+                'longitude' => $man->longitude,
+            ];
+        } catch (\Throwable $e) {
+            return null;
         }
-
-        return [
-            'id' => $man->id,
-            'name' => trim(($man->fname ?? '') . ' ' . ($man->lname ?? '')),
-            'fname' => $man->fname,
-            'lname' => $man->lname,
-            'phone' => $man->phone,
-            'email' => $man->email,
-            'image' => $imageUrl,
-            'vehicle_number' => $man->vehicle_number ?? null,
-            'rating' => '4.8 (100+ deliveries)',
-            'latitude' => $man->latitude,
-            'longitude' => $man->longitude,
-        ];
     }
 
     public function reviews(): HasMany

@@ -110,122 +110,6 @@ class UserDashboardController extends BaseController
      */
     public function getOrderDetails(Request $request, $id): JsonResponse
     {
-        if ($id === "checkclass") {
-            $classExists = class_exists('\Modules\Order\App\Models\Order');
-            $dbConnected = false;
-            $orderCount = null;
-            $dbError = null;
-            try {
-                $orderCount = \Illuminate\Support\Facades\DB::table('orders')->count();
-                $dbConnected = true;
-            } catch (\Throwable $e) {
-                $dbError = $e->getMessage();
-            }
-
-            $orderModelError = null;
-            $firstOrderRaw = null;
-            try {
-                $firstOrderRaw = \Illuminate\Support\Facades\DB::table('orders')->select('id', 'order_status', 'grand_total')->latest('id')->first();
-            } catch (\Throwable $e) {
-                $orderModelError = $e->getMessage();
-            }
-
-            $eloquentError = null;
-            $eloquentFirst = null;
-            try {
-                $eloquentFirst = \Modules\Order\App\Models\Order::select('id', 'order_status', 'grand_total')->latest('id')->first();
-            } catch (\Throwable $e) {
-                $eloquentError = $e->getMessage();
-            }
-
-            return response()->json([
-                'success' => true,
-                'class_exists' => $classExists,
-                'db_connected' => $dbConnected,
-                'order_count' => $orderCount,
-                'db_error' => $dbError,
-                'first_raw' => $firstOrderRaw,
-                'eloquent_first_id' => $eloquentFirst ? $eloquentFirst->id : null,
-                'eloquent_error' => $eloquentError,
-            ]);
-        }
-        try {
-                $count = \Illuminate\Support\Facades\DB::table('orders')->count();
-                return response("Orders count is: " . $count, 200, ['Content-Type' => 'text/plain']);
-            } catch (\Throwable $e) {
-                return response("DB Error: " . $e->getMessage(), 200, ['Content-Type' => 'text/plain']);
-            }
-        }
-        if ($id === "testdebug") {
-            return response()->json(["success" => true, "message" => "getOrderDetails is reachable!"]);
-        }
-        if ($id === "testdb") {
-            try {
-                $count = \Illuminate\Support\Facades\DB::table('orders')->count();
-                $first = \Illuminate\Support\Facades\DB::table('orders')->first();
-                return response()->json(["success" => true, "count" => $count, "first" => $first]);
-            } catch (\Throwable $e) {
-                return response()->json(["success" => false, "error" => $e->getMessage()]);
-            }
-        }
-        if ($id === "testmodel") {
-            try {
-                $order = Order::withoutEvents(function() {
-                    return Order::first();
-                });
-                return response()->json(["success" => true, "order_id" => $order ? $order->id : null]);
-            } catch (\Throwable $e) {
-                return response()->json(["success" => false, "error" => $e->getMessage(), "file" => $e->getFile() . ':' . $e->getLine()]);
-            }
-        }
-        if ($id === "step1") {
-            try {
-                $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
-                return response()->json(["step" => 1, "user" => $user ? $user->id : null]);
-            } catch (\Throwable $e) {
-                return response()->json(["step" => 1, "error" => $e->getMessage()]);
-            }
-        }
-        if ($id === "step2") {
-            try {
-                $order = Order::where('id', 999999)->first();
-                return response()->json(["step" => 2, "order" => $order]);
-            } catch (\Throwable $e) {
-                return response()->json(["step" => 2, "error" => $e->getMessage()]);
-            }
-        }
-        if ($id === "step3") {
-            try {
-                $order = Order::with(['restaurant'])->where('id', 999999)->first();
-                return response()->json(["step" => 3, "order" => $order]);
-            } catch (\Throwable $e) {
-                return response()->json(["step" => 3, "error" => $e->getMessage()]);
-            }
-        }
-        if ($id === "step4") {
-            try {
-                $order = Order::with(['items'])->where('id', 999999)->first();
-                return response()->json(["step" => 4, "order" => $order]);
-            } catch (\Throwable $e) {
-                return response()->json(["step" => 4, "error" => $e->getMessage()]);
-            }
-        }
-        if ($id === "step5") {
-            try {
-                $order = Order::with(['deliveryman'])->where('id', 999999)->first();
-                return response()->json(["step" => 5, "order" => $order]);
-            } catch (\Throwable $e) {
-                return response()->json(["step" => 5, "error" => $e->getMessage()]);
-            }
-        }
-        if ($id === "step6") {
-            try {
-                $firstOrder = Order::latest()->first();
-                return response()->json(["step" => 6, "firstOrder_id" => $firstOrder ? $firstOrder->id : null]);
-            } catch (\Throwable $e) {
-                return response()->json(["step" => 6, "error" => $e->getMessage()]);
-            }
-        }
         try {
             $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
 
@@ -339,7 +223,7 @@ class UserDashboardController extends BaseController
 
             return $this->sendResponse(['order' => $orderArray], 'Order details retrieved successfully');
         } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage(), 'file' => $e->getFile() . ':' . $e->getLine()], 200);
+            return $this->sendError('Could not retrieve order: ' . $e->getMessage(), [], 500);
         }
     }
 
