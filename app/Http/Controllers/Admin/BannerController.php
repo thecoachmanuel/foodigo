@@ -117,10 +117,10 @@ class BannerController extends Controller
     public function promotional_banner_update(Request $request) {
 
         $request->validate([
-            'promotional_banner_one_url' => 'required',
-            'promotional_banner_two_url' => 'required',
-            'promotional_banner_restaurant_url' => 'required',
-            'blog_banner_two_link' => 'required',
+            'promotional_banner_one_url' => 'nullable|string',
+            'promotional_banner_two_url' => 'nullable|string',
+            'promotional_banner_restaurant_url' => 'nullable|string',
+            'blog_banner_two_link' => 'nullable|string',
         ]);
 
         $homepage = Homepage::first();

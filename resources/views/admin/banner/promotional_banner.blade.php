@@ -32,7 +32,7 @@
                                                         <div class="crancy-product-card__upload crancy-product-card__upload--border">
                                                             <input type="file" class="btn-check" name="promotional_banner_one" id="input-img1" autocomplete="off" onchange="previewImage(event)">
                                                             <label class="crancy-image-video-upload__label" for="input-img1">
-                                                                <img id="view_img10" src="{{ asset($homepage->promotional_banner_one) }}">
+                                                                <img id="view_img10" src="{{ $homepage->promotional_banner_one ? asset($homepage->promotional_banner_one) : '' }}" onerror="this.src=''" style="max-height:140px;object-fit:cover;border-radius:8px;{{ $homepage->promotional_banner_one ? '' : 'display:none;' }}">
                                                                 <h4 class="crancy-image-video-upload__title">{{ __('translate.Click here to') }} <span class="crancy-primary-color">{{ __('translate.Choose File') }}</span> {{ __('translate.and upload') }} </h4>
                                                             </label>
                                                         </div>
@@ -69,7 +69,7 @@
                                                         <div class="crancy-product-card__upload crancy-product-card__upload--border">
                                                             <input type="file" class="btn-check" name="promotional_banner_two" id="input-img2" autocomplete="off" onchange="previewImage2(event)">
                                                             <label class="crancy-image-video-upload__label" for="input-img2">
-                                                                <img id="view_img12" src="{{ asset($homepage->promotional_banner_two) }}">
+                                                                <img id="view_img12" src="{{ $homepage->promotional_banner_two ? asset($homepage->promotional_banner_two) : '' }}" onerror="this.src=''" style="max-height:140px;object-fit:cover;border-radius:8px;{{ $homepage->promotional_banner_two ? '' : 'display:none;' }}">
                                                                 <h4 class="crancy-image-video-upload__title">{{ __('translate.Click here to') }} <span class="crancy-primary-color">{{ __('translate.Choose File') }}</span> {{ __('translate.and upload') }} </h4>
                                                             </label>
                                                         </div>
@@ -106,7 +106,7 @@
                                                         <div class="crancy-product-card__upload crancy-product-card__upload--border">
                                                             <input type="file" class="btn-check" name="promotional_banner_restaurant" id="input-img3" autocomplete="off" onchange="previewImage3(event)">
                                                             <label class="crancy-image-video-upload__label" for="input-img3">
-                                                                <img id="view9" src="{{ asset($homepage->promotional_banner_restaurant) }}">
+                                                                <img id="view9" src="{{ $homepage->promotional_banner_restaurant ? asset($homepage->promotional_banner_restaurant) : '' }}" onerror="this.src=''" style="max-height:140px;object-fit:cover;border-radius:8px;{{ $homepage->promotional_banner_restaurant ? '' : 'display:none;' }}">
                                                                 <h4 class="crancy-image-video-upload__title">{{ __('translate.Click here to') }} <span class="crancy-primary-color">{{ __('translate.Choose File') }}</span> {{ __('translate.and upload') }} </h4>
                                                             </label>
                                                         </div>
@@ -141,7 +141,7 @@
                                                         <div class="crancy-product-card__upload crancy-product-card__upload--border">
                                                             <input type="file" class="btn-check" name="blog_banner_one" id="input-img4" autocomplete="off" onchange="previewImage4(event)">
                                                             <label class="crancy-image-video-upload__label" for="input-img4">
-                                                                <img id="view4" src="{{ asset($homepage->blog_banner_one) }}">
+                                                                <img id="view4" src="{{ $homepage->blog_banner_one ? asset($homepage->blog_banner_one) : '' }}" onerror="this.src=''" style="max-height:140px;object-fit:cover;border-radius:8px;{{ $homepage->blog_banner_one ? '' : 'display:none;' }}">
                                                                 <h4 class="crancy-image-video-upload__title">{{ __('translate.Click here to') }} <span class="crancy-primary-color">{{ __('translate.Choose File') }}</span> {{ __('translate.and upload') }} </h4>
                                                             </label>
                                                         </div>
@@ -175,7 +175,7 @@
                                                         <div class="crancy-product-card__upload crancy-product-card__upload--border">
                                                             <input type="file" class="btn-check" name="blog_banner_two" id="input-img5" autocomplete="off" onchange="previewImage5(event)">
                                                             <label class="crancy-image-video-upload__label" for="input-img5">
-                                                                <img id="view5" src="{{ asset($homepage->blog_banner_two) }}">
+                                                                <img id="view5" src="{{ $homepage->blog_banner_two ? asset($homepage->blog_banner_two) : '' }}" onerror="this.src=''" style="max-height:140px;object-fit:cover;border-radius:8px;{{ $homepage->blog_banner_two ? '' : 'display:none;' }}">
                                                                 <h4 class="crancy-image-video-upload__title">{{ __('translate.Click here to') }} <span class="crancy-primary-color">{{ __('translate.Choose File') }}</span> {{ __('translate.and upload') }} </h4>
                                                             </label>
                                                         </div>
