@@ -113,35 +113,27 @@ class UserDashboardController extends BaseController
     /**
      * Get single order details
      */
-    public function getOrderDetails(Request $request, $orderId): JsonResponse
+    public function getOrderDetails(Request $request, $id): JsonResponse
     {
         try {
             $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user() ?: $request->user();
 
-            // Extract numeric order ID if any prefix exists (e.g. #12 or order-12)
-            $cleanId = preg_replace('/[^0-9]/', '', (string)$orderId);
-            if (empty($cleanId)) {
-                $cleanId = $orderId;
-            }
+            $cleanId = preg_replace('/[^0-9]/', '', (string)$id) ?: $id;
 
             $order = Order::with([
                 'restaurant',
                 'items.product',
                 'items.products',
                 'deliveryman',
-                'user',
-                'address',
             ])->where('id', $cleanId)->first();
 
-            if (!$order && !empty($orderId)) {
+            if (!$order && !empty($id)) {
                 $order = Order::with([
                     'restaurant',
                     'items.product',
                     'items.products',
                     'deliveryman',
-                    'user',
-                    'address',
-                ])->where('tnx_info', $orderId)->first();
+                ])->where('tnx_info', $id)->first();
             }
 
             if (!$order) {
@@ -150,7 +142,7 @@ class UserDashboardController extends BaseController
 
             return $this->sendResponse($order, 'Order details retrieved successfully');
         } catch (\Throwable $e) {
-            return $this->sendError('Something went wrong: ' . $e->getMessage(), [], 500);
+            return $this->sendError('Could not retrieve order: ' . $e->getMessage(), [], 500);
         }
     }
 
