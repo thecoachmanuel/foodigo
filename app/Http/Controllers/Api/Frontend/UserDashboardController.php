@@ -171,8 +171,55 @@ class UserDashboardController extends BaseController
                 ];
             });
 
-            $orderArray = $order->toArray();
-            $orderArray['items'] = $items->toArray();
+            // Build response array manually to avoid triggering lazy loads via $appends on Order/OrderItem
+            $orderArray = [
+                'id'               => $order->id,
+                'order_status'     => $order->order_status,
+                'payment_status'   => $order->payment_status,
+                'payment_method'   => $order->payment_method,
+                'grand_total'      => $order->grand_total,
+                'total_amount'     => $order->grand_total,
+                'sub_total'        => $order->sub_total,
+                'delivery_charge'  => $order->delivery_charge,
+                'delivery_fee'     => $order->delivery_charge,
+                'discount'         => $order->discount,
+                'coupon_discount'  => $order->coupon_discount ?? $order->discount,
+                'order_note'       => $order->order_note,
+                'delivery_address' => $order->delivery_address,
+                'created_at'       => $order->created_at,
+                'updated_at'       => $order->updated_at,
+                'user_id'          => $order->user_id,
+                'restaurant_id'    => $order->restaurant_id,
+                'delivery_man_id'  => $order->delivery_man_id,
+                'tnx_info'         => $order->tnx_info,
+                'is_guest'         => $order->is_guest,
+                'special_instructions' => $order->order_note,
+                'restaurant'       => $order->restaurant ? [
+                    'id'          => $order->restaurant->id,
+                    'restaurant_name' => $order->restaurant->restaurant_name ?? $order->restaurant->name,
+                    'name'        => $order->restaurant->restaurant_name ?? $order->restaurant->name,
+                    'address'     => $order->restaurant->address,
+                    'logo'        => $order->restaurant->logo,
+                    'phone'       => $order->restaurant->phone ?? $order->restaurant->owner_phone,
+                    'latitude'    => $order->restaurant->latitude,
+                    'longitude'   => $order->restaurant->longitude,
+                ] : null,
+                'delivery_man'     => $order->delivery_man_id ? (function() use ($order) {
+                    $man = $order->deliveryman;
+                    if (!$man) return null;
+                    $img = $man->profile_image ?: $man->man_image;
+                    $imageUrl = $img ? (str_starts_with($img, 'http') ? $img : asset($img)) : null;
+                    return [
+                        'id' => $man->id, 'name' => trim(($man->fname ?? '') . ' ' . ($man->lname ?? '')),
+                        'fname' => $man->fname, 'lname' => $man->lname,
+                        'phone' => $man->phone, 'email' => $man->email,
+                        'image' => $imageUrl, 'vehicle_number' => $man->vehicle_number ?? null,
+                        'rating' => '4.8 (100+ deliveries)',
+                        'latitude' => $man->latitude, 'longitude' => $man->longitude,
+                    ];
+                })() : null,
+                'items'            => $items->toArray(),
+            ];
 
             return $this->sendResponse(['order' => $orderArray], 'Order details retrieved successfully');
         } catch (\Throwable $e) {
