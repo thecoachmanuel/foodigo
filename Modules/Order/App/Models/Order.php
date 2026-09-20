@@ -65,7 +65,7 @@ class Order extends Model
         return $this->belongsTo(DeliveryMan::class, 'delivery_man_id', 'id');
     }
 
-    public function getDeliveryManAttribute()
+        public function getDeliveryManAttribute()
     {
         try {
             $man = $this->relationLoaded('deliveryman') 
@@ -73,25 +73,26 @@ class Order extends Model
                 : ($this->delivery_man_id ? $this->deliveryman()->first() : null);
 
             if (!$man) return null;
+            if (is_array($man)) return $man;
 
-            $img = $man->profile_image ?: $man->man_image;
+            $img = $man->profile_image ?? $man->man_image ?? null;
             $imageUrl = null;
             if ($img) {
                 $imageUrl = (str_starts_with($img, 'http://') || str_starts_with($img, 'https://')) ? $img : asset($img);
             }
 
             return [
-                'id' => $man->id,
+                'id' => $man->id ?? null,
                 'name' => trim(($man->fname ?? '') . ' ' . ($man->lname ?? '')),
-                'fname' => $man->fname,
-                'lname' => $man->lname,
-                'phone' => $man->phone,
-                'email' => $man->email,
+                'fname' => $man->fname ?? '',
+                'lname' => $man->lname ?? '',
+                'phone' => $man->phone ?? '',
+                'email' => $man->email ?? '',
                 'image' => $imageUrl,
                 'vehicle_number' => $man->vehicle_number ?? null,
                 'rating' => '4.8 (100+ deliveries)',
-                'latitude' => $man->latitude,
-                'longitude' => $man->longitude,
+                'latitude' => $man->latitude ?? null,
+                'longitude' => $man->longitude ?? null,
             ];
         } catch (\Throwable $e) {
             return null;

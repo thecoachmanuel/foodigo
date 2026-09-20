@@ -204,20 +204,7 @@ class UserDashboardController extends BaseController
                     'latitude'    => $order->restaurant->latitude,
                     'longitude'   => $order->restaurant->longitude,
                 ] : null,
-                'delivery_man'     => $order->delivery_man_id ? (function() use ($order) {
-                    $man = $order->deliveryman;
-                    if (!$man) return null;
-                    $img = $man->profile_image ?: $man->man_image;
-                    $imageUrl = $img ? (str_starts_with($img, 'http') ? $img : asset($img)) : null;
-                    return [
-                        'id' => $man->id, 'name' => trim(($man->fname ?? '') . ' ' . ($man->lname ?? '')),
-                        'fname' => $man->fname, 'lname' => $man->lname,
-                        'phone' => $man->phone, 'email' => $man->email,
-                        'image' => $imageUrl, 'vehicle_number' => $man->vehicle_number ?? null,
-                        'rating' => '4.8 (100+ deliveries)',
-                        'latitude' => $man->latitude, 'longitude' => $man->longitude,
-                    ];
-                })() : null,
+                'delivery_man'     => $order->delivery_man,
                 'items'            => $items->toArray(),
             ];
 
@@ -486,29 +473,7 @@ class UserDashboardController extends BaseController
                 return $this->sendError('Order not found', [], 404);
             }
 
-            $deliveryMan = $order->deliveryman ?? $order->deliveryMan;
-            $deliveryManData = null;
-            if ($deliveryMan) {
-                $img = $deliveryMan->profile_image ?: $deliveryMan->man_image;
-                $imageUrl = null;
-                if ($img) {
-                    $imageUrl = (str_starts_with($img, 'http://') || str_starts_with($img, 'https://')) ? $img : asset($img);
-                }
-
-                $deliveryManData = [
-                    'id' => $deliveryMan->id,
-                    'name' => trim(($deliveryMan->fname ?? '') . ' ' . ($deliveryMan->lname ?? '')),
-                    'fname' => $deliveryMan->fname,
-                    'lname' => $deliveryMan->lname,
-                    'phone' => $deliveryMan->phone,
-                    'email' => $deliveryMan->email,
-                    'image' => $imageUrl,
-                    'vehicle_number' => $deliveryMan->vehicle_number ?? null,
-                    'rating' => '4.8 (100+ deliveries)',
-                    'latitude' => $deliveryMan->latitude,
-                    'longitude' => $deliveryMan->longitude,
-                ];
-            }
+            $deliveryManData = $order->delivery_man;
 
             $data = [
                 'order_id' => $order->id,
