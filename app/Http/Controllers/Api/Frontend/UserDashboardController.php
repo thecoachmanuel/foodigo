@@ -1,4 +1,4 @@
-<?php
+?php
 
 namespace App\Http\Controllers\Api\Frontend;
 
@@ -76,12 +76,7 @@ class UserDashboardController extends BaseController
 
             $isRestaurant = str_contains(get_class($user), 'Restaurant');
 
-            $query = Order::with([
-                'restaurant',
-                'items.product',
-                'items.products',
-                'deliveryman',
-            ])->latest();
+            $query = Order::with(['restaurant', 'items', 'deliveryman'])->latest();
 
             if ($isRestaurant) {
                 $query->where('restaurant_id', $user->id);
@@ -120,27 +115,66 @@ class UserDashboardController extends BaseController
 
             $cleanId = preg_replace('/[^0-9]/', '', (string)$id) ?: $id;
 
-            $order = Order::with([
-                'restaurant',
-                'items.product',
-                'items.products',
-                'deliveryman',
-            ])->where('id', $cleanId)->first();
+            // Load order without nested product relations to avoid ProductLocationScope global scope issues
+            $order = Order::with(['restaurant', 'items', 'deliveryman'])
+                ->where('id', $cleanId)
+                ->first();
 
             if (!$order && !empty($id)) {
-                $order = Order::with([
-                    'restaurant',
-                    'items.product',
-                    'items.products',
-                    'deliveryman',
-                ])->where('tnx_info', $id)->first();
+                $order = Order::with(['restaurant', 'items', 'deliveryman'])
+                    ->where('tnx_info', $id)
+                    ->first();
             }
 
             if (!$order) {
                 return $this->sendError('Order not found', [], 404);
             }
 
-            return $this->sendResponse($order, 'Order details retrieved successfully');
+            // Safely load product data using withoutGlobalScopes to bypass ProductLocationScope
+            $productIds = $order->items->pluck('product_id')->filter()->unique()->values();
+            $productMap = [];
+            if ($productIds->isNotEmpty()) {
+                try {
+                    $products = \Modules\Product\App\Models\Product::withoutGlobalScopes()
+                        ->with('translate_product')
+                        ->whereIn('id', $productIds)
+                        ->get(['id', 'name', 'thumb_image', 'image']);
+                    foreach ($products as $p) {
+                        $productMap[$p->id] = [
+                            'id'          => $p->id,
+                            'name'        => $p->translate_product?->name ?? $p->getRawOriginal('name') ?? '',
+                            'thumb_image' => $p->thumb_image,
+                            'image'       => $p->image,
+                        ];
+                    }
+                } catch (\Throwable $pe) {
+                    // Non-fatal: continue without product names
+                }
+            }
+
+            // Attach product info to each item
+            $items = $order->items->map(function ($item) use ($productMap) {
+                $prod = $productMap[$item->product_id] ?? null;
+                return [
+                    'id'            => $item->id,
+                    'product_id'    => $item->product_id,
+                    'product_name'  => $prod['name'] ?? $item->product_name ?? '',
+                    'name'          => $prod['name'] ?? $item->product_name ?? '',
+                    'thumb_image'   => $prod['thumb_image'] ?? null,
+                    'image'         => $prod['image'] ?? null,
+                    'qty'           => $item->qty,
+                    'price'         => $item->price,
+                    'total'         => $item->total,
+                    'size'          => $item->size,
+                    'addons'        => $item->getRawOriginal('addons'),
+                    'addon_details' => $item->addon_details ?? [],
+                ];
+            });
+
+            $orderArray = $order->toArray();
+            $orderArray['items'] = $items->toArray();
+
+            return $this->sendResponse(['order' => $orderArray], 'Order details retrieved successfully');
         } catch (\Throwable $e) {
             return $this->sendError('Could not retrieve order: ' . $e->getMessage(), [], 500);
         }
