@@ -92,71 +92,94 @@ class GlobalSettingController extends Controller
 
     public function update_logo_favicon(Request $request)
     {
+        $uploadDir = public_path('uploads/website-images');
+        if (!File::exists($uploadDir)) {
+            File::makeDirectory($uploadDir, 0755, true);
+        }
 
-        $logo_setting = GlobalSetting::where('key', 'logo')->first();
-
-
-        if ($request->logo) {
+        // 1. Logo
+        if ($request->hasFile('logo') || $request->logo) {
+            $logo_file = $request->file('logo') ?: $request->logo;
+            $logo_setting = GlobalSetting::firstOrNew(['key' => 'logo']);
             $old_logo = $logo_setting->value;
-            $image = $request->logo;
-            $ext = $image->getClientOriginalExtension();
-            $logo_name = 'logo-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
-            $logo_name = 'uploads/website-images/' . $logo_name;
-            if (!File::exists(public_path('uploads/website-images'))) {
-                File::makeDirectory(public_path('uploads/website-images'), 0755, true);
+
+            $ext = strtolower($logo_file->getClientOriginalExtension());
+            $filename = 'logo-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
+            $logo_name = 'uploads/website-images/' . $filename;
+
+            if (in_array($ext, ['svg', 'ico'])) {
+                $logo_file->move($uploadDir, $filename);
+            } else {
+                try {
+                    Image::make($logo_file)->save($uploadDir . '/' . $filename);
+                } catch (\Throwable $e) {
+                    $logo_file->move($uploadDir, $filename);
+                }
             }
-            Image::make($image)->save(public_path($logo_name));
+
             $logo_setting->value = $logo_name;
             $logo_setting->save();
 
-            if ($old_logo) {
-                if (File::exists(public_path() . '/' . $old_logo)) unlink(public_path() . '/' . $old_logo);
+            if ($old_logo && File::exists(public_path($old_logo))) {
+                @unlink(public_path($old_logo));
             }
         }
 
+        // 2. Footer Logo
+        if ($request->hasFile('footer_logo') || $request->footer_logo) {
+            $footer_file = $request->file('footer_logo') ?: $request->footer_logo;
+            $footer_logo_setting = GlobalSetting::firstOrNew(['key' => 'footer_logo']);
+            $old_footer = $footer_logo_setting->value;
 
+            $ext = strtolower($footer_file->getClientOriginalExtension());
+            $filename = 'footer-logo-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
+            $footer_name = 'uploads/website-images/' . $filename;
 
-        $footer_logo_setting = GlobalSetting::where('key', 'footer_logo')->first();
-
-        if ($request->footer_logo) {
-            $old_logo = $footer_logo_setting->value;
-            $image = $request->footer_logo;
-            $ext = $image->getClientOriginalExtension();
-            $logo_name = 'footer-logo-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
-            $logo_name = 'uploads/website-images/' . $logo_name;
-            if (!File::exists(public_path('uploads/website-images'))) {
-                File::makeDirectory(public_path('uploads/website-images'), 0755, true);
+            if (in_array($ext, ['svg', 'ico'])) {
+                $footer_file->move($uploadDir, $filename);
+            } else {
+                try {
+                    Image::make($footer_file)->save($uploadDir . '/' . $filename);
+                } catch (\Throwable $e) {
+                    $footer_file->move($uploadDir, $filename);
+                }
             }
-            Image::make($image)->save(public_path($logo_name));
-            $footer_logo_setting->value = $logo_name;
+
+            $footer_logo_setting->value = $footer_name;
             $footer_logo_setting->save();
-            if ($old_logo) {
-                if (File::exists(public_path() . '/' . $old_logo)) unlink(public_path() . '/' . $old_logo);
+
+            if ($old_footer && File::exists(public_path($old_footer))) {
+                @unlink(public_path($old_footer));
             }
         }
 
+        // 3. Favicon
+        if ($request->hasFile('favicon') || $request->favicon) {
+            $favicon_file = $request->file('favicon') ?: $request->favicon;
+            $favicon_setting = GlobalSetting::firstOrNew(['key' => 'favicon']);
+            $old_favicon = $favicon_setting->value;
 
+            $ext = strtolower($favicon_file->getClientOriginalExtension());
+            $filename = 'favicon-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
+            $favicon_name = 'uploads/website-images/' . $filename;
 
-        $logo_setting = GlobalSetting::where('key', 'favicon')->first();
+            if (in_array($ext, ['ico', 'svg'])) {
+                $favicon_file->move($uploadDir, $filename);
+            } else {
+                try {
+                    Image::make($favicon_file)->save($uploadDir . '/' . $filename);
+                } catch (\Throwable $e) {
+                    $favicon_file->move($uploadDir, $filename);
+                }
+            }
 
-        if ($request->favicon) {
-            $old_favicon = $logo_setting->value;
-            $favicon = $request->favicon;
-            $ext = $favicon->getClientOriginalExtension();
-            $favicon_name = 'favicon-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
-            $favicon_name = 'uploads/website-images/' . $favicon_name;
-            Image::make($favicon)
-                ->save(public_path() . '/' . $favicon_name);
-            $logo_setting->value = $favicon_name;
-            $logo_setting->save();
-            if ($old_favicon) {
-                if (File::exists(public_path() . '/' . $old_favicon)) unlink(public_path() . '/' . $old_favicon);
+            $favicon_setting->value = $favicon_name;
+            $favicon_setting->save();
+
+            if ($old_favicon && File::exists(public_path($old_favicon))) {
+                @unlink(public_path($old_favicon));
             }
         }
-
-
-
-
 
         $this->set_cache_setting();
 
@@ -731,6 +754,7 @@ class GlobalSettingController extends Controller
 
     public function set_cache_setting()
     {
+        Cache::forget('setting');
         $setting_data = GlobalSetting::get();
 
         $setting = array();
@@ -741,8 +765,7 @@ class GlobalSettingController extends Controller
 
         $setting = (object) $setting;
 
-
-        Cache::put('setting', $setting);
+        Cache::forever('setting', $setting);
     }
 
     /**
