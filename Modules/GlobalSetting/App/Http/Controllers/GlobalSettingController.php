@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Modules\GlobalSetting\App\Http\Controllers;
 
@@ -102,7 +102,10 @@ class GlobalSettingController extends Controller
             $ext = $image->getClientOriginalExtension();
             $logo_name = 'logo-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
             $logo_name = 'uploads/website-images/' . $logo_name;
-            $request->logo->move(public_path('uploads/website-images'), $logo_name);
+            if (!File::exists(public_path('uploads/website-images'))) {
+                File::makeDirectory(public_path('uploads/website-images'), 0755, true);
+            }
+            Image::make($image)->save(public_path($logo_name));
             $logo_setting->value = $logo_name;
             $logo_setting->save();
 
@@ -121,7 +124,10 @@ class GlobalSettingController extends Controller
             $ext = $image->getClientOriginalExtension();
             $logo_name = 'footer-logo-' . date('Y-m-d-h-i-s-') . rand(999, 9999) . '.' . $ext;
             $logo_name = 'uploads/website-images/' . $logo_name;
-            $request->footer_logo->move(public_path('uploads/website-images'), $logo_name);
+            if (!File::exists(public_path('uploads/website-images'))) {
+                File::makeDirectory(public_path('uploads/website-images'), 0755, true);
+            }
+            Image::make($image)->save(public_path($logo_name));
             $footer_logo_setting->value = $logo_name;
             $footer_logo_setting->save();
             if ($old_logo) {
