@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace Modules\GlobalSetting\App\Http\Controllers;
 
@@ -750,7 +750,23 @@ class GlobalSettingController extends Controller
      */
     public function pwa_icon_settings()
     {
-        $pwaIcons = PwaIconSetting::orderBy('icon_size')->get();
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('pwa_icon_settings')) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', [
+                    '--path' => 'Modules/GlobalSetting/database/migrations',
+                    '--force' => true,
+                ]);
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('pwa_icon_settings') && PwaIconSetting::count() === 0) {
+                \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                    '--class' => 'Modules\\GlobalSetting\\database\\seeders\\PwaIconSettingSeeder',
+                    '--force' => true,
+                ]);
+            }
+            $pwaIcons = PwaIconSetting::orderBy('icon_size')->get();
+        } catch (\Throwable $th) {
+            $pwaIcons = collect();
+        }
         return view('globalsetting::pwa-icon-settings', compact('pwaIcons'));
     }
 
