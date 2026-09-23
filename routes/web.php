@@ -359,6 +359,7 @@ Route::group(['as'=> 'deliveryman.', 'prefix' => 'deliveryman', 'middleware'=>'d
     Route::get('orders',[DeliveryManOrderController::class,'index'])->name('orders');
 
     Route::get('order-request',[DeliveryManOrderController::class,'orderRequest'])->name('order-request');
+    Route::get('order-request-poll',[DeliveryManOrderController::class,'liveRequestsPoll'])->name('order-request-poll');
     Route::post('order-request-status/{id}',[DeliveryManOrderController::class,'orderRequestStatus'])->name('order-request-status');
 
     Route::get('completed-order',[DeliveryManOrderController::class,'completedOrder'])->name('completed-order');

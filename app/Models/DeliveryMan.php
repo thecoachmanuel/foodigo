@@ -23,6 +23,7 @@ class DeliveryMan extends Authenticatable implements JWTSubject
         'address',
         'latitude',
         'longitude',
+        'last_location_update_at',
         'status',
         'is_online',
         'current_orders',

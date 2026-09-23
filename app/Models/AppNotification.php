@@ -120,4 +120,45 @@ class AppNotification extends Model
             ],
         ]);
     }
+
+    /**
+     * Scope for notifications accessible to delivery drivers.
+     */
+    public function scopeForDeliveryMan($query, $deliveryManId)
+    {
+        return $query->where(function ($q) use ($deliveryManId) {
+            $q->whereIn('target_type', ['all', 'delivery_men', 'riders']);
+            if ($deliveryManId) {
+                $q->orWhere(function ($sub) use ($deliveryManId) {
+                    $sub->where('target_type', 'delivery_man')->where('target_id', $deliveryManId);
+                });
+            }
+        });
+    }
+
+    /**
+     * Helper to broadcast new delivery request to delivery drivers.
+     */
+    public static function createDeliveryBroadcastNotification($order, $restaurantName = null, $distanceKm = null)
+    {
+        if (!$order) return null;
+
+        $distText = $distanceKm ? ' (' . round($distanceKm, 1) . ' km away)' : '';
+        $restName = $restaurantName ?? ($order->restaurant?->name ?? 'Restaurant');
+
+        return self::create([
+            'target_type' => 'delivery_men',
+            'target_id'   => null,
+            'title'       => 'New Delivery Request 🛵',
+            'message'     => 'Order #' . $order->id . ' ready for pickup from ' . $restName . $distText . '. Claim now!',
+            'type'        => 'delivery_request',
+            'order_id'    => $order->id,
+            'action_url'  => '/deliveryman/order-request',
+            'data'        => [
+                'order_id' => $order->id,
+                'restaurant_name' => $restName,
+                'distance_km' => $distanceKm,
+            ],
+        ]);
+    }
 }

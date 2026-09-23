@@ -138,8 +138,21 @@
                                                         </h4>
                                                         <div class="text-capitalize opacity-7">
                                                             <span>{{ __('translate.Type') }}:</span>
-                                                            <span class="text-success">{{ $order->order_type }}</span>
+                                                            <span class="text-success">{{ $order->order_type ?? 'delivery' }}</span>
                                                         </div>
+                                                        @if(($order->order_type ?? 'delivery') == 'delivery')
+                                                            <div class="mt-1">
+                                                                @if($order->deliveryman)
+                                                                    <span class="badge bg-success text-white" style="font-size:10px;" title="Assigned Rider">
+                                                                        <i class="fas fa-motorcycle me-1"></i>{{ $order->deliveryman->fname ?? 'Rider' }}
+                                                                    </span>
+                                                                @elseif($order->order_request == 1)
+                                                                    <span class="badge bg-info text-white" style="font-size:10px;" title="Broadcasting to nearby delivery partners">
+                                                                        <i class="fas fa-broadcast-tower me-1"></i>{{ __('translate.Broadcasting') }}
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                        @endif
                                                     </td>
 
                                                     <td class="crancy-table__column-2 crancy-table__data-2">

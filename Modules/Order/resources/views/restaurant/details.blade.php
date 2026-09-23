@@ -252,6 +252,61 @@
                                 </form>
                             </div>
 
+                            @if(($order->order_type ?? 'delivery') == 'delivery')
+                                <div class="zum_icvoice_item_main mt-3 p-3" style="border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">
+                                    <h5 style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">
+                                        <i class="fas fa-motorcycle text-primary me-1"></i> {{ __('translate.Delivery Partner') }}
+                                    </h5>
+
+                                    @if($order->deliveryman)
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            @php
+                                                $manImg = $order->deliveryman->profile_image ?: $order->deliveryman->man_image;
+                                                $imgSrc = $manImg ? asset($manImg) : asset('frontend/images/default-avatar.png');
+                                            @endphp
+                                            <img src="{{ $imgSrc }}" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1.5px solid #0284c7;">
+                                            <div>
+                                                <div style="font-weight: 600; font-size: 13px; color: #0f172a;">{{ $order->deliveryman->fname }} {{ $order->deliveryman->lname }}</div>
+                                                <span class="badge bg-success" style="font-size: 10px;">{{ __('translate.Claimed Order') }}</span>
+                                            </div>
+                                        </div>
+                                        <div style="font-size: 12px; color: #475569;" class="mb-2">
+                                            @if($order->deliveryman->phone)
+                                                <div class="mt-1">
+                                                    <a href="tel:{{ $order->deliveryman->phone }}" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1" style="font-size: 11px; padding: 3px 8px;">
+                                                        <i class="fas fa-phone-alt"></i> {{ $order->deliveryman->phone }}
+                                                    </a>
+                                                </div>
+                                            @endif
+                                            @if($order->deliveryman->vehicle_number)
+                                                <div class="mt-1"><i class="fas fa-id-card me-1"></i> <strong>Vehicle:</strong> {{ $order->deliveryman->vehicle_number }}</div>
+                                            @endif
+                                        </div>
+                                    @elseif($order->order_request == 1)
+                                        <div class="p-2 mb-2 rounded" style="background: #e0f2fe; border: 1px solid #bae6fd;">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <span class="spinner-grow spinner-grow-sm text-primary" role="status"></span>
+                                                <strong style="color: #0369a1; font-size: 12px;">{{ __('translate.Broadcasting to nearby riders...') }}</strong>
+                                            </div>
+                                            <div style="font-size: 11px; color: #0284c7;">{{ __('translate.First nearby partner to accept claims this order.') }}</div>
+                                        </div>
+                                        <form action="{{ route('restaurant.order.broadcast.riders', $order->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-primary w-100" style="font-size: 11px;">
+                                                <i class="fas fa-redo me-1"></i> {{ __('translate.Re-broadcast to Riders') }}
+                                            </button>
+                                        </form>
+                                    @else
+                                        <div class="text-muted small mb-2" style="font-size: 12px;">{{ __('translate.Not yet broadcast to delivery riders.') }}</div>
+                                        <form action="{{ route('restaurant.order.broadcast.riders', $order->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-primary w-100" style="font-size: 12px;">
+                                                <i class="fas fa-broadcast-tower me-1"></i> {{ __('translate.Broadcast to Nearby Riders') }}
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
 

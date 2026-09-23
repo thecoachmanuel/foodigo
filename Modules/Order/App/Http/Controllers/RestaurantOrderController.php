@@ -57,6 +57,19 @@ class RestaurantOrderController extends Controller
     {
         $order = Order::findOrFail($id);
         $order->order_status = $request->order_status;
+
+        // Auto broadcast to nearby riders when restaurant confirms or starts preparing delivery orders
+        if (in_array((int)$request->order_status, [2, 3]) && ($order->order_type == 'delivery' || empty($order->order_type))) {
+            if (!$order->delivery_man_id) {
+                $order->order_request = 1;
+                $order->order_req_date = now();
+
+                try {
+                    \App\Models\AppNotification::createDeliveryBroadcastNotification($order, $order->restaurant?->restaurant_name ?? $order->restaurant?->name);
+                } catch (\Throwable $e) {}
+            }
+        }
+
         $order->save();
 
         // Instantly generate In-App Live Notification for Customer
@@ -81,11 +94,30 @@ class RestaurantOrderController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => $message,
-                'order_status' => (int)$order->order_status
+                'order_status' => (int)$order->order_status,
+                'order_request' => (int)$order->order_request,
             ]);
         }
 
         $notification = array('message'=>$message,'alert-type'=>'success');
         return redirect()->back()->with($notification);
+    }
+
+    public function broadcast_to_riders(Request $request, $id)
+    {
+        $order = Order::where('restaurant_id', Auth::guard('restaurant')->user()->id)->findOrFail($id);
+        $order->order_request = 1;
+        $order->order_req_date = now();
+        $order->save();
+
+        try {
+            \App\Models\AppNotification::createDeliveryBroadcastNotification($order, $order->restaurant?->restaurant_name ?? $order->restaurant?->name);
+        } catch (\Throwable $e) {}
+
+        $message = "Order successfully broadcast to all nearby delivery partners!";
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => 'success', 'message' => $message]);
+        }
+        return redirect()->back()->with(['message' => $message, 'alert-type' => 'success']);
     }
 }

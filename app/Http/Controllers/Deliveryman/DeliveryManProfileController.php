@@ -172,8 +172,17 @@ class DeliveryManProfileController extends Controller
         $this->validate($request, $rules);
         $user=Auth::guard('deliveryman')->user();
         $user->latitude=$request->latitude;
-        $user->longitude=$request->longitude;
+        $user->last_location_update_at = now();
         $user->save();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Location updated successfully',
+                'latitude' => $user->latitude,
+                'longitude' => $user->longitude,
+            ]);
+        }
 
         $notification= trans('translate.admin_validation.Update Successfully');
         $notification=array('messege'=>$notification,'alert-type'=>'success');

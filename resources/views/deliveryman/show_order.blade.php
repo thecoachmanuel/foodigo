@@ -166,17 +166,39 @@
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                                     <div class="d-flex align-items-center gap-2">
                                         <h4 class="m-0" style="font-size: 16px; font-weight: 700;">
-                                            <i class="fa fa-map-marked-alt text-primary me-2"></i> {{ __('translate.Live Delivery Route & Location Map') }}
+                                            <i class="fa fa-map-marked-alt text-primary me-2"></i> {{ __('translate.Live Turn-by-Turn Delivery Navigation') }}
                                         </h4>
                                         <span class="badge" id="driverRouteStatsBadge" style="background: #e0f2fe; color: #0284c7; font-weight: 600; font-size: 12px; padding: 5px 10px; border-radius: 6px;">
                                             <i class="fa fa-route me-1"></i> {{ __('translate.Calculating Route...') }}
                                         </span>
                                     </div>
-                                    <a href="{{ $navUrl }}" target="_blank" class="crancy-btn btn-sm d-inline-flex align-items-center gap-1" style="background: #ea580c; color: #fff; text-decoration: none; padding: 6px 14px; font-size: 13px; border-radius: 6px;">
-                                        <i class="fa fa-location-arrow"></i> {{ __('translate.Open in Navigation') }}
-                                    </a>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        @if($origLat != 0 && $origLng != 0)
+                                            <a href="https://www.google.com/maps/dir/?api=1&destination={{ $origLat }},{{ $origLng }}" target="_blank" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm" style="border-radius: 6px; padding: 6px 12px; font-weight:600;">
+                                                <i class="fas fa-store"></i> {{ __('translate.Navigate to Restaurant') }}
+                                            </a>
+                                        @endif
+                                        @if($destLat != 0 && $destLng != 0)
+                                            <a href="https://www.google.com/maps/dir/?api=1&destination={{ $destLat }},{{ $destLng }}" target="_blank" class="btn btn-sm btn-success d-inline-flex align-items-center gap-1 shadow-sm" style="border-radius: 6px; padding: 6px 12px; font-weight:600;">
+                                                <i class="fas fa-location-arrow"></i> {{ __('translate.Navigate to Customer') }}
+                                            </a>
+                                        @endif
+                                        @if(!empty($order->restaurant?->phone))
+                                            <a href="tel:{{ $order->restaurant?->phone }}" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1" style="border-radius: 6px; padding: 6px 12px;">
+                                                <i class="fas fa-phone-alt"></i> {{ __('translate.Call Restaurant') }}
+                                            </a>
+                                        @endif
+                                        @php
+                                            $custPhone = $addressObj->contact_person_number ?? ($order->user->phone ?? '');
+                                        @endphp
+                                        @if(!empty($custPhone))
+                                            <a href="tel:{{ $custPhone }}" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1" style="border-radius: 6px; padding: 6px 12px;">
+                                                <i class="fas fa-phone"></i> {{ __('translate.Call Customer') }}
+                                            </a>
+                                        @endif
+                                    </div>
                                 </div>
-                                <div id="order_delivery_map" style="height: 320px; width: 100%; border-radius: 12px; border: 1.5px solid #cbd5e1; z-index: 1;"></div>
+                                <div id="order_delivery_map" style="height: 380px; width: 100%; border-radius: 12px; border: 1.5px solid #cbd5e1; z-index: 1;"></div>
                             </div>
                         </div>
                     </div>
@@ -318,101 +340,92 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="reviewApprovalLabel">{{ __('translate.Approval Confirmation') }}</h5>
+                    <h5 class="modal-title" id="reviewApprovalLabel">{{ __('translate.Accept Order Confirmation') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>{{ __('translate.Are you realy want to approved this withdraw?') }}</p>
+                    <p>{{ __('translate.Are you sure you want to accept this order for delivery?') }}</p>
                 </div>
                 <div class="modal-footer">
                     <form action="{{ route('deliveryman.order-request-status', $order->id) }}" class="delet_modal_form" method="POST">
                         @csrf
                         <input type="text" name="order_request_status" value="1" hidden>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ __('translate.Yes, Approved') }}</button>
-
+                        <button type="submit" class="btn btn-primary">{{ __('translate.Yes, Accept Order') }}</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-
-
-    <!-- Approval Confirmation Modal -->
+    <!-- Decline Confirmation Modal -->
     <div class="modal fade" id="reviewRejected" tabindex="-1" aria-labelledby="reviewRejectedLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="reviewRejectedLabel">{{ __('translate.Rejected Confirmation') }}</h5>
+                    <h5 class="modal-title" id="reviewRejectedLabel">{{ __('translate.Decline Order Request') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>{{ __('translate.Are you realy want to rejected this withdraw?') }}</p>
+                    <p>{{ __('translate.Are you sure you want to decline this delivery request?') }}</p>
                 </div>
                 <div class="modal-footer">
                     <form action="{{ route('deliveryman.order-request-status', $order->id) }}" class="delet_modal_form" method="POST">
                         @csrf
                         <input type="text" name="order_request_status" value="2" hidden>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ __('translate.Yes, Rejected') }}</button>
-
+                        <button type="submit" class="btn btn-danger">{{ __('translate.Yes, Decline') }}</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-
-
-        <!-- Approval Confirmation Modal -->
-        <div class="modal fade" id="Approvalcomplete" tabindex="-1" aria-labelledby="ApprovalcompleteLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ApprovalcompleteLabel">{{ __('translate.Approval Confirmation') }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>{{ __('translate.Are you realy want to complete this withdraw?') }}</p>
-                    </div>
-                    <div class="modal-footer">
-                        <form action="{{ route('deliveryman.order-request-status', $order->id) }}" class="delet_modal_form" method="POST">
-                            @csrf
-                            <input type="text" name="order_request_status" value="3" hidden>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
-                            <button type="submit" class="btn btn-primary">{{ __('translate.Yes, Approved') }}</button>
-
-                        </form>
-                    </div>
+    <!-- Complete / Delivered Confirmation Modal -->
+    <div class="modal fade" id="Approvalcomplete" tabindex="-1" aria-labelledby="ApprovalcompleteLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ApprovalcompleteLabel">{{ __('translate.Delivery Complete Confirmation') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ __('translate.Are you sure you have delivered this order to the customer?') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <form action="{{ route('deliveryman.order-request-status', $order->id) }}" class="delet_modal_form" method="POST">
+                        @csrf
+                        <input type="text" name="order_request_status" value="3" hidden>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
+                        <button type="submit" class="btn btn-success">{{ __('translate.Yes, Mark Delivered') }}</button>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
-    <!-- Approval Confirmation Modal -->
+    <!-- Cancel Confirmation Modal -->
     <div class="modal fade" id="ApprovalCancel" tabindex="-1" aria-labelledby="CancelLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="CancelLabel">{{ __('translate.Rejected Confirmation') }}</h5>
+                    <h5 class="modal-title" id="CancelLabel">{{ __('translate.Cancel Delivery Confirmation') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>{{ __('translate.Are you realy want to cancel this withdraw?') }}</p>
+                    <p>{{ __('translate.Are you sure you want to cancel this delivery?') }}</p>
                 </div>
                 <div class="modal-footer">
                     <form action="{{ route('deliveryman.order-request-status', $order->id) }}" class="delet_modal_form" method="POST">
                         @csrf
                         <input type="text" name="order_request_status" value="4" hidden>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ __('translate.Yes, Rejected') }}</button>
-
+                        <button type="submit" class="btn btn-danger">{{ __('translate.Yes, Cancel Delivery') }}</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
 
 @endsection
 
@@ -427,21 +440,30 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             background: #ea580c;
-            border: 2px solid #ffffff;
+            border: 2.5px solid #ffffff;
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
         }
         .foodigo-map-pin.pin-rest {
             background: #0284c7;
+        }
+        .foodigo-map-pin.pin-rider {
+            background: #16a34a;
+            border-radius: 50%;
+            transform: none;
+            box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.25);
         }
         .foodigo-map-pin i {
             transform: rotate(45deg);
             color: #ffffff;
             font-size: 14px;
+        }
+        .foodigo-map-pin.pin-rider i {
+            transform: none;
         }
     </style>
 @endpush
@@ -459,7 +481,8 @@
             const destLng = parseFloat("{{ $destLng }}") || 0;
             const origLat = parseFloat("{{ $origLat }}") || 0;
             const origLng = parseFloat("{{ $origLng }}") || 0;
-            const orderStatus = parseInt("{{ $order->order_status }}") || 1;
+            let riderLat = parseFloat("{{ $rider->latitude ?? 0 }}") || 0;
+            let riderLng = parseFloat("{{ $rider->longitude ?? 0 }}") || 0;
 
             const initialLat = origLat || destLat || 7.4250;
             const initialLng = origLng || destLng || 3.9050;
@@ -485,10 +508,18 @@
 
             const restPin = L.divIcon({
                 className: 'foodigo-leaflet-div-icon',
-                html: '<div class="foodigo-map-pin pin-rest" style="background:#0284c7;"><i class="fa-solid fa-utensils"></i></div>',
+                html: '<div class="foodigo-map-pin pin-rest"><i class="fa-solid fa-utensils"></i></div>',
                 iconSize: [36, 36],
                 iconAnchor: [18, 36],
                 popupAnchor: [0, -36]
+            });
+
+            const riderPin = L.divIcon({
+                className: 'foodigo-leaflet-div-icon',
+                html: '<div class="foodigo-map-pin pin-rider"><i class="fa-solid fa-motorcycle"></i></div>',
+                iconSize: [36, 36],
+                iconAnchor: [18, 18],
+                popupAnchor: [0, -18]
             });
 
             const markers = [];
@@ -505,11 +536,35 @@
                 markers.push(destMarker);
             }
 
+            let riderMarker = null;
+            function addRiderPin(lat, lng) {
+                if (riderMarker) map.removeLayer(riderMarker);
+                riderMarker = L.marker([lat, lng], { icon: riderPin }).addTo(map);
+                riderMarker.bindPopup(`<b>🛵 {{ __('translate.Your Current Location') }}</b>`);
+                markers.push(riderMarker);
+            }
+
+            if (riderLat !== 0 && riderLng !== 0) {
+                addRiderPin(riderLat, riderLng);
+            } else if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    riderLat = pos.coords.latitude;
+                    riderLng = pos.coords.longitude;
+                    addRiderPin(riderLat, riderLng);
+                    drawTurnByTurnRoute();
+                }, function() {});
+            }
+
             const statsBadge = document.getElementById('driverRouteStatsBadge');
 
             function drawFallbackDirectRoute() {
                 if (origLat !== 0 && destLat !== 0) {
-                    const line = L.polyline([[origLat, origLng], [destLat, destLng]], {
+                    const points = [];
+                    if (riderLat !== 0 && riderLng !== 0) points.push([riderLat, riderLng]);
+                    points.push([origLat, origLng]);
+                    points.push([destLat, destLng]);
+
+                    const line = L.polyline(points, {
                         color: '#ea580c',
                         dashArray: '6, 8',
                         weight: 3.5,
@@ -520,17 +575,32 @@
                     map.fitBounds(group.getBounds().pad(0.2));
 
                     if (statsBadge) {
-                        statsBadge.innerHTML = `<i class="fa-solid fa-route me-1"></i> {{ __('translate.Live Route Connected') }}`;
+                        statsBadge.innerHTML = `<i class="fa-solid fa-route me-1"></i> {{ __('translate.Route Connected') }}`;
                     }
                 } else if (markers.length === 1) {
                     map.setView(markers[0].getLatLng(), 15);
                 }
             }
 
-            if (origLat !== 0 && origLng !== 0 && destLat !== 0 && destLng !== 0) {
-                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origLng},${origLat};${destLng},${destLat}?overview=full&geometries=geojson`;
+            let activePolylines = [];
+            function drawTurnByTurnRoute() {
+                if (origLat === 0 || destLat === 0) {
+                    drawFallbackDirectRoute();
+                    return;
+                }
+
+                // If rider position available, build 2-leg route: Rider -> Restaurant -> Customer
+                let waypointStr = '';
+                if (riderLat !== 0 && riderLng !== 0) {
+                    waypointStr = `${riderLng},${riderLat};${origLng},${origLat};${destLng},${destLat}`;
+                } else {
+                    waypointStr = `${origLng},${origLat};${destLng},${destLat}`;
+                }
+
+                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${waypointStr}?overview=full&geometries=geojson`;
+
                 fetch(osrmUrl)
-                    .then(response => response.json())
+                    .then(r => r.json())
                     .then(data => {
                         if (data && data.code === 'Ok' && data.routes && data.routes.length > 0) {
                             const route = data.routes[0];
@@ -538,19 +608,20 @@
                             const durMin = Math.max(1, Math.round(route.duration / 60));
 
                             if (statsBadge) {
-                                statsBadge.innerHTML = `<i class="fa-solid fa-car me-1"></i> ${distKm} km • ~${durMin} mins`;
+                                statsBadge.innerHTML = `<i class="fa-solid fa-motorcycle me-1"></i> ${distKm} km • ~${durMin} mins total`;
                                 statsBadge.style.background = '#dcfce7';
                                 statsBadge.style.color = '#15803d';
                             }
 
-                            const routeCoords = route.geometry.coordinates.map(pt => [pt[1], pt[0]]);
-                            
-                            // Road casing (glow outline)
-                            L.polyline(routeCoords, { color: '#c2410c', weight: 6, opacity: 0.3 }).addTo(map);
-                            // Main vibrant route line
-                            const routeLine = L.polyline(routeCoords, { color: '#ea580c', weight: 4, opacity: 0.95 }).addTo(map);
+                            activePolylines.forEach(p => map.removeLayer(p));
+                            activePolylines = [];
 
-                            const group = L.featureGroup(markers.concat(routeLine));
+                            const routeCoords = route.geometry.coordinates.map(pt => [pt[1], pt[0]]);
+                            const casing = L.polyline(routeCoords, { color: '#0369a1', weight: 6, opacity: 0.25 }).addTo(map);
+                            const mainLine = L.polyline(routeCoords, { color: '#0284c7', weight: 4, opacity: 0.95 }).addTo(map);
+                            activePolylines.push(casing, mainLine);
+
+                            const group = L.featureGroup(markers.concat(mainLine));
                             map.fitBounds(group.getBounds().pad(0.2));
                         } else {
                             drawFallbackDirectRoute();
@@ -559,45 +630,13 @@
                     .catch(() => {
                         drawFallbackDirectRoute();
                     });
-            } else {
-                drawFallbackDirectRoute();
             }
+
+            drawTurnByTurnRoute();
 
             setTimeout(() => { map.invalidateSize(); }, 300);
             window.addEventListener('resize', () => { map.invalidateSize(); });
         });
-
-        function itemDeleteConfrimation(id){
-            $("#item_delect_confirmation").attr("action",'{{ url("admin/order-delete/") }}'+"/"+id)
-        }
-
-        function showConfirmationModal(orderId, selectedValue) {
-            $("#item_delect_confirmation1").attr("action", '{{ url("admin/order-status-change/") }}' + "/" + orderId);
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'order_status',
-                value: selectedValue
-            }).appendTo('#item_delect_confirmation1');
-            $('#deleteModal1').modal('show');
-        }
-
-        function showPaymentConfirmationModal(orderId, selectedValue) {
-            $("#paymentConfirmationForm").attr("action", '{{ url("admin/payment-status-change/") }}' + "/" + orderId);
-            $("#newPaymentStatus").val(selectedValue);
-            $('#paymentConfirmationModal').modal('show');
-        }
-
-        function showDeliveryManModal(orderId, selectedValue) {
-            $("#showDeliveryManForm").attr("action", '{{ url("admin/deliveryman/") }}' + "/" + orderId);
-            $("#newDelivery_id").val(selectedValue);
-            $('#showDeliveryManModal').modal('show');
-        }
-
-        function showRequestStatus(orderId, selectedValue) {
-            $("#showOrderRequestForm").attr("action", '{{ url("deliveryman/order-request-status/") }}' + "/" + orderId);
-            $("#newDelivery_id").val(selectedValue);
-            $('#showRequestStatus').modal('show');
-        }
     </script>
 @endpush
 

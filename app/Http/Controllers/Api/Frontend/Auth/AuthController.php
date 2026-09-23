@@ -228,6 +228,14 @@ class AuthController extends BaseController
             $user->phone = $request->phone;
             $user->address = $request->address;
 
+            // Handle image removal/deletion
+            if ($request->input('delete_image') == '1' || $request->input('remove_image') == '1' || $request->input('delete_image') === true) {
+                if ($user->image && file_exists(public_path($user->image))) {
+                    unlink(public_path($user->image));
+                }
+                $user->image = null;
+            }
+
             // Handle image upload
             if ($request->hasFile('image')) {
                 // Delete old image if exists

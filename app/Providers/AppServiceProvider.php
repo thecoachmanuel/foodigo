@@ -177,7 +177,11 @@ class AppServiceProvider extends ServiceProvider
         }catch(Exception $ex){
             Log::info('AppServiceProvider : '. $ex->getMessage());
 
-            Artisan::call('optimize:clear');
+            if (!app()->runningInConsole()) {
+                try {
+                    Artisan::call('optimize:clear');
+                } catch (\Throwable $t) {}
+            }
         }
 
 

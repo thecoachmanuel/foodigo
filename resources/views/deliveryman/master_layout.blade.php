@@ -6,6 +6,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="keywords" content="Site keywords here">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="csrf-token" content="{{ csrf_token() }}">
 
 		<!-- Site Title -->
 		@yield('title')
@@ -236,6 +237,66 @@
                     $('#dataTable').DataTable({
                         "order": []
                     });
+
+                    // Live Geolocation Ping for Delivery Partner
+                    if ("geolocation" in navigator) {
+                        function syncRiderLocation() {
+                            navigator.geolocation.getCurrentPosition(function(pos) {
+                                const lat = pos.coords.latitude;
+                                const lng = pos.coords.longitude;
+                                window.riderCurrentLat = lat;
+                                window.riderCurrentLng = lng;
+
+                                $.ajax({
+                                    url: "{{ route('deliveryman.update.lat-long') }}",
+                                    type: "POST",
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    data: {
+                                        latitude: lat,
+                                        longitude: lng
+                                    },
+                                    success: function() {
+                                        // Location synchronized
+                                    }
+                                });
+                            }, function() {}, { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 });
+                        }
+
+                        syncRiderLocation();
+                        setInterval(syncRiderLocation, 35000); // sync every 35s
+                    }
+
+                    // Background Live Order Requests Poller
+                    let lastKnownOrderCount = null;
+                    function checkLiveOrderRequests() {
+                        const params = {};
+                        if (window.riderCurrentLat && window.riderCurrentLng) {
+                            params.latitude = window.riderCurrentLat;
+                            params.longitude = window.riderCurrentLng;
+                        }
+
+                        $.get("{{ route('deliveryman.order-request-poll') }}", params, function(res) {
+                            if (res && typeof res.count !== 'undefined') {
+                                const badge = $('.live-request-badge');
+                                if (res.count > 0) {
+                                    badge.text(res.count).show();
+                                } else {
+                                    badge.hide();
+                                }
+
+                                if (lastKnownOrderCount !== null && res.count > lastKnownOrderCount) {
+                                    // New order arrived!
+                                    $(document).trigger('newOrderRequestArrived', [res]);
+                                }
+                                lastKnownOrderCount = res.count;
+                            }
+                        });
+                    }
+
+                    checkLiveOrderRequests();
+                    setInterval(checkLiveOrderRequests, 12000); // poll every 12s
                 });
             })(jQuery);
 

@@ -45,7 +45,10 @@
                 <ul class="menu-bar__one-dropdown">
                     <li class="{{ request()->routeIs('deliveryman.order-request') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('deliveryman.order-request') }}">
-                            <span>{{ __('translate.Order Request') }}</span>
+                            <span class="d-flex align-items-center justify-content-between w-100">
+                                {{ __('translate.Order Request') }}
+                                <span class="badge bg-danger rounded-pill live-request-badge ms-2" style="display:none; font-size:10px; padding: 2px 6px;">0</span>
+                            </span>
                         </a>
                     </li>
                     <li class="{{ request()->routeIs('deliveryman.orders') ? 'active' : '' }}">

@@ -103,4 +103,89 @@ class Order extends Model
     {
         return $this->hasMany(\App\Models\Review::class, 'order_id');
     }
+
+    public function rejections(): HasMany
+    {
+        return $this->hasMany(\App\Models\OrderDeliveryManRejection::class, 'order_id');
+    }
+
+    public function getDeliveryCoordinatesAttribute()
+    {
+        try {
+            $lat = null;
+            $lng = null;
+            $addrText = '';
+
+            if ($this->address) {
+                $lat = $this->address->lat ?? $this->address->latitude ?? null;
+                $lng = $this->address->lon ?? $this->address->lng ?? $this->address->longitude ?? null;
+                $addrText = $this->address->address ?? '';
+            }
+
+            if ((!$lat || !$lng) && !empty($this->delivery_address)) {
+                $raw = is_string($this->delivery_address) ? json_decode($this->delivery_address, true) : (array)$this->delivery_address;
+                if (is_array($raw)) {
+                    $lat = $raw['lat'] ?? $raw['latitude'] ?? null;
+                    $lng = $raw['lon'] ?? $raw['lng'] ?? $raw['longitude'] ?? null;
+                    $addrText = $raw['address'] ?? ($raw['delivery_address'] ?? $addrText);
+                }
+            }
+
+            if ($lat !== null && $lng !== null && ((float)$lat != 0 || (float)$lng != 0)) {
+                return [
+                    'latitude'  => (float)$lat,
+                    'longitude' => (float)$lng,
+                    'lat'       => (float)$lat,
+                    'lng'       => (float)$lng,
+                    'address'   => (string)$addrText,
+                ];
+            }
+
+            return null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    public function getPickupCoordinatesAttribute()
+    {
+        try {
+            $rest = $this->relationLoaded('restaurant') ? $this->getRelation('restaurant') : $this->restaurant()->first();
+            if ($rest) {
+                $lat = $rest->latitude ?? null;
+                $lng = $rest->longitude ?? null;
+                if ($lat !== null && $lng !== null && ((float)$lat != 0 || (float)$lng != 0)) {
+                    return [
+                        'latitude'  => (float)$lat,
+                        'longitude' => (float)$lng,
+                        'lat'       => (float)$lat,
+                        'lng'       => (float)$lng,
+                        'name'      => (string)($rest->name ?? ''),
+                        'address'   => (string)($rest->address ?? ''),
+                        'phone'     => (string)($rest->phone ?? ''),
+                    ];
+                }
+            }
+            return null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    public function scopeAvailableForDeliveryMan($query, $deliveryManId = null)
+    {
+        $query->where('order_request', 1)
+              ->where(function ($q) {
+                  $q->whereNull('delivery_man_id')->orWhere('delivery_man_id', 0);
+              })
+              ->whereNotIn('order_status', [5, 6, '5', '6', 'delivered', 'declined', 'cancelled']);
+
+        if ($deliveryManId) {
+            $query->whereDoesntHave('rejections', function ($q) use ($deliveryManId) {
+                $q->where('delivery_man_id', $deliveryManId);
+            });
+        }
+
+        return $query;
+    }
 }

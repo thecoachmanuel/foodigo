@@ -147,4 +147,32 @@ class DeliveryManProfileController extends BaseController
             return $this->sendError('Something went wrong', [], 500);
         }
     }
+
+    public function updateLocation(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'latitude'  => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendValidationError($validator->errors()->toArray());
+        }
+
+        try {
+            $deliveryman = $request->user();
+            $deliveryman->latitude = $request->latitude;
+            $deliveryman->longitude = $request->longitude;
+            $deliveryman->last_location_update_at = now();
+            $deliveryman->save();
+
+            return $this->sendResponse([
+                'latitude' => $deliveryman->latitude,
+                'longitude' => $deliveryman->longitude,
+                'last_location_update_at' => $deliveryman->last_location_update_at,
+            ], 'Location updated successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Failed to update location: ' . $e->getMessage(), [], 500);
+        }
+    }
 }

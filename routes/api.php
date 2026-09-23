@@ -320,12 +320,14 @@ Route::group(['prefix' => 'v1/deliveryman', 'middleware' => 'auth:sanctum'], fun
     Route::group(['prefix' => 'profile'], function () {
         Route::get('/edit', [DeliveryManProfileController::class, 'edit']);
         Route::post('/update', [DeliveryManProfileController::class, 'update']);
+        Route::post('/update-location', [DeliveryManProfileController::class, 'updateLocation']);
         Route::put('/change-password', [DeliveryManProfileController::class, 'updatePassword']);
     });
 
     // Order Management
     Route::group(['prefix' => 'order'], function () {
         Route::get('/order-request', [DeliveryManOrderController::class, 'orderRequest']);
+        Route::get('/live-poll', [DeliveryManOrderController::class, 'livePoll']);
         Route::get('/running-orders', [DeliveryManOrderController::class, 'runningOrders']);
         Route::get('/completed-orders', [DeliveryManOrderController::class, 'completedOrders']);
         Route::get('/cancel-orders', [DeliveryManOrderController::class, 'cancelOrders']);

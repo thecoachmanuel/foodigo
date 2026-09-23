@@ -39,4 +39,5 @@ Route::group(['as'=> 'restaurant.', 'prefix' => 'restaurant', 'middleware' => ['
     Route::get('order-details/{id}', [RestaurantOrderController::class, 'order_details'])->name('order.details');
     Route::get('/invoice/{id}',[RestaurantOrderController::class,'invoice'])->name('order.invoice');
     Route::post('order-status-change/{id}',[RestaurantOrderController::class,'order_status_change'])->name('order.status.change');
+    Route::post('order-broadcast-riders/{id}',[RestaurantOrderController::class,'broadcast_to_riders'])->name('order.broadcast.riders');
 });
