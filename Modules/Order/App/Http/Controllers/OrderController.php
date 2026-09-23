@@ -54,13 +54,82 @@ class OrderController extends Controller
     }
 
     /**
+     * Calculate Haversine distance in km
+     */
+    private function calculateHaversineDistance($lat1, $lon1, $lat2, $lon2): float
+    {
+        $earthRadius = 6371;
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return $earthRadius * $c;
+    }
+
+    /**
      * Show the order details resource.
      */
     public function order_details($id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
-        $deliverymans=DeliveryMan::latest()->get();
-        $order = Order::find($id);
-        return view('order::details', compact('order','deliverymans'));
+        $order = Order::with(['restaurant', 'deliveryman', 'user', 'address'])->findOrFail($id);
+
+        $restLat = (float)($order->restaurant?->latitude ?? 0);
+        $restLng = (float)($order->restaurant?->longitude ?? 0);
+        if ($restLat == 0 && $restLng == 0 && $order->restaurant_id) {
+            $fallbackRest = \Modules\Restaurant\Entities\Restaurant::withoutGlobalScopes()->find($order->restaurant_id);
+            if ($fallbackRest) {
+                $restLat = (float)($fallbackRest->latitude ?? 0);
+                $restLng = (float)($fallbackRest->longitude ?? 0);
+            }
+        }
+
+        // Fetch all delivery partners
+        $allDeliverymen = DeliveryMan::all();
+
+        // Calculate distance, active orders, and availability for each rider
+        $enrichedDeliverymen = $allDeliverymen->map(function($dm) use ($restLat, $restLng, $order) {
+            $dmLat = (float)($dm->latitude ?? 0);
+            $dmLng = (float)($dm->longitude ?? 0);
+
+            $distance = null;
+            if ($restLat != 0 && $restLng != 0 && $dmLat != 0 && $dmLng != 0) {
+                $distance = round($this->calculateHaversineDistance($restLat, $restLng, $dmLat, $dmLng), 1);
+            }
+
+            // Count active deliveries
+            $activeDeliveries = Order::where('delivery_man_id', $dm->id)
+                ->where('order_request', 1)
+                ->whereNotIn('order_status', [5, 6])
+                ->count();
+
+            // Last active status
+            $isOnline = false;
+            if ($dm->last_location_update_at) {
+                $isOnline = \Carbon\Carbon::parse($dm->last_location_update_at)->diffInMinutes(now()) <= 60;
+            }
+
+            $dm->distance_km = $distance;
+            $dm->active_orders_count = $activeDeliveries;
+            $dm->is_online = $isOnline;
+            $dm->is_assigned = ($order->delivery_man_id == $dm->id);
+            return $dm;
+        });
+
+        // Sort: currently assigned first, then nearest riders by distance, then unknown distance
+        $deliverymans = $enrichedDeliverymen->sort(function($a, $b) {
+            if ($a->is_assigned) return -1;
+            if ($b->is_assigned) return 1;
+            if (is_null($a->distance_km) && is_null($b->distance_km)) return 0;
+            if (is_null($a->distance_km)) return 1;
+            if (is_null($b->distance_km)) return -1;
+            return $a->distance_km <=> $b->distance_km;
+        })->values();
+
+        return view('order::details', compact('order', 'deliverymans', 'restLat', 'restLng'));
     }
 
     public function order_status_change(Request $request, $id)
@@ -225,32 +294,78 @@ class OrderController extends Controller
         return redirect()->back()->with($notification);
     }
 
-    public function deliveryman(Request $request, $id): RedirectResponse
+    public function deliveryman(Request $request, $id)
     {
         $order = Order::findOrFail($id);
-        $order->delivery_man_id = $request->delivery_man_id;
-        if ($request->delivery_man_id) {
-            $order->order_request = 0;
+        $newRiderId = (int)$request->delivery_man_id;
+
+        $order->delivery_man_id = $newRiderId > 0 ? $newRiderId : 0;
+        if ($newRiderId > 0) {
+            $order->order_request = 1;
+            if (in_array((int)$order->order_status, [1, 2])) {
+                $order->order_status = 3; // Ready for pickup / processing
+            }
+
+            $dm = DeliveryMan::find($newRiderId);
+            $riderName = $dm ? trim(($dm->fname ?? '') . ' ' . ($dm->lname ?? '')) : 'A delivery partner';
+
+            // Notify Rider
+            try {
+                AppNotification::create([
+                    'target_type' => 'deliveryman',
+                    'target_id'   => $newRiderId,
+                    'title'       => 'New Order Assigned by Admin! 🛵',
+                    'message'     => 'You have been assigned to deliver order #' . ($order->order_id ?? $order->id) . '.',
+                    'order_id'    => $order->id,
+                    'type'        => 'order',
+                    'is_read'     => false,
+                    'data'        => [
+                        'order_id' => $order->id,
+                        'order_status' => (int)$order->order_status
+                    ]
+                ]);
+            } catch (\Exception $e) {}
+
+            // Notify Customer
             if ($order->user_id) {
                 try {
-                    $dm = \App\Models\DeliveryMan::find($request->delivery_man_id);
-                    $riderName = $dm ? trim(($dm->fname ?? '') . ' ' . ($dm->lname ?? '')) : 'A delivery partner';
-                    \App\Models\AppNotification::create([
-                        'user_id' => $order->user_id,
-                        'user_type' => 'user',
-                        'title' => 'Delivery Partner Assigned!',
-                        'message' => $riderName . ' has been assigned to your order #' . ($order->order_id ?? $order->id) . '.',
-                        'order_id' => $order->id,
-                        'type' => 'order',
-                        'is_read' => 0
+                    AppNotification::create([
+                        'target_type' => 'user',
+                        'target_id'   => $order->user_id,
+                        'title'       => 'Delivery Partner Assigned! 🛵',
+                        'message'     => $riderName . ' has been assigned to your order #' . ($order->order_id ?? $order->id) . '.',
+                        'order_id'    => $order->id,
+                        'type'        => 'order_status',
+                        'is_read'     => false,
+                        'data'        => [
+                            'order_id' => $order->id,
+                            'order_status' => (int)$order->order_status,
+                            'status_label' => 'Driver Assigned'
+                        ]
                     ]);
                 } catch (\Exception $e) {}
             }
+        } else {
+            // Unassign back to broadcast pool
+            $order->delivery_man_id = 0;
+            $order->order_request = 1;
         }
         $order->save();
 
-        $message = trans('translate.Delivery man assigned successfully');
-        $notification = array('message'=>$message,'alert-type'=>'success');
+        $message = $newRiderId > 0
+            ? trans('translate.Delivery man assigned successfully')
+            : trans('translate.Order returned to open delivery pool');
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+                'delivery_man_id' => $order->delivery_man_id,
+                'rider_name' => isset($riderName) ? $riderName : null
+            ]);
+        }
+
+        $notification = array('message' => $message, 'alert-type' => 'success');
         return redirect()->back()->with($notification);
     }
 

@@ -92,7 +92,7 @@ class DeliveryManOrderController extends Controller
         $riderLat = (float)($request->latitude ?? $rider->latitude);
         $riderLng = (float)($request->longitude ?? $rider->longitude);
 
-        $orders = Order::with(['restaurant:id,name,address,latitude,longitude,phone'])
+        $orders = Order::with(['restaurant:id,name,address,latitude,longitude,phone', 'address:id,address'])
             ->where(function($q) {
                 $q->whereNull('delivery_man_id')->orWhere('delivery_man_id', 0);
             })
@@ -112,15 +112,28 @@ class DeliveryManOrderController extends Controller
                 $restLng = (float)($order->restaurant?->longitude ?? 0);
                 $dist = null;
                 if ($riderLat && $riderLng && $restLat && $restLng) {
-                    $dist = round($this->calculateHaversineDistance($riderLat, $riderLng, $restLat, $restLng), 2);
+                    $dist = round($this->calculateHaversineDistance($riderLat, $riderLng, $restLat, $restLng), 1);
                 }
+
+                $addressObj = is_string($order->delivery_address) ? json_decode($order->delivery_address) : (object) ($order->delivery_address ?? []);
+                $dropAddress = $order->address?->address ?? ($addressObj?->address ?? 'Customer Location');
+
                 return [
                     'id' => $order->id,
+                    'order_id_display' => '#' . ($order->order_id ?? $order->id),
                     'grand_total' => $order->grand_total,
+                    'formatted_total' => currency($order->grand_total),
+                    'payment_method' => strtoupper($order->payment_method ?? 'COD'),
+                    'is_cod' => $order->payment_method === 'cash_on_delivery',
                     'restaurant_name' => $order->restaurant?->name ?? 'Restaurant',
                     'restaurant_address' => $order->restaurant?->address ?? '',
+                    'restaurant_phone' => $order->restaurant?->phone ?? '',
+                    'dropoff_address' => $dropAddress,
                     'distance_km' => $dist,
+                    'distance_display' => $dist ? ($dist . ' km') : null,
                     'created_at' => $order->created_at?->diffForHumans() ?? '',
+                    'accept_url' => route('deliveryman.order-request-status', $order->id),
+                    'show_url' => route('deliveryman.order-show', $order->id),
                 ];
             });
 
@@ -299,6 +312,14 @@ class DeliveryManOrderController extends Controller
                     } catch (\Exception $e) {}
                 }
 
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Order claimed successfully! Head to restaurant for pickup.',
+                        'redirect_url' => route('deliveryman.order-show', $order->id)
+                    ]);
+                }
+
                 $notification = array('messege' => 'Order claimed successfully! Head to restaurant for pickup.', 'alert-type' => 'success');
                 return redirect()->route('deliveryman.order-show', $order->id)->with($notification);
 
@@ -306,6 +327,14 @@ class DeliveryManOrderController extends Controller
                 if (DB::transactionLevel() > 0) {
                     DB::rollBack();
                 }
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Failed to claim order: ' . $e->getMessage()
+                    ], 409);
+                }
+
                 $notification = array('messege' => 'Failed to claim order: ' . $e->getMessage(), 'alert-type' => 'error');
                 return redirect()->back()->with($notification);
             }
@@ -322,9 +351,16 @@ class DeliveryManOrderController extends Controller
             // If order was explicitly assigned to only this rider before broadcast, disassociate so others can claim
             $order = Order::find($id);
             if ($order && $order->delivery_man_id == $deliveryman_id) {
-                $order->delivery_man_id = null;
+                $order->delivery_man_id = 0;
                 $order->order_request = 1;
                 $order->save();
+            }
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Order request declined.'
+                ]);
             }
 
             $notification = array('messege' => 'Order request declined.', 'alert-type' => 'info');

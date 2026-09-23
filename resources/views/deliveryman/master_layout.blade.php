@@ -25,7 +25,16 @@
 		<link rel="stylesheet" href="{{ asset('backend/css/overview.css') }}">
 		<link rel="stylesheet" href="{{ asset('backend/css/dev.css') }}">
         <link rel="stylesheet" href="{{ asset('global/toastr/toastr.min.css') }}">
-
+        <style>
+            @keyframes foodigoRadarPulse {
+                0% { transform: scale(0.97); opacity: 0.85; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+                70% { transform: scale(1.03); opacity: 1; box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+                100% { transform: scale(0.97); opacity: 0.85; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            }
+            .foodigo-incoming-backdrop {
+                backdrop-filter: blur(4px);
+            }
+        </style>
 
         @stack('style_section')
 	</head>
@@ -182,6 +191,103 @@
 
 		</div>
 
+		<!-- Real-time Incoming Delivery Pop-up Modal (Uber Eats / DoorDash Style) -->
+		<div class="modal fade foodigo-incoming-backdrop" id="foodigoIncomingDeliveryModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="foodigoIncomingDeliveryLabel" aria-hidden="true" style="z-index: 1060;">
+			<div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+				<div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 70px rgba(0,0,0,0.35); overflow: hidden; background: #ffffff;">
+					<!-- Radar Alert Header Banner -->
+					<div class="p-3 text-white d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+						<div class="d-flex align-items-center gap-2">
+							<span class="badge" style="background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 20px; animation: foodigoRadarPulse 1.4s infinite;">
+								<i class="fas fa-satellite-dish me-1"></i> {{ __('translate.NEW ORDER READY') }}
+							</span>
+							<span id="incomingOrderElapsed" class="text-white-50 small"></span>
+						</div>
+						<div class="d-flex align-items-center gap-2">
+							<button type="button" id="btnTogglePopupAudio" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size: 12px; border-radius: 6px;" title="Mute/Unmute sound">
+								<i class="fas fa-volume-up" id="iconPopupAudio"></i>
+							</button>
+							<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="btnDismissIncomingModalX"></button>
+						</div>
+					</div>
+
+					<!-- Countdown Progress Bar -->
+					<div class="progress" style="height: 5px; border-radius: 0; background: #e2e8f0;">
+						<div id="incomingOrderCountdownBar" class="progress-bar bg-danger" style="width: 100%; transition: width 1s linear;"></div>
+					</div>
+
+					<div class="modal-body p-4">
+						<!-- Financial & Order Header -->
+						<div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+							<div>
+								<div class="text-muted small fw-semibold text-uppercase tracking-wider" style="font-size: 11px;">{{ __('translate.Order Number') }}</div>
+								<h3 class="fw-bold m-0 text-dark" id="incomingOrderIdDisplay" style="font-size: 22px;">#000</h3>
+							</div>
+							<div class="text-end">
+								<div class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">{{ __('translate.Total Amount') }}</div>
+								<div id="incomingOrderTotal" class="fw-bolder text-success fs-4">$0.00</div>
+								<span id="incomingOrderPaymentBadge" class="badge bg-light text-dark border">COD</span>
+							</div>
+						</div>
+
+						<!-- Two-Stop Journey Route Card -->
+						<div class="rounded-3 p-3 mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+							<!-- Stop 1: Restaurant Pickup -->
+							<div class="d-flex align-items-start gap-3 mb-2">
+								<div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0" style="width: 36px; height: 36px; background: #0284c7; font-size: 14px;">
+									<i class="fas fa-store"></i>
+								</div>
+								<div class="flex-grow-1">
+									<div class="d-flex align-items-center justify-content-between">
+										<strong class="text-dark" id="incomingOrderRestName" style="font-size: 15px;">Restaurant Name</strong>
+										<span id="incomingOrderDistanceBadge" class="badge" style="background: #dbeafe; color: #1e40af; font-size: 11px;">🛵 0.0 km</span>
+									</div>
+									<div class="text-muted small text-truncate" id="incomingOrderRestAddress" style="max-width: 280px;">Pickup Address</div>
+								</div>
+							</div>
+
+							<!-- Route Connector -->
+							<div style="border-left: 2px dashed #94a3b8; height: 16px; margin-left: 17px; margin-top: -6px; margin-bottom: 2px;"></div>
+
+							<!-- Stop 2: Customer Drop-off -->
+							<div class="d-flex align-items-start gap-3">
+								<div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0" style="width: 36px; height: 36px; background: #ea580c; font-size: 14px;">
+									<i class="fas fa-map-marker-alt"></i>
+								</div>
+								<div class="flex-grow-1">
+									<div class="text-muted small fw-semibold" style="font-size: 11px;">{{ __('translate.Customer Drop-off') }}</div>
+									<div class="text-dark small fw-medium" id="incomingOrderDropAddress" style="line-height: 1.35;">Customer Address</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Expiration Warning Notice -->
+						<div class="d-flex align-items-center justify-content-between text-muted small px-1 mb-3">
+							<span><i class="fas fa-stopwatch me-1 text-danger"></i> {{ __('translate.Acceptance Window') }}:</span>
+							<strong class="text-danger"><span id="incomingOrderSecondsRemaining">60</span>s {{ __('translate.left') }}</strong>
+						</div>
+
+						<!-- Action Buttons -->
+						<div class="d-flex flex-column gap-2">
+							<button type="button" id="btnClaimIncomingOrder" class="btn btn-success btn-lg w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 py-3" style="border-radius: 12px; font-size: 16px;">
+								<i class="fas fa-check-circle fs-5"></i>
+								<span id="btnClaimIncomingOrderText">{{ __('translate.ACCEPT & CLAIM DELIVERY') }}</span>
+							</button>
+
+							<div class="d-flex gap-2">
+								<button type="button" id="btnDeclineIncomingOrder" class="btn btn-outline-danger w-50 py-2 fw-semibold" style="border-radius: 8px; font-size: 13px;">
+									<i class="fas fa-times me-1"></i> {{ __('translate.Decline') }}
+								</button>
+								<a href="#" id="linkViewIncomingOrder" class="btn btn-outline-secondary w-50 py-2 fw-semibold" style="border-radius: 8px; font-size: 13px;" target="_blank">
+									<i class="fas fa-map-marked-alt me-1"></i> {{ __('translate.Preview') }}
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!--  Scripts -->
 		<script src="{{ asset('global/js/jquery-3.7.1.min.js') }}"></script>
         <script src="{{ asset('global/datatable/jquery.dataTables.min.js') }}"></script>
@@ -268,6 +374,241 @@
                         setInterval(syncRiderLocation, 35000); // sync every 35s
                     }
 
+                    // Web Audio API Chime Synthesizer
+                    window.foodigoAudioMuted = false;
+                    let chimeInterval = null;
+
+                    function playIncomingOrderChime() {
+                        if (window.foodigoAudioMuted) return;
+                        try {
+                            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                            if (!AudioCtx) return;
+                            const ctx = new AudioCtx();
+                            if (ctx.state === 'suspended') {
+                                ctx.resume();
+                            }
+                            const now = ctx.currentTime;
+
+                            // Tone 1: High alert ping (880 Hz - A5)
+                            const osc1 = ctx.createOscillator();
+                            const gain1 = ctx.createGain();
+                            osc1.type = 'sine';
+                            osc1.frequency.setValueAtTime(880, now);
+                            gain1.gain.setValueAtTime(0.3, now);
+                            gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                            osc1.connect(gain1);
+                            gain1.connect(ctx.destination);
+                            osc1.start(now);
+                            osc1.stop(now + 0.3);
+
+                            // Tone 2: Harmonious ascending bell (1174.66 Hz - D6)
+                            const osc2 = ctx.createOscillator();
+                            const gain2 = ctx.createGain();
+                            osc2.type = 'sine';
+                            osc2.frequency.setValueAtTime(1174.66, now + 0.15);
+                            gain2.gain.setValueAtTime(0.35, now + 0.15);
+                            gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                            osc2.connect(gain2);
+                            gain2.connect(ctx.destination);
+                            osc2.start(now + 0.15);
+                            osc2.stop(now + 0.6);
+
+                            // Tone 3: Rich closing bell (1318.51 Hz - E6)
+                            const osc3 = ctx.createOscillator();
+                            const gain3 = ctx.createGain();
+                            osc3.type = 'sine';
+                            osc3.frequency.setValueAtTime(1318.51, now + 0.32);
+                            gain3.gain.setValueAtTime(0.3, now + 0.32);
+                            gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+                            osc3.connect(gain3);
+                            gain3.connect(ctx.destination);
+                            osc3.start(now + 0.32);
+                            osc3.stop(now + 0.9);
+                        } catch (e) {
+                            console.warn('Web Audio chime notice:', e);
+                        }
+                    }
+
+                    function startChimeLoop() {
+                        stopChimeLoop();
+                        playIncomingOrderChime();
+                        chimeInterval = setInterval(playIncomingOrderChime, 3500);
+                    }
+
+                    function stopChimeLoop() {
+                        if (chimeInterval) {
+                            clearInterval(chimeInterval);
+                            chimeInterval = null;
+                        }
+                    }
+
+                    $('#btnTogglePopupAudio').on('click', function() {
+                        window.foodigoAudioMuted = !window.foodigoAudioMuted;
+                        if (window.foodigoAudioMuted) {
+                            $('#iconPopupAudio').removeClass('fa-volume-up').addClass('fa-volume-mute');
+                            $(this).removeClass('btn-outline-light').addClass('btn-danger');
+                            stopChimeLoop();
+                        } else {
+                            $('#iconPopupAudio').removeClass('fa-volume-mute').addClass('fa-volume-up');
+                            $(this).removeClass('btn-danger').addClass('btn-outline-light');
+                            playIncomingOrderChime();
+                        }
+                    });
+
+                    // Real-time Incoming Popup Management
+                    let activePopupOrderId = null;
+                    let countdownTimer = null;
+                    let secondsLeft = 60;
+                    const dismissedOrdersKey = 'foodigo_dismissed_orders';
+
+                    function getDismissedOrders() {
+                        try {
+                            const raw = sessionStorage.getItem(dismissedOrdersKey);
+                            return raw ? JSON.parse(raw) : [];
+                        } catch (e) {
+                            return [];
+                        }
+                    }
+
+                    function addDismissedOrder(orderId) {
+                        const list = getDismissedOrders();
+                        if (!list.includes(orderId)) {
+                            list.push(orderId);
+                            try {
+                                sessionStorage.setItem(dismissedOrdersKey, JSON.stringify(list));
+                            } catch (e) {}
+                        }
+                    }
+
+                    function showIncomingOrderModal(order) {
+                        if (activePopupOrderId === order.id) return;
+                        activePopupOrderId = order.id;
+
+                        $('#incomingOrderIdDisplay').text(order.order_id_display || ('#' + order.id));
+                        $('#incomingOrderTotal').text(order.formatted_total || ('$' + order.grand_total));
+                        $('#incomingOrderPaymentBadge').text(order.payment_method || 'COD')
+                            .attr('class', order.is_cod ? 'badge bg-warning text-dark border' : 'badge bg-success text-white border');
+                        $('#incomingOrderRestName').text(order.restaurant_name || 'Restaurant');
+                        $('#incomingOrderRestAddress').text(order.restaurant_address || 'Pickup Location');
+                        $('#incomingOrderDropAddress').text(order.dropoff_address || 'Customer Location');
+                        $('#incomingOrderElapsed').text(order.created_at || 'Just now');
+
+                        if (order.distance_display) {
+                            $('#incomingOrderDistanceBadge').text('🛵 ' + order.distance_display).show();
+                        } else {
+                            $('#incomingOrderDistanceBadge').hide();
+                        }
+
+                        $('#linkViewIncomingOrder').attr('href', order.show_url || '#');
+
+                        // Reset countdown
+                        secondsLeft = 60;
+                        $('#incomingOrderSecondsRemaining').text(secondsLeft);
+                        $('#incomingOrderCountdownBar').css('width', '100%');
+
+                        if (countdownTimer) clearInterval(countdownTimer);
+                        countdownTimer = setInterval(function() {
+                            secondsLeft--;
+                            $('#incomingOrderSecondsRemaining').text(secondsLeft);
+                            const pct = Math.max(0, (secondsLeft / 60) * 100);
+                            $('#incomingOrderCountdownBar').css('width', pct + '%');
+
+                            if (secondsLeft <= 0) {
+                                clearInterval(countdownTimer);
+                                closeIncomingOrderModal();
+                                addDismissedOrder(order.id);
+                            }
+                        }, 1000);
+
+                        // Show modal & start sound chime
+                        const modalEl = document.getElementById('foodigoIncomingDeliveryModal');
+                        if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                            bsModal.show();
+                            startChimeLoop();
+                        }
+                    }
+
+                    function closeIncomingOrderModal() {
+                        stopChimeLoop();
+                        if (countdownTimer) {
+                            clearInterval(countdownTimer);
+                            countdownTimer = null;
+                        }
+                        const modalEl = document.getElementById('foodigoIncomingDeliveryModal');
+                        if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                            const bsModal = bootstrap.Modal.getInstance(modalEl);
+                            if (bsModal) bsModal.hide();
+                        }
+                        activePopupOrderId = null;
+                    }
+
+                    $('#btnDismissIncomingModalX').on('click', function() {
+                        if (activePopupOrderId) addDismissedOrder(activePopupOrderId);
+                        closeIncomingOrderModal();
+                    });
+
+                    // Claim button inside popup
+                    $('#btnClaimIncomingOrder').on('click', function() {
+                        if (!activePopupOrderId) return;
+                        const $btn = $(this);
+                        const orderId = activePopupOrderId;
+
+                        $btn.prop('disabled', true);
+                        $('#btnClaimIncomingOrderText').text('Claiming...');
+                        stopChimeLoop();
+
+                        $.ajax({
+                            url: "{{ url('deliveryman/order-request-status') }}/" + orderId,
+                            type: 'POST',
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content'),
+                                order_request_status: 1
+                            },
+                            dataType: 'json',
+                            success: function(res) {
+                                if (res && res.status === 'success') {
+                                    closeIncomingOrderModal();
+                                    toastr.success(res.message || 'Order Claimed!');
+                                    setTimeout(function() {
+                                        window.location.href = res.redirect_url || "{{ route('deliveryman.orders') }}";
+                                    }, 600);
+                                } else {
+                                    $btn.prop('disabled', false);
+                                    $('#btnClaimIncomingOrderText').text("{{ __('translate.ACCEPT & CLAIM DELIVERY') }}");
+                                    toastr.error((res && res.message) ? res.message : 'Could not claim order.');
+                                }
+                            },
+                            error: function(xhr) {
+                                closeIncomingOrderModal();
+                                addDismissedOrder(orderId);
+                                const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Order already claimed by another partner.';
+                                toastr.warning(msg);
+                            }
+                        });
+                    });
+
+                    // Decline button inside popup
+                    $('#btnDeclineIncomingOrder').on('click', function() {
+                        if (!activePopupOrderId) return;
+                        const orderId = activePopupOrderId;
+                        addDismissedOrder(orderId);
+                        closeIncomingOrderModal();
+
+                        $.ajax({
+                            url: "{{ url('deliveryman/order-request-status') }}/" + orderId,
+                            type: 'POST',
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content'),
+                                order_request_status: 2
+                            },
+                            dataType: 'json',
+                            success: function() {
+                                toastr.info('Order request declined.');
+                            }
+                        });
+                    });
+
                     // Background Live Order Requests Poller
                     let lastKnownOrderCount = null;
                     function checkLiveOrderRequests() {
@@ -286,8 +627,16 @@
                                     badge.hide();
                                 }
 
+                                if (res.count > 0 && res.orders && res.orders.length > 0) {
+                                    const dismissed = getDismissedOrders();
+                                    // Find newest order not dismissed by rider
+                                    const freshOrder = res.orders.find(o => !dismissed.includes(o.id));
+                                    if (freshOrder && (!activePopupOrderId || activePopupOrderId !== freshOrder.id)) {
+                                        showIncomingOrderModal(freshOrder);
+                                    }
+                                }
+
                                 if (lastKnownOrderCount !== null && res.count > lastKnownOrderCount) {
-                                    // New order arrived!
                                     $(document).trigger('newOrderRequestArrived', [res]);
                                 }
                                 lastKnownOrderCount = res.count;
@@ -296,7 +645,7 @@
                     }
 
                     checkLiveOrderRequests();
-                    setInterval(checkLiveOrderRequests, 12000); // poll every 12s
+                    setInterval(checkLiveOrderRequests, 8000); // poll every 8s
                 });
             })(jQuery);
 

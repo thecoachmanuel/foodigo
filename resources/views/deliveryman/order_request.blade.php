@@ -579,11 +579,7 @@
 
         // Listen for new orders triggered by the global background poller in master_layout
         $(document).on('newOrderRequestArrived', function(event, data) {
-            playChimeAlert();
-            toastr.success("🛵 {{ __('translate.New delivery request available! Updating radar...') }}");
-            setTimeout(function() {
-                location.reload();
-            }, 1200);
+            toastr.success("🛵 {{ __('translate.New delivery request available!') }}");
         });
     </script>
 @endpush

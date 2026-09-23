@@ -221,22 +221,31 @@
                                         </div>
                                     </div>
 
-                                    @if($order->delivery_man_id == 0)
-                                        <div class="order_status_item">
-                                            <div class="order_status_inner">
-                                                <div class="form-group">
-                                                    <label for="exampleFormControlInput1" class="form-label">{{__('translate.Assign Delivery Man')}}</label>
-                                                    <select name="delivery_man_id" id="" class="form-control select2" onchange="showDeliveryManModal({{ $order->id }}, this.value)">
-                                                        <option value="0" {{ $order->delivery_man_id == 0 ? 'selected' : '' }}>Select</option>
-                                                        @foreach ($deliverymans as $deliveryman)
-                                                        <option value="{{ $deliveryman->id }}" {{ $order->delivery_man_id == $deliveryman->id ? 'selected' : '' }}>{{ $deliveryman->fname }} {{ $deliveryman->lname }}</option>
-                                                        @endforeach
-                                                    </select>
+                                    <div class="order_status_item">
+                                        <div class="order_status_inner">
+                                            <div class="form-group">
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <label for="deliveryManSelect" class="form-label m-0">{{__('translate.Assign Delivery Man')}}</label>
+                                                    @if($order->deliveryman)
+                                                        <span class="badge bg-success small" style="font-size: 11px;">Assigned</span>
+                                                    @else
+                                                        <span class="badge bg-warning text-dark small" style="font-size: 11px;">Unassigned</span>
+                                                    @endif
                                                 </div>
-
+                                                <select name="delivery_man_id" id="deliveryManSelect" class="form-control select2" onchange="showDeliveryManModal({{ $order->id }}, this.value)">
+                                                    <option value="0" {{ $order->delivery_man_id == 0 ? 'selected' : '' }}>-- {{ __('translate.Unassigned (Open Pool)') }} --</option>
+                                                    @foreach ($deliverymans as $deliveryman)
+                                                    <option value="{{ $deliveryman->id }}" {{ $order->delivery_man_id == $deliveryman->id ? 'selected' : '' }}>
+                                                        {{ $deliveryman->fname }} {{ $deliveryman->lname }}
+                                                        @if($deliveryman->distance_km !== null)
+                                                            ({{ $deliveryman->distance_km }} km)
+                                                        @endif
+                                                    </option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                         </div>
-                                    @endif
+                                    </div>
                                 </form>
                             </div>
 
@@ -266,6 +275,124 @@
                             ? "https://www.google.com/maps/dir/?api=1&origin={$origLat},{$origLng}&destination={$destLat},{$destLng}"
                             : ($destLat != 0 ? "https://www.google.com/maps/search/?api=1&query={$destLat},{$destLng}" : "https://www.google.com/maps/search/?api=1&query=" . urlencode($order?->address?->address ?? ($addressObj?->address ?? '')));
                     @endphp
+
+                    <!-- Nearby Delivery Partners Dispatch Panel -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card shadow-sm border-0" style="border-radius: 14px; overflow: hidden; background: #ffffff;">
+                                <div class="card-header bg-white py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2 border-bottom">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 34px; height: 34px; background: #0284c7;">
+                                            <i class="fas fa-motorcycle" style="font-size: 15px;"></i>
+                                        </span>
+                                        <div>
+                                            <h4 class="m-0 fw-bold" style="font-size: 16px; color: #1e293b;">
+                                                {{ __('translate.Nearby Delivery Partners (Proximity to Restaurant)') }}
+                                            </h4>
+                                            <div class="text-muted small">
+                                                {{ __('translate.Sorted by real-time distance from pickup restaurant') }}: <strong>{{ $order->restaurant?->restaurant_name ?? ($order->restaurant?->name ?? 'Restaurant') }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if($order->deliveryman)
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge bg-success py-2 px-3 fw-bold" style="font-size: 13px;">
+                                                <i class="fas fa-check-circle me-1"></i> Assigned: {{ $order->deliveryman->fname }} {{ $order->deliveryman->lname }}
+                                            </span>
+                                            <a href="tel:{{ $order->deliveryman->phone }}" class="btn btn-sm btn-outline-success py-1 px-2 fw-semibold" style="font-size: 12px; border-radius: 6px;">
+                                                <i class="fas fa-phone me-1"></i> {{ $order->deliveryman->phone }}
+                                            </a>
+                                        </div>
+                                    @else
+                                        <span class="badge bg-warning text-dark py-2 px-3 fw-bold" style="font-size: 13px; border-radius: 6px;">
+                                            <i class="fas fa-satellite-dish me-1"></i> {{ __('translate.Unassigned - Open Broadcast Pool') }}
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="card-body p-3" style="background: #f8fafc;">
+                                    <div class="row g-3">
+                                        @forelse ($deliverymans as $dm)
+                                            <div class="col-xl-4 col-md-6">
+                                                <div class="p-3 bg-white rounded-3 h-100 d-flex flex-column justify-content-between shadow-sm position-relative" style="border: {{ $dm->is_assigned ? '2px solid #16a34a' : '1px solid #e2e8f0' }}; border-radius: 12px;">
+                                                    @if($dm->is_assigned)
+                                                        <span class="badge bg-success position-absolute top-0 end-0 m-2" style="font-size: 11px;">
+                                                            <i class="fas fa-check me-1"></i> Assigned
+                                                        </span>
+                                                    @endif
+
+                                                    <div>
+                                                        <div class="d-flex align-items-start gap-3 mb-2">
+                                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0" style="width: 44px; height: 44px; background: {{ $dm->is_assigned ? '#16a34a' : '#0284c7' }}; font-size: 16px;">
+                                                                {{ strtoupper(substr($dm->fname ?? 'D', 0, 1)) }}{{ strtoupper(substr($dm->lname ?? 'M', 0, 1)) }}
+                                                            </div>
+                                                            <div class="flex-grow-1 min-w-0">
+                                                                <h5 class="m-0 fw-bold text-dark text-truncate" style="font-size: 15px;">
+                                                                    {{ $dm->fname }} {{ $dm->lname }}
+                                                                </h5>
+                                                                <div class="text-muted small mt-1">
+                                                                    <a href="tel:{{ $dm->phone }}" class="text-decoration-none text-muted">
+                                                                        <i class="fas fa-phone-alt me-1 text-primary"></i> {{ $dm->phone ?? 'N/A' }}
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="d-flex align-items-center flex-wrap gap-2 my-2">
+                                                            <!-- Distance Badge -->
+                                                            @if($dm->distance_km !== null)
+                                                                <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 600; font-size: 12px;">
+                                                                    <i class="fas fa-motorcycle me-1"></i> {{ $dm->distance_km }} km to pickup
+                                                                </span>
+                                                            @else
+                                                                <span class="badge bg-light text-muted border" style="font-size: 11px;">
+                                                                    <i class="fas fa-map-marker-alt me-1"></i> Location pending
+                                                                </span>
+                                                            @endif
+
+                                                            <!-- Workload / Status Badge -->
+                                                            @if($dm->active_orders_count > 0)
+                                                                <span class="badge bg-warning text-dark" style="font-size: 11px;">
+                                                                    <i class="fas fa-box me-1"></i> {{ $dm->active_orders_count }} on delivery
+                                                                </span>
+                                                            @else
+                                                                <span class="badge bg-success text-white" style="font-size: 11px;">
+                                                                    <i class="fas fa-circle me-1" style="font-size: 8px;"></i> Available
+                                                                </span>
+                                                            @endif
+
+                                                            @if($dm->is_online)
+                                                                <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 11px;">Active</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mt-2 pt-2 border-top">
+                                                        @if($dm->is_assigned)
+                                                            <button type="button" class="btn btn-outline-danger btn-sm w-100 fw-bold" onclick="showDeliveryManModal({{ $order->id }}, 0, 'Unassigned Pool')">
+                                                                <i class="fas fa-user-minus me-1"></i> {{ __('translate.Unassign Partner') }}
+                                                            </button>
+                                                        @else
+                                                            <button type="button" class="btn btn-sm btn-primary w-100 fw-bold d-flex align-items-center justify-content-center gap-1" onclick="showDeliveryManModal({{ $order->id }}, {{ $dm->id }}, '{{ addslashes($dm->fname . ' ' . $dm->lname) }}')">
+                                                                <i class="fas fa-user-check"></i>
+                                                                <span>{{ $order->deliveryman ? __('translate.Reassign to this Partner') : __('translate.Assign to this Partner') }}</span>
+                                                            </button>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @empty
+                                            <div class="col-12 text-center py-4 text-muted">
+                                                <i class="fas fa-motorcycle fs-3 mb-2"></i>
+                                                <p class="m-0">{{ __('translate.No delivery partners registered in the system yet.') }}</p>
+                                            </div>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="row mb-4">
                         <div class="col-12">
@@ -502,25 +629,36 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
-    <div class="modal fade" id="showDeliveryManModal" tabindex="-1" aria-labelledby="showDeliveryManModal" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="paymentModalLabel">{{ __('translate.Status Change Confirmation') }}</h5>
+    <!-- Delivery Partner Assignment Confirmation Modal -->
+    <div class="modal fade" id="showDeliveryManModal" tabindex="-1" aria-labelledby="showDeliveryManModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="showDeliveryManModalLabel">
+                        <i class="fas fa-motorcycle text-primary me-2"></i> {{ __('translate.Assign Delivery Partner') }}
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <p>{{ __('translate.Are you sure you want to deliver this order to this delivery man?') }}</p>
-                </div>
-                <div class="modal-footer">
-                    <form action="" id="showDeliveryManForm" class="delet_modal_form" method="POST">
-                        @csrf
-                        <input type="hidden" name="delivery_man_id" id="newDelivery_id">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ __('translate.Yes, Change') }}</button>
-                    </form>
-                </div>
+                <form action="" id="showDeliveryManForm" class="delet_modal_form" method="POST">
+                    @csrf
+                    <input type="hidden" name="delivery_man_id" id="newDelivery_id">
+                    <div class="modal-body py-3">
+                        <p class="text-secondary mb-3">{{ __('translate.Are you sure you want to assign this order to') }}:</p>
+                        <div class="p-3 rounded-3 mb-2" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; background: #0284c7;">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <strong class="text-dark fs-6" id="modalRiderName">Selected Partner</strong>
+                            </div>
+                        </div>
+                        <small class="text-muted"><i class="fas fa-info-circle me-1"></i> {{ __('translate.The rider will be notified in real-time and this order will appear in their running orders.') }}</small>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">{{ __('translate.Close') }}</button>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">{{ __('translate.Yes, Confirm Assignment') }}</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -618,6 +756,14 @@
                 popupAnchor: [0, -36]
             });
 
+            const nearbyRiderPin = L.divIcon({
+                className: 'foodigo-leaflet-div-icon',
+                html: '<div class="foodigo-map-pin pin-rider" style="background:#0284c7;"><i class="fa-solid fa-motorcycle"></i></div>',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+
             const markers = [];
 
             if (origLat !== 0 && origLng !== 0) {
@@ -631,6 +777,46 @@
                 destMarker.bindPopup(`<b>📍 {{ __('translate.Delivery Destination') }}</b><br><small>{{ addslashes($order?->address?->address ?? ($addressObj?->address ?? '')) }}</small>`).openPopup();
                 markers.push(destMarker);
             }
+
+            // Plot nearby delivery partners on the map
+            const nearbyRidersData = @json($deliverymans->map(function($dm) {
+                return [
+                    'id' => $dm->id,
+                    'name' => $dm->fname . ' ' . $dm->lname,
+                    'phone' => $dm->phone,
+                    'latitude' => (float)$dm->latitude,
+                    'longitude' => (float)$dm->longitude,
+                    'distance_km' => $dm->distance_km,
+                    'active_orders_count' => $dm->active_orders_count,
+                    'is_online' => $dm->is_online,
+                    'is_assigned' => $dm->is_assigned
+                ];
+            }));
+
+            nearbyRidersData.forEach(function(rider) {
+                if (rider.latitude && rider.longitude && rider.latitude !== 0 && rider.longitude !== 0) {
+                    const pin = rider.is_assigned ? riderPin : nearbyRiderPin;
+                    const marker = L.marker([rider.latitude, rider.longitude], { icon: pin }).addTo(map);
+
+                    let popupHtml = '<div style="min-width: 180px; padding: 2px;">' +
+                        '<div style="font-weight: 700; font-size: 14px;">🛵 ' + rider.name + '</div>';
+                    if (rider.distance_km !== null) {
+                        popupHtml += '<span class="badge" style="background: #e0f2fe; color: #0284c7; font-size: 11px; margin: 4px 0;">' + rider.distance_km + ' km to pickup</span><br>';
+                    }
+                    if (rider.phone) {
+                        popupHtml += '<small><a href="tel:' + rider.phone + '" style="color: #0284c7; text-decoration: none;">📞 ' + rider.phone + '</a></small><br>';
+                    }
+                    if (rider.is_assigned) {
+                        popupHtml += '<span class="badge bg-success text-white mt-1 py-1 px-2 d-inline-block">Assigned to this Order</span>';
+                    } else {
+                        popupHtml += '<button type="button" class="btn btn-sm btn-primary w-100 mt-2 py-1 fw-bold" style="font-size: 12px;" onclick="showDeliveryManModal({{ $order->id }}, ' + rider.id + ', \'' + rider.name.replace(/'/g, "\\'") + '\')">Assign Order</button>';
+                    }
+                    popupHtml += '</div>';
+
+                    marker.bindPopup(popupHtml);
+                    markers.push(marker);
+                }
+            });
 
             const statsBadge = document.getElementById('adminRouteStatsBadge');
 
@@ -790,9 +976,15 @@
             handlePaymentStatusChange(orderId, selectedValue);
         }
 
-        function showDeliveryManModal(orderId, selectedValue) {
+        function showDeliveryManModal(orderId, selectedValue, riderName) {
             $("#showDeliveryManForm").attr("action", '{{ url("admin/deliveryman/") }}' + "/" + orderId);
             $("#newDelivery_id").val(selectedValue);
+            if (riderName) {
+                $("#modalRiderName").text(riderName);
+            } else {
+                const optText = $("#deliveryManSelect option[value='" + selectedValue + "']").text();
+                $("#modalRiderName").text(optText || "Selected Partner");
+            }
             $('#showDeliveryManModal').modal('show');
         }
     </script>
