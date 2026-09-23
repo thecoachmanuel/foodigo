@@ -45,20 +45,12 @@ class DeliveryManOrderController extends BaseController
             $riderLng = $request->filled('longitude') ? (float)$request->longitude : ($user->longitude ? (float)$user->longitude : null);
 
             $orders = Order::with(['restaurant', 'address', 'user', 'items.products', 'deliveryman'])
-                ->where(function($q) use ($user) {
-                    $q->where(function($sub) use ($user) {
-                        $sub->where('delivery_man_id', $user->id)
-                            ->whereIn('order_request', [0, 1])
-                            ->whereIn('order_status', [2, 3, 4]);
-                    })
-                    ->orWhere(function($sub) {
-                        $sub->where(function($inner) {
-                            $inner->whereNull('delivery_man_id')->orWhere('delivery_man_id', 0);
-                        })
-                        ->where('order_request', 1)
-                        ->whereIn('order_status', [2, 3]);
-                    });
+                // Unclaimed broadcast orders only: as soon as any rider accepts, it leaves the pool
+                ->where(function($inner) {
+                    $inner->whereNull('delivery_man_id')->orWhere('delivery_man_id', 0);
                 })
+                ->where('order_request', 1)
+                ->whereIn('order_status', [2, 3])
                 ->whereDoesntHave('rejections', function($q) use ($user) {
                     $q->where('delivery_man_id', $user->id);
                 })
@@ -353,7 +345,7 @@ class DeliveryManOrderController extends BaseController
                     'rejected' => true,
                 ], 'Order rejected for this delivery partner.');
 
-            } elseif ($status === 3) {
+            } elseif ($status === 3 || $status === 5) {
                 // MARK DELIVERED
                 $order = Order::where('id', $id)
                     ->where('delivery_man_id', $user->id)
@@ -366,6 +358,10 @@ class DeliveryManOrderController extends BaseController
                 $order->order_request = 3;
                 $order->order_status = 5; // Delivered
                 $order->order_completed_date = now();
+                if ($order->payment_status != 'success') {
+                    $order->payment_status = 'success';
+                    $order->payment_approval_date = now();
+                }
                 $order->save();
 
                 if ($order->user_id) {

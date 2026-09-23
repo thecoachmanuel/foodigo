@@ -50,22 +50,12 @@ class DeliveryManOrderController extends Controller
         $riderLng = (float)($request->longitude ?? $rider->longitude);
 
         $orders = Order::with(['user', 'restaurant', 'address', 'items.products'])
-            ->where(function($q) use ($deliveryman_id) {
-                // Orders explicitly pending for this rider
-                $q->where(function($sub) use ($deliveryman_id) {
-                    $sub->where('delivery_man_id', $deliveryman_id)
-                        ->whereIn('order_request', [0, 1])
-                        ->whereIn('order_status', [2, 3, 4]);
-                })
-                // OR open broadcast orders ready for claim
-                ->orWhere(function($sub) {
-                    $sub->where(function($inner) {
-                        $inner->whereNull('delivery_man_id')->orWhere('delivery_man_id', 0);
-                    })
-                    ->where('order_request', 1)
-                    ->whereIn('order_status', [2, 3]);
-                });
+            // Unclaimed / broadcast orders only: as soon as any rider accepts, it leaves the pool
+            ->where(function($inner) {
+                $inner->whereNull('delivery_man_id')->orWhere('delivery_man_id', 0);
             })
+            ->where('order_request', 1)
+            ->whereIn('order_status', [2, 3])
             // Exclude orders this rider has explicitly rejected
             ->whereDoesntHave('rejections', function($q) use ($deliveryman_id) {
                 $q->where('delivery_man_id', $deliveryman_id);
@@ -178,16 +168,38 @@ class DeliveryManOrderController extends Controller
 
     public function updateOrderStatus(Request $request , $id){
         $rules = [
-            'order_status' =>'required',
-            'payment_status' => 'required',
+            'order_status' => 'required',
+            'payment_status' => 'nullable',
         ];
         $this->validate($request, $rules);
 
         $order = Order::findOrFail($id);
-        if($request->order_status == 3){
+        $rider = Auth::guard('deliveryman')->user();
+
+        // Ensure order is assigned to this rider
+        if ($order->delivery_man_id && $order->delivery_man_id != $rider->id) {
+            $notification = array('messege' => 'You are not assigned to this order', 'alert-type' => 'error');
+            return redirect()->back()->with($notification);
+        }
+
+        // Status 3 or 5 = Delivered
+        if ($request->order_status == 3 || $request->order_status == 5 || $request->order_status == 'delivered') {
             $order->order_request = 3;
             $order->order_status = 5; // Delivered
             $order->order_completed_date = date('Y-m-d');
+
+            // Handle payment status: if COD or unspecified, mark payment collected / success
+            if ($request->filled('payment_status')) {
+                if ($request->payment_status == 1 || $request->payment_status == 'success') {
+                    $order->payment_status = 'success';
+                    $order->payment_approval_date = date('Y-m-d');
+                } else {
+                    $order->payment_status = $request->payment_status;
+                }
+            } elseif ($order->payment_status != 'success') {
+                $order->payment_status = 'success';
+                $order->payment_approval_date = date('Y-m-d');
+            }
             $order->save();
 
             if ($order->user_id) {
@@ -200,27 +212,31 @@ class DeliveryManOrderController extends Controller
                         'order_id'    => $order->id,
                         'type'        => 'order_status',
                         'is_read'     => false,
+                        'data'        => [
+                            'order_id'     => $order->id,
+                            'order_status' => 5,
+                            'status_label' => 'Delivered',
+                        ]
                     ]);
                 } catch (\Exception $e) {}
             }
-        } else if($request->order_status == 4){
+
+            $notification = array('messege' => 'Order marked as Delivered successfully! Excellent work.', 'alert-type' => 'success');
+            return redirect()->route('deliveryman.completed-order')->with($notification);
+
+        } else if ($request->order_status == 4 || $request->order_status == 6 || $request->order_status == 'cancelled') {
             $order->order_request = 4;
             $order->order_status = 6; // Cancelled
             $order->order_declined_date = date('Y-m-d');
             $order->save();
+
+            $notification = array('messege' => 'Order has been marked as cancelled.', 'alert-type' => 'warning');
+            return redirect()->route('deliveryman.cancel-order')->with($notification);
         }
 
-        if($request->payment_status == 0){
-            $order->payment_status = 0;
-            $order->save();
-        }elseif($request->payment_status == 1){
-            $order->payment_status = 1;
-            $order->payment_approval_date = date('Y-m-d');
-            $order->save();
-        }
-
+        $order->save();
         $notification = trans('translate.admin_validation.Order Status Updated successfully');
-        $notification = array('messege'=>$notification,'alert-type'=>'success');
+        $notification = array('messege' => $notification, 'alert-type' => 'success');
         return redirect()->back()->with($notification);
     }
 
@@ -319,7 +335,11 @@ class DeliveryManOrderController extends Controller
             if ($order) {
                 $order->order_request = 3;
                 $order->order_status = 5; // Delivered
-                $order->order_completed_date = now();
+                $order->order_completed_date = date('Y-m-d');
+                if ($order->payment_status != 'success') {
+                    $order->payment_status = 'success';
+                    $order->payment_approval_date = date('Y-m-d');
+                }
                 $order->save();
 
                 if ($order->user_id) {
@@ -332,23 +352,28 @@ class DeliveryManOrderController extends Controller
                             'order_id'    => $order->id,
                             'type'        => 'order_status',
                             'is_read'     => false,
+                            'data'        => [
+                                'order_id'     => $order->id,
+                                'order_status' => 5,
+                                'status_label' => 'Delivered',
+                            ]
                         ]);
                     } catch (\Exception $e) {}
                 }
             }
-            $notification = array('messege' => 'Order marked as delivered successfully!', 'alert-type' => 'success');
-            return redirect()->back()->with($notification);
+            $notification = array('messege' => 'Order marked as delivered successfully! Excellent work.', 'alert-type' => 'success');
+            return redirect()->route('deliveryman.completed-order')->with($notification);
 
         } elseif ($status === 4) {
             $order = Order::where('id', $id)->where('delivery_man_id', $deliveryman_id)->first();
             if ($order) {
                 $order->order_request = 4;
                 $order->order_status = 6; // Cancelled
-                $order->order_declined_date = now();
+                $order->order_declined_date = date('Y-m-d');
                 $order->save();
             }
-            $notification = array('messege' => 'Order cancelled.', 'alert-type' => 'warning');
-            return redirect()->back()->with($notification);
+            $notification = array('messege' => 'Order delivery cancelled.', 'alert-type' => 'warning');
+            return redirect()->route('deliveryman.cancel-order')->with($notification);
         }
 
         $notification = array('messege' => 'Order Request Status Updated successfully', 'alert-type' => 'success');

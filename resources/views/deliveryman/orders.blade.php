@@ -125,7 +125,63 @@
 
 
                                                 <td class="crancy-table__column-2 crancy-table__data-2">
-                                                    <a href="{{ route('deliveryman.order-show',$order->id) }}" class="crancy-btn"><i class="fas fa-eye" aria-hidden="true"></i>{{ __('translate.Details') }}</a>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <a href="{{ route('deliveryman.order-show',$order->id) }}" class="crancy-btn"><i class="fas fa-eye" aria-hidden="true"></i> {{ __('translate.Details') }}</a>
+                                                        @if ($order->order_request == 1)
+                                                            <button type="button" class="btn btn-sm btn-success fw-bold d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#markDeliveredModal{{ $order->id }}" style="padding: 7px 12px; border-radius: 6px; font-size: 13px;">
+                                                                <i class="fas fa-check-circle"></i> {{ __('translate.Deliver') }}
+                                                            </button>
+                                                        @endif
+                                                    </div>
+
+                                                    @if ($order->order_request == 1)
+                                                    <!-- Quick Deliver Modal for Order {{ $order->id }} -->
+                                                    <div class="modal fade" id="markDeliveredModal{{ $order->id }}" tabindex="-1" aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                                                                <div class="modal-header border-0 pb-0">
+                                                                    <h5 class="modal-title fw-bold text-success">
+                                                                        <i class="fas fa-check-circle me-1"></i> {{ __('translate.Confirm Delivery') }} #{{ $order->id }}
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <form action="{{ route('deliveryman.order-request-status', $order->id) }}" method="POST">
+                                                                    @csrf
+                                                                    <input type="hidden" name="order_request_status" value="3">
+                                                                    <div class="modal-body py-3">
+                                                                        <p class="text-secondary mb-3">{{ __('translate.Are you sure you have delivered this order to the customer?') }}</p>
+                                                                        <div class="p-3 rounded-3 mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 14px;">
+                                                                            <div class="d-flex justify-content-between mb-2">
+                                                                                <span class="text-muted">{{ __('translate.Customer') }}:</span>
+                                                                                <strong class="text-dark">{{ $order->user->name ?? 'Customer' }}</strong>
+                                                                            </div>
+                                                                            <div class="d-flex justify-content-between mb-2">
+                                                                                <span class="text-muted">{{ __('translate.Total Amount') }}:</span>
+                                                                                <strong class="text-success">{{ currency($order->grand_total ?? $order->total) }}</strong>
+                                                                            </div>
+                                                                            <div class="d-flex justify-content-between">
+                                                                                <span class="text-muted">{{ __('translate.Payment Method') }}:</span>
+                                                                                <span class="badge {{ $order->payment_status == 'success' ? 'bg-success' : 'bg-warning text-dark' }}">{{ strtoupper($order->payment_method ?? 'COD') }}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        @if($order->payment_method == 'cash_on_delivery' && $order->payment_status != 'success')
+                                                                            <div class="alert alert-warning py-2 px-3 small mb-0 d-flex align-items-center gap-2" style="border-radius: 8px;">
+                                                                                <i class="fas fa-coins text-warning fs-5"></i>
+                                                                                <div><strong>{{ __('translate.Cash On Delivery') }}:</strong> {{ __('translate.Please collect payment before completing delivery.') }}</div>
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
+                                                                    <div class="modal-footer border-0 pt-0">
+                                                                        <button type="button" class="btn btn-secondary px-3 py-2" data-bs-dismiss="modal">{{ __('translate.Cancel') }}</button>
+                                                                        <button type="submit" class="btn btn-success fw-bold px-4 py-2">
+                                                                            <i class="fas fa-check-circle me-1"></i> {{ __('translate.Yes, Mark Delivered') }}
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -134,8 +190,6 @@
                                         <!-- End crancy Table Body -->
                                     </table>
                                 </div>
-
-
                                 </div>
                                 <!-- End crancy Table -->
 
